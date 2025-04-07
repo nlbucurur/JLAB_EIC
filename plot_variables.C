@@ -31,7 +31,8 @@ void plot_variables () {
   double P_mass = 0.938272;
   double N_mass = 0.9395654;
 
-  TFile *file = TFile::Open("/mnt/d/Data/0pDVCS_inbending_FTPhotonsCorrected_test.root");
+  // TFile *file = TFile::Open("/mnt/d/Data/0pDVCS_inbending_FTPhotonsCorrected_test.root");
+  TFile *file = TFile::Open("/home/lorena/Thesis/JLAB_EIC/0pDVCS_inbending_FTPhotonsCorrected_test.root");
 
   TTree *tree = (TTree*) file->Get("pDVCS_stripped");
  
