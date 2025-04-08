@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "plot_variables.C": "cpp",
+        "optimization_data.C": "cpp"
+    }
+}
