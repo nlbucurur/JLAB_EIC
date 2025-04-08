@@ -48,7 +48,7 @@ void plot_variables () {
     {"_mm2_eg", -3, 6, P_mass - 0.1, P_mass + 0.1}, // Expecting missing proton
     {"_mm2_eNX_N", -10, 10, -0.5, 0.5}, // Expecting photon
     {"_strip_El_chi2pid", -4, 4, 0, 1},
-    {"_strip_Ph_chi2pid", 0, 115, 0, 115},
+    {"_strip_Ph_chi2pid", -1, 1, -1, 1},
     {"_strip_Nuc_chi2pid", -1, 5, 0, 1}
   };
 
