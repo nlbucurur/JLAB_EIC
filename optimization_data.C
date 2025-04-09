@@ -21,6 +21,8 @@ void optimization_data () {
 
   TTree *tree = (TTree*) file->Get("pDVCS_stripped");
 
+  //   tree->Print();
+
   std::vector<std::pair<TString, std::pair<double, double>>> branch_names = {
       {"_mm2_eg", {-3, 6}},
       {"_mm2_eNg", {-2, 6}},
@@ -36,18 +38,25 @@ void optimization_data () {
       {"_delta_Phi", {-360, 360}}
   };
 
+  // printf("Number of branches: %lu\n", branch_names.size());
+  // for (const auto& branch_name : branch_names) {
+  //   std::cout << "Branch name: " << branch_name.first << ", Min: " << branch_name.second.first << ", Max: " << branch_name.second.second << std::endl;
+  // }
+
   std::vector<std::pair<TString, TString>> cuts_definitions = {
     {"cut1_theta_gamma_e", "_theta_gamma_e > 6"},
     {"cut2_chi2pid", "_strip_El_chi2pid >= -1 && _strip_El_chi2pid <= 0.8 && "
                      "_strip_Ph_chi2pid >= -1 && _strip_Ph_chi2pid <= 1 && "
                      "_strip_Nuc_chi2pid >= -0.8 && _strip_Nuc_chi2pid <= 1.5"},
-    {"cut3_delta_t", "_delta_t >= -0.5 && _delta_t <= 0.5"},
-    {"cut4_delta_phi", "_delta_Phi >= -1.5 && _delta_Phi <= 1.5"},
-    {"cut5_mm2_eNg_neutron_expected", "_mm2_eNg >= -1.23003 && _mm2_eNg <= 3.10917"},
-    {"cut6_mm2_eNg_N_nothing_expected", "_mm2_eNg_N >= -0.5 && _mm2_eNg_N <= 0.5"},
-    {"cut7_mm2_eNX_N_photon_expected", "_mm2_eNX_N >= -0.5 && _mm2_eNX_N <= 0.5"},
-    {"cut8_mm2_eg_proton_expected", "_mm2_eg >= -0.4106 && _mm2_eg <= 2.9626"}
+    {"cut2_delta_t", "_delta_t >= -0.5 && _delta_t <= 0.5"},
+    {"cut3_delta_phi", "_delta_Phi >= -1.5 && _delta_Phi <= 1.5"},
+    {"cut4_mm2_eNg_neutron_expected", "_mm2_eNg >= -1.23003 && _mm2_eNg <= 3.10917"},
+    {"cut5_mm2_eNg_N_nothing_expected", "_mm2_eNg_N >= -0.5 && _mm2_eNg_N <= 0.5"},
+    {"cut6_mm2_eNX_N_photon_expected", "_mm2_eNX_N >= -0.5 && _mm2_eNX_N <= 0.5"},
+    {"cut7_mm2_eg_proton_expected", "_mm2_eg >= -0.4106 && _mm2_eg <= 2.9626"}
   };
+
+  // std::cout << cuts_definitions.second << std::endl;
 
   std::vector<std::pair<TString, TCut>> cuts;
 
@@ -55,13 +64,14 @@ void optimization_data () {
   for (const auto &def : cuts_definitions) {
     all_cuts += TCut(def.second);
     cuts.emplace_back(def.first, all_cuts);
+    // std::cout << def.first << ": " << all_cuts << std::endl;
   };
 
   gStyle->SetOptStat(0);
 
   for (const auto& [label_cut, cut] : cuts) {
 
-    TCanvas *canvas = new TCanvas("canvas", label_cut, 2600, 2200);
+    TCanvas *canvas = new TCanvas("canvas", label_cut, 1920, 1080);
     canvas->Divide(4, 3);
 
     for (size_t i = 0; i < branch_names.size(); ++i) {
@@ -116,7 +126,7 @@ void optimization_data () {
     }
 
     // TString filename = Form("./cuts_no_chi2pid/optimization_%s_no_chi2pid.pdf", label_cut.Data());
-    TString filename = Form("./cuts/optimization_%s.pdf", label_cut.Data());
+    TString filename = Form("./cuts/optimization_%s.png", label_cut.Data());
     canvas->SaveAs(filename);
     delete canvas;
   }
