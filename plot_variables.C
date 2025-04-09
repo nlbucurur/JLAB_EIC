@@ -25,13 +25,17 @@ struct branches_cuts_2D {
   double y_max;
 };
 
+void stats_legend (TH1D* htemp, TH1D* htemp_cut, const std::string& branch_name) {
+  
+}
+
 
 void plot_variables () {
 
   double P_mass = 0.938272;
   double N_mass = 0.9395654;
 
-  TFile *file = TFile::Open("/home/lorena/Thesis/JLAB_EIC/0pDVCS_inbending_FTPhotonsCorrected_test.root");
+  TFile *file = TFile::Open("/home/lorena/Thesis/JLAB_EIC/data/0pDVCS_inbending_FTPhotonsCorrected_test.root");
 
   TTree *tree = (TTree*) file->Get("pDVCS_stripped");
  
@@ -47,72 +51,105 @@ void plot_variables () {
     {"_mm2_eNg_N", -2, 2, -0.2, 0.2}, // Expecting nothing
     {"_mm2_eg", -3, 6, P_mass - 0.1, P_mass + 0.1}, // Expecting missing proton
     {"_mm2_eNX_N", -10, 10, -0.5, 0.5}, // Expecting photon
-    {"_strip_El_chi2pid", -4, 4, -1, 0.8},
+    {"_strip_El_chi2pid", -5, 5, -1, 0.8},
     {"_strip_Ph_chi2pid", -1, 1, -1, 1},
-    {"_strip_Nuc_chi2pid", -5, 5, -0.8, 1.5}
+    {"_strip_Nuc_chi2pid", -6, 6, -0.8, 1.5}
   };
 
-  gStyle->SetOptStat(1110);
+  gStyle->SetOptStat(0);
   TCanvas *canvas_all = new TCanvas("canvas 1D Histograms", "canvas 1D Histograms", 1800, 1600);
   canvas_all->Divide(3, 4);
 
   int canvas_entry = 1;
 
   for (const auto& branch_name : branch_names) {
-
     // TCanvas *canvas = new TCanvas(("canvas_" + branch_name.name).c_str(), branch_name.name.c_str(), 800, 600);
-
     canvas_all->cd(canvas_entry);
 
     std::string hist_name = "htemp_" + std::to_string(canvas_entry);
     std::string hist_name_cut = "htemp_cut_" + std::to_string(canvas_entry);
 
-    std::string histDef = ">>" + hist_name + "(40," +
-                          std::to_string(branch_name.min) + "," + std::to_string(branch_name.max) + ")";
-
-
-    std::string histDef_cut = ">>" + hist_name_cut + "(40," +
-                          std::to_string(branch_name.min) + "," + std::to_string(branch_name.max) + ")";
-
-
     std::string no_cut = branch_name.name + " > " + std::to_string(branch_name.min) + " && " +
                          branch_name.name + " < " + std::to_string(branch_name.max);
-    
+
     std::string cut = branch_name.name + " > " + std::to_string(branch_name.cut_min) + " && " +
                       branch_name.name + " < " + std::to_string(branch_name.cut_max);
+
+    TH1D* htemp = new TH1D(hist_name.c_str(), ("DVCS" + branch_name.name).c_str(), 40, branch_name.min, branch_name.max);
+    TH1D* htemp_cut = new TH1D(hist_name_cut.c_str(), ("DVCS" + branch_name.name).c_str(), 40, branch_name.min, branch_name.max);
     
-    tree->Draw((branch_name.name + histDef).c_str(), no_cut.c_str());
-    tree->Draw((branch_name.name + histDef_cut).c_str(), cut.c_str(), "same");
+    tree->Project(hist_name.c_str(), branch_name.name.c_str(), no_cut.c_str());
+    tree->Project(hist_name_cut.c_str(), branch_name.name.c_str(), cut.c_str());
+
+    htemp->GetXaxis()->SetTitle(("DVCS" + branch_name.name).c_str());
+    htemp->GetYaxis()->SetTitle("Events");
     
-    TH1D *htemp = (TH1D*) gDirectory->Get(hist_name.c_str());
-    TH1D *htemp_cut = (TH1D*) gDirectory->Get(hist_name_cut.c_str());
+    // double mean = htemp->GetMean();
+    // double mid_range = (htemp->GetXaxis()->GetXmax() - htemp->GetXaxis()->GetXmin()) / 2;
+    // htemp->GetXaxis()->SetRangeUser(mean - mid_range, mean + mid_range);
     
     // htemp->SetName(("hist_" + branch_name.name).c_str());
-    htemp->SetFillStyle(4050);
-    htemp->SetFillColor(5);
-    htemp->SetTitle(("DVCS " + branch_name.name).c_str());
-    htemp->GetXaxis()->SetTitle(branch_name.name.c_str());
-    htemp->GetYaxis()->SetTitle("Events");
+    htemp->SetLineColor(kBlack);
+    htemp_cut->SetFillStyle(3004);
+    htemp_cut->SetLineColor(kRed);
+    htemp_cut->SetFillColor(kRed - 9);
 
-    double mean = htemp->GetMean();
-    double mid_range = (htemp->GetXaxis()->GetXmax() - htemp->GetXaxis()->GetXmin()) / 2;
-    htemp->GetXaxis()->SetRangeUser(mean - mid_range, mean + mid_range);
+    htemp->SetStats(true);
+    htemp_cut->SetStats(true);
 
-    htemp_cut->SetFillStyle(4050);
-    htemp_cut->SetFillColor(38);
+    gStyle->SetOptStat("emr");
 
     htemp->Draw("HIST");
-    htemp_cut->Draw("HIST SAME");
+    gPad->Update();
+    
+    TPaveStats* stats1 = (TPaveStats*)htemp->FindObject("stats");
+    if (branch_name.name == "_t_Nuc" || branch_name.name == "_t_Ph") {
+      stats1->SetX1NDC(0.15); stats1->SetX2NDC(0.33);
+      stats1->SetY1NDC(0.75); stats1->SetY2NDC(0.85);
+      stats1->SetTextColor(kBlack);
+    } else {
+      stats1->SetX1NDC(0.80); stats1->SetX2NDC(0.98);
+      stats1->SetY1NDC(0.85); stats1->SetY2NDC(0.95);
+      stats1->SetTextColor(kBlack);
+    }
+    
+    
+    htemp_cut->Draw("HIST SAMES");
+    gPad->Update();
+    
+    TPaveStats* stats2 = (TPaveStats*)htemp_cut->FindObject("stats");
+    if (branch_name.name == "_t_Nuc" || branch_name.name == "_t_Ph") {
+      stats2->SetX1NDC(0.15); stats2->SetX2NDC(0.33);
+      stats2->SetY1NDC(0.6); stats2->SetY2NDC(0.7);
+      stats2->SetTextColor(kBlack);
+      auto legend = new TLegend(0.15, 0.45, 0.33, 0.55);
+      legend->AddEntry(htemp, "No cuts", "l");
+      legend->AddEntry(htemp_cut, "Cuts", "f");
+      legend->Draw();
+    } else {
+      stats2->SetX1NDC(0.80); stats2->SetX2NDC(0.98);
+      stats2->SetY1NDC(0.7); stats2->SetY2NDC(0.8);
+      stats2->SetTextColor(kRed);
+      auto legend = new TLegend(0.8, 0.55, 0.98, 0.65);
+      legend->AddEntry(htemp, "No cuts", "l");
+      legend->AddEntry(htemp_cut, "Cuts", "f");
+      legend->Draw();
+    }
+    
+
 
     canvas_entry++;
 
-    // std::string output_file = "./plots/" + branch_name.name + "_plot.pdf";
+    // std::string output_file = "./plots_variables/" + branch_name.name + "_plot.pdf";
     // canvas->SaveAs(output_file.c_str());
     // delete canvas;
-  }
+}
 
-  std::string output_file = "./plots/Hist1D_plots.pdf";
+
+  std::string output_file = "./plots_variables/Histograms_Variables.png";
+  std::string output_file_pdf = "./plots_variables/Histograms_Variables.pdf";
   canvas_all->SaveAs(output_file.c_str());
+  canvas_all->SaveAs(output_file_pdf.c_str());
   delete canvas_all;
 
   //****//
