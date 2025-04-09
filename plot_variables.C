@@ -26,7 +26,39 @@ struct branches_cuts_2D {
 };
 
 void stats_legend (TH1D* htemp, TH1D* htemp_cut, const std::string& branch_name) {
+  gPad->Update();
+
+  TPaveStats* stats1 = (TPaveStats*)htemp->FindObject("stats");
+  TPaveStats* stats2 = (TPaveStats*)htemp_cut->FindObject("stats");
   
+  if (branch_name.name == "_t_Nuc" || branch_name.name == "_t_Ph") {
+    stats1->SetX1NDC(0.15); stats1->SetX2NDC(0.33);
+    stats1->SetY1NDC(0.75); stats1->SetY2NDC(0.85);
+    stats1->SetTextColor(kBlack);
+  } else {
+    stats1->SetX1NDC(0.80); stats1->SetX2NDC(0.98);
+    stats1->SetY1NDC(0.85); stats1->SetY2NDC(0.95);
+    stats1->SetTextColor(kBlack);
+  }
+  
+  
+  if (branch_name.name == "_t_Nuc" || branch_name.name == "_t_Ph") {
+    stats2->SetX1NDC(0.15); stats2->SetX2NDC(0.33);
+    stats2->SetY1NDC(0.6); stats2->SetY2NDC(0.7);
+    stats2->SetTextColor(kBlack);
+    auto legend = new TLegend(0.15, 0.45, 0.33, 0.55);
+    legend->AddEntry(htemp, "No cuts", "l");
+    legend->AddEntry(htemp_cut, "Cuts", "f");
+    legend->Draw();
+  } else {
+    stats2->SetX1NDC(0.80); stats2->SetX2NDC(0.98);
+    stats2->SetY1NDC(0.7); stats2->SetY2NDC(0.8);
+    stats2->SetTextColor(kRed);
+    auto legend = new TLegend(0.8, 0.55, 0.98, 0.65);
+    legend->AddEntry(htemp, "No cuts", "l");
+    legend->AddEntry(htemp_cut, "Cuts", "f");
+    legend->Draw();
+  }
 }
 
 
