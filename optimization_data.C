@@ -48,15 +48,17 @@ void optimization_data () {
     {"cut2_chi2pid", "_strip_El_chi2pid >= -1 && _strip_El_chi2pid <= 0.8 && "
                      "_strip_Ph_chi2pid >= -1 && _strip_Ph_chi2pid <= 1 && "
                      "_strip_Nuc_chi2pid >= -0.8 && _strip_Nuc_chi2pid <= 1.5"},
-    {"cut2_delta_t", "_delta_t >= -0.5 && _delta_t <= 0.5"},
-    {"cut3_delta_phi", "_delta_Phi >= -1.5 && _delta_Phi <= 1.5"},
-    {"cut4_mm2_eNg_neutron_expected", "_mm2_eNg >= -1.23003 && _mm2_eNg <= 3.10917"},
-    {"cut5_mm2_eNg_N_nothing_expected", "_mm2_eNg_N >= -0.5 && _mm2_eNg_N <= 0.5"},
-    {"cut6_mm2_eNX_N_photon_expected", "_mm2_eNX_N >= -0.5 && _mm2_eNX_N <= 0.5"},
-    {"cut7_mm2_eg_proton_expected", "_mm2_eg >= -0.4106 && _mm2_eg <= 2.9626"}
+    {"cut3_delta_t", "_delta_t >= -0.5 && _delta_t <= 0.5"},
+    {"cut4_delta_phi", "_delta_Phi >= -1.5 && _delta_Phi <= 1.5"},
+    {"cut5_mm2_eNg_neutron_expected", "_mm2_eNg >= -1.23003 && _mm2_eNg <= 3.10917"},
+    {"cut6_mm2_eNg_N_nothing_expected", "_mm2_eNg_N >= -0.5 && _mm2_eNg_N <= 0.5"},
+    {"cut7_mm2_eNX_N_photon_expected", "_mm2_eNX_N >= -0.5 && _mm2_eNX_N <= 0.5"},
+    {"cut8_mm2_eg_proton_expected", "_mm2_eg >= -0.4106 && _mm2_eg <= 2.9626"}
   };
 
-  // std::cout << cuts_definitions.second << std::endl;
+  // for (const auto& cut_def : cuts_definitions) {
+  //   std::cout << cut_def.first << ": " << cut_def.second << std::endl;
+  // }
 
   std::vector<std::pair<TString, TCut>> cuts;
 
@@ -125,7 +127,7 @@ void optimization_data () {
       legend->Draw();
     }
 
-    // TString filename = Form("./cuts_no_chi2pid/optimization_%s_no_chi2pid.pdf", label_cut.Data());
+    // TString filename = Form("./cuts_no_chi2pid/optimization_%s_no_chi2pid.png", label_cut.Data());
     TString filename = Form("./cuts/optimization_%s.png", label_cut.Data());
     canvas->SaveAs(filename);
     delete canvas;
