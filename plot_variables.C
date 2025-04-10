@@ -25,15 +25,37 @@ struct branches_cuts_2D {
   double y_max;
 };
 
+void set_logy (const std::string& branch_name) {
+  std::vector<std::string> logy_branches = {
+    "_t_Nuc",
+    "_t_Ph"
+  };
+  
+  bool is_logy = std::find(logy_branches.begin(), logy_branches.end(), branch_name) != logy_branches.end();
+  if (is_logy) {
+    gPad->SetLogy();
+  }
+}
+
 void stats_legend (TH1D* htemp, TH1D* htemp_cut, const std::string& branch_name) {
+
+  std::vector<std::string> move_stats = {
+    "_t_Nuc",
+    "_t_Ph",
+    "_strip_Ph_chi2pid"
+  };
+
   gPad->Update();
 
   TPaveStats* stats1 = (TPaveStats*)htemp->FindObject("stats");
   TPaveStats* stats2 = (TPaveStats*)htemp_cut->FindObject("stats");
 
-  bool is_t = (branch_name == "_t_Nuc" || branch_name == "_t_Ph");	
+  bool is_t_phi = std::find(move_stats.begin(), move_stats.end(), branch_name) != move_stats.end();
   
-  if (is_t) {
+  set_logy(branch_name);
+
+  if (is_t_phi) {
+    // gPad->SetLogy();
     stats1->SetX1NDC(0.15); stats1->SetX2NDC(0.33);
     stats1->SetY1NDC(0.75); stats1->SetY2NDC(0.85);
   } else {
@@ -42,7 +64,7 @@ void stats_legend (TH1D* htemp, TH1D* htemp_cut, const std::string& branch_name)
   }
   stats1->SetTextColor(kBlack);
   
-  if (is_t) {
+  if (is_t_phi) {
     stats2->SetX1NDC(0.15); stats2->SetX2NDC(0.33);
     stats2->SetY1NDC(0.6); stats2->SetY2NDC(0.7);
   } else {
@@ -52,7 +74,7 @@ void stats_legend (TH1D* htemp, TH1D* htemp_cut, const std::string& branch_name)
   stats2->SetTextColor(kRed);
 
   TLegend* legend;
-  if (is_t) {
+  if (is_t_phi) {
     legend = new TLegend(0.15, 0.45, 0.33, 0.55);
   } else {
     legend = new TLegend(0.8, 0.55, 0.98, 0.65);
@@ -80,22 +102,22 @@ void plot_variables () {
     {"_strip_Xbj", 0, 0.8, 0.1, 0.6}, // Valence region
     {"_t_Nuc", -12, 1, -2.5, 0.1}, // Most of the data
     {"_t_Ph", -12, 1, -2.5, 0.1}, // Same as above
-    {"_delta_t", -2, 2, -0.5, 0.5}, // Almost 0 for DVCS
+    {"_delta_t", -2, 2, -1.62602, 1.61098}, // Almost 0 for DVCS
     {"_mm2_eNg", -2, 6, N_mass - 0.1, N_mass + 0.1}, // Expecting neutron mass
     {"_mm2_eNg_N", -2, 2, -0.2, 0.2}, // Expecting nothing
     {"_mm2_eg", -3, 6, P_mass - 0.1, P_mass + 0.1}, // Expecting missing proton
     {"_mm2_eNX_N", -10, 10, -0.5, 0.5}, // Expecting photon
-    {"_strip_El_chi2pid", -5, 5, -1, 0.8},
-    {"_strip_Ph_chi2pid", -1, 1, -1, 1},
-    {"_strip_Nuc_chi2pid", -6, 6, -0.8, 1.5}
+    {"_strip_El_chi2pid", -6, 6, -4.9668, 3.8292},
+    {"_strip_Ph_chi2pid", -1, 10100, -1, 10100},
+    {"_strip_Nuc_chi2pid", -6, 6, -5.246, 6.376}
   };
 
   gStyle->SetOptStat(0);
   TCanvas *canvas_all = new TCanvas("canvas 1D Histograms", "canvas 1D Histograms", 1800, 1600);
   canvas_all->Divide(3, 4);
-
+  
   int canvas_entry = 1;
-
+  
   for (const auto& branch_name : branch_names) {
     // TCanvas *canvas = new TCanvas(("canvas_" + branch_name.name).c_str(), branch_name.name.c_str(), 800, 600);
     canvas_all->cd(canvas_entry);
