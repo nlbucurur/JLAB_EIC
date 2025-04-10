@@ -15,11 +15,7 @@
 bool should_set_logy (const std::string& branch_name) {
   std::vector<std::string> logy_branches = {
     "_t_Nuc",
-    "_t_Ph",
-    "_delta_t",
-    "_Phi_Nuc",
-    "_Phi_Ph",
-    "_delta_Phi"
+    "_t_Ph"
   };
   
   return std::find(logy_branches.begin(), logy_branches.end(), branch_name) != logy_branches.end();
@@ -28,7 +24,6 @@ bool should_set_logy (const std::string& branch_name) {
 bool should_move_stats (const std::string& branch_name) {
   std::vector<std::string> move_stats = {
     "_t_Nuc",
-    "_t_Ph",
     "_Phi_Nuc",
     "_Phi_Ph"
   };
@@ -94,13 +89,13 @@ void optimization_data () {
       {"_strip_Q2", {0, 12}},
       {"_strip_Xbj", {0, 0.8}},
       {"_t_Nuc", {-12, 1}},
-      {"_t_Ph", {-12, 10200}},
+      {"_t_Ph", {-1, 1}},
       {"_delta_t", {-2, 2}},
       {"_Phi_Nuc", {0, 360}},
       {"_Phi_Ph", {0, 360}},
-      {"_delta_Phi", {-360, 360}},
+      {"_delta_Phi", {-3, 3}},
       {"_strip_El_chi2pid", {-5, 5}},
-      {"_strip_Ph_chi2pid", {-1, 1}},
+      {"_strip_Ph_chi2pid", {-0.2, 0.2}},
       {"_strip_Nuc_chi2pid", {-6, 6}}
   };
 
@@ -112,13 +107,13 @@ void optimization_data () {
   std::vector<std::pair<TString, TString>> cuts_definitions = {
     {"_theta_gamma_e", "_theta_gamma_e > 6"},
     {"_chi2pid", "_strip_El_chi2pid >= -4.9668 && _strip_El_chi2pid <= 3.8292 && "
-                     "_strip_Ph_chi2pid >= -12 && _strip_Ph_chi2pid <= 10200 && "
+                    //  "_strip_Ph_chi2pid >= -0.2 && _strip_Ph_chi2pid <= 0.2 && "
                      "_strip_Nuc_chi2pid >= -5.246 && _strip_Nuc_chi2pid <= 6.376"},
     {"_delta_t", "_delta_t >= -1.62602 && _delta_t <= 1.61098"},
-    {"_delta_phi", "abs(_delta_Phi) % 180 <= 1.5"},
+    {"_delta_phi", "abs(fmod(_delta_Phi, 180)) <= 1.5"},
     {"_mm2_eNg_neutron_expected", "_mm2_eNg >= -1.23003 && _mm2_eNg <= 3.10917"},
     {"_mm2_eNg_N_nothing_expected", "_mm2_eNg_N >= -0.5 && _mm2_eNg_N <= 0.5"},
-    {"_mm2_eNX_N_photon_expected", "_mm2_eNX_N >= -0.5 && _mm2_eNX_N <= 0.5"},
+    {"_mm2_eNX_N_photon_expected", "_mm2_eNX_N >= -0.5 && _mm2_eNX_N <= 6.727"},
     {"_mm2_eg_proton_expected", "_mm2_eg >= -0.4106 && _mm2_eg <= 2.9626"}
   };
 
@@ -129,13 +124,17 @@ void optimization_data () {
   std::vector<std::pair<TString, TCut>> cuts;
 
   TCut all_cuts = "";
-  int cut_index = 1;
-  for (const auto &def : cuts_definitions) {
-    all_cuts += TCut(def.second);
-    TString cut_name = Form("cut%i%s", cut_index, def.first.Data());
+  
+  for (size_t i = 0; i < cuts_definitions.size(); ++i) {
+    const auto& [cut_label, cut] = cuts_definitions[i];
+
+    TCut this_cut = TCut(cut.Data());
+    all_cuts += this_cut;
+
+    TString cut_name = Form("cut%lu%s", i, cut_label.Data());
     cuts.emplace_back(cut_name, all_cuts);
-    cut_index++;
-    // std::cout << def.first << ": " << all_cuts << std::endl;
+    
+    // std::cout << cut_name << " : " << all_cuts << std::endl;
   };
 
   gStyle->SetOptStat(0);
@@ -166,6 +165,9 @@ void optimization_data () {
       h_base->GetXaxis()->SetTitle(Form("DVCS%s", var.Data()));
       h_base->GetYaxis()->SetTitle("Events");
 
+      h_base->SetMinimum(10.0);
+      h_cut->SetMinimum(10.0);
+
       h_base->SetLineColor(kBlack);
       h_cut->SetLineColor(kRed);
       h_cut->SetFillColor(kRed - 9);
@@ -184,7 +186,9 @@ void optimization_data () {
 
     // TString filename = Form("./cuts_no_chi2pid/optimization_%s_no_chi2pid.png", label_cut.Data());
     TString filename = Form("./cuts/optimization_%s.png", label_cut.Data());
+    TString filename_pdf = Form("./cuts/optimization_%s.pdf", label_cut.Data());
     canvas->SaveAs(filename);
+    canvas->SaveAs(filename_pdf);
     delete canvas;
   }
 
