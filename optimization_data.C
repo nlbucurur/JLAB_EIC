@@ -119,6 +119,11 @@ void stats_legend (TH1D* htemp, TH1D* htemp_cut, const TString& branch_name) {
   htemp_cut->Draw("HIST SAMES");
   gPad->Update();
 
+  htemp->GetXaxis()->SetTitle(Form("DVCS%s", var.Data()));
+  htemp->GetYaxis()->SetTitle("Events");
+  htemp->SetMinimum(10.0);
+  htemp->SetMaximum(1.2 * htemp->GetMaximum());
+
   TPaveStats* stats1 = (TPaveStats*)htemp->FindObject("stats");
   TPaveStats* stats2 = (TPaveStats*)htemp_cut->FindObject("stats");
 
@@ -160,6 +165,7 @@ void optimization_data () {
   double N_mass = 0.9395654;
 
   TFile *file = TFile::Open("./data/0pDVCS_inbending_FTPhotonsCorrected_test.root");
+  // TFile *output_file = new TFile("./output_files/analysis")
 
   TTree *tree = (TTree*) file->Get("pDVCS_stripped");
 
@@ -240,12 +246,10 @@ void optimization_data () {
       stack->Add(hs_base[var]);
       stack->Add(h_cut);
       stack->Draw("nostack");
-      stack->GetXaxis()->SetTitle(Form("DVCS%s", var.Data()));
-      stack->GetYaxis()->SetTitle("Events");
-      stack->SetMinimum(10.0);
-      stack->SetMaximum(1.5 * stack->GetMaximum());
 
       stats_legend(hs_base[var], h_cut, var.Data());
+      gPad->Modified();
+
     }
 
     // TString filename = Form("./cuts_no_chi2pid/optimization_%s_no_chi2pid.png", label_cut.Data());
