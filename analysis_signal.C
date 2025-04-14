@@ -119,7 +119,7 @@ void stats_legend (TH1D* htemp, TH1D* htemp_cut, const TString& branch_name) {
   htemp_cut->Draw("HIST SAMES");
   gPad->Update();
 
-  htemp->GetXaxis()->SetTitle(Form("DVCS%s", var.Data()));
+  htemp->GetXaxis()->SetTitle(Form("DVCS%s", branch_name.Data()));
   htemp->GetYaxis()->SetTitle("Events");
   htemp->SetMinimum(10.0);
   htemp->SetMaximum(1.2 * htemp->GetMaximum());
