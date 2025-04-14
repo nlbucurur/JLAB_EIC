@@ -194,20 +194,20 @@ void analysis_signal () {
   //   std::cout << "Branch name: " << branch_name.first << ", Min: " << branch_name.second.first << ", Max: " << branch_name.second.second << std::endl;
   // }
 
-  std::map<TString, TH1D*> hs_base;
+  std::map<TString, TH1D*> hs_base_signal;
   
   for (const auto& [var, range] : branch_names) {
     const auto& [min, max] = range;
     
-    TString base_hist_name = Form("h_%s_base", var.Data());
-    TH1D* h_base = new TH1D(base_hist_name, Form("DVCS%s", var.Data()), 60, min, max);
+    TString base_hist_name_signal = Form("h_%s_base", var.Data());
+    TH1D* h_base_signal = new TH1D(base_hist_name_signal, Form("DVCS%s", var.Data()), 60, min, max);
     
-    tree->Project(base_hist_name, var, "");
+    tree->Project(base_hist_name_signal, var, "");
     
-    h_base->SetLineColor(kBlack);
-    h_base->SetStats(true);
+    h_base_signal->SetLineColor(kBlack);
+    h_base_signal->SetStats(true);
     gStyle->SetOptStat("emr");
-    hs_base[var] = h_base;
+    hs_base_signal[var] = h_base_signal;
   }
   
   auto cuts = generate_cuts(hs_base);
@@ -228,33 +228,33 @@ void analysis_signal () {
       canvas->cd(i + 1);
       if (should_set_logy(var.Data())) gPad->SetLogy();
 
-      TString cut_hist_name = Form("h_%s_cut_%s", var.Data(), label_cut.Data());
+      TString cut_hist_name_signal = Form("h_%s_cut_%s_signal", var.Data(), label_cut.Data());
 
-      TH1D* h_cut = new TH1D(cut_hist_name, Form("DVCS%s", var.Data()), 60, min, max);
+      TH1D* h_cut_signal = new TH1D(cut_hist_name_signal, Form("DVCS%s", var.Data()), 60, min, max);
 
-      tree->Project(cut_hist_name, var, cut);
+      tree->Project(cut_hist_name_signal, var, cut);
 
-      h_cut->SetMinimum(10.0);
-      h_cut->SetLineColor(kRed);
-      h_cut->SetFillColor(kRed - 9);
-      h_cut->SetFillStyle(3004);
-      h_cut->SetStats(true);
+      h_cut_signal->SetMinimum(10.0);
+      h_cut_signal->SetLineColor(kRed);
+      h_cut_signal->SetFillColor(kRed - 9);
+      h_cut_signal->SetFillStyle(3004);
+      h_cut_signal->SetStats(true);
 
       gStyle->SetOptStat("emr");
 
-      THStack* stack = new THStack(Form("stack_%s", var.Data()), Form("DVCS%s", var.Data()));
-      stack->Add(hs_base[var]);
-      stack->Add(h_cut);
+      THStack* stack = new THStack(Form("stack_%s_signal", var.Data()), Form("DVCS%s_signal", var.Data()));
+      stack->Add(hs_base_signal[var]);
+      stack->Add(h_cut_signal);
       stack->Draw("nostack");
 
-      stats_legend(hs_base[var], h_cut, var.Data());
+      stats_legend(hs_base_signal[var], h_cut, var.Data());
       gPad->Modified();
 
     }
 
     // TString filename = Form("./cuts_no_chi2pid/optimization_%s_no_chi2pid.png", label_cut.Data());
-    TString filename = Form("./cuts/optimization_%s.png", label_cut.Data());
-    TString filename_pdf = Form("./cuts/optimization_%s.pdf", label_cut.Data());
+    TString filename = Form("./cuts/optimization_%s_signal.png", label_cut.Data());
+    TString filename_pdf = Form("./cuts/optimization_%s_signal.pdf", label_cut.Data());
     canvas->SaveAs(filename);
     canvas->SaveAs(filename_pdf);
     delete canvas;

@@ -193,20 +193,20 @@ void analysis_background () {
   //   std::cout << "Branch name: " << branch_name.first << ", Min: " << branch_name.second.first << ", Max: " << branch_name.second.second << std::endl;
   // }
 
-  std::map<TString, TH1D*> hs_base;
+  std::map<TString, TH1D*> hs_base_background;
   
   for (const auto& [var, range] : branch_names) {
     const auto& [min, max] = range;
     
-    TString base_hist_name = Form("h_%s_base", var.Data());
-    TH1D* h_base = new TH1D(base_hist_name, Form("DVCS%s", var.Data()), 60, min, max);
+    TString base_hist_name_background = Form("h_%s_base_background", var.Data());
+    TH1D* h_base_backgroung = new TH1D(base_hist_name_background, Form("DVCS%s", var.Data()), 60, min, max);
     
-    tree->Project(base_hist_name, var, "");
+    tree->Project(base_hist_name_background, var, "");
     
-    h_base->SetLineColor(kBlack);
+    h_base_backgroung->SetLineColor(kBlack);
     gStyle->SetOptStat("emr");
-    h_base->SetStats(true);
-    hs_base[var] = h_base;
+    h_base_backgroung->SetStats(true);
+    hs_base_background[var] = h_base_backgroung;
   }
   
   auto cuts = generate_cuts(hs_base);
@@ -227,34 +227,34 @@ void analysis_background () {
         canvas->cd(i + 1);
         if (should_set_logy(var.Data())) gPad->SetLogy();
 
-        TString cut_hist_name = Form("h_%s_cut_%s", var.Data(), label_cut.Data());
+        TString cut_hist_name_background = Form("h_%s_cut_%s_background", var.Data(), label_cut.Data());
 
-        TH1D* h_cut = new TH1D(cut_hist_name, Form("DVCS%s", var.Data()), 60, min, max);
+        TH1D* h_cut_background = new TH1D(cut_hist_name_background, Form("DVCS%s", var.Data()), 60, min, max);
 
-        tree->Project(cut_hist_name, var, cut);
+        tree->Project(cut_hist_name_background, var, cut);
 
-        h_cut->SetMinimum(10.0);
-        h_cut->SetLineColor(kRed);
-        h_cut->SetFillColor(kRed - 9);
-        h_cut->SetFillStyle(3004);
+        h_cut_background->SetMinimum(10.0);
+        h_cut_background->SetLineColor(kRed);
+        h_cut_background->SetFillColor(kRed - 9);
+        h_cut_background->SetFillStyle(3004);
         gStyle->SetOptStat("emr");
         
-        h_cut->SetStats(true);
+        h_cut_background->SetStats(true);
 
 
         THStack* stack = new THStack(Form("stack_%s", var.Data()), Form("DVCS%s", var.Data()));
-        stack->Add(hs_base[var]);
-        stack->Add(h_cut);
+        stack->Add(hs_base_background[var]);
+        stack->Add(h_cut_background);
         stack->Draw("nostack");
 
-        stats_legend(hs_base[var], h_cut, var.Data());
+        stats_legend(hs_base_background[var], h_cut, var.Data());
         
         gPad->Modified();
     }
 
     // TString filename = Form("./cuts_no_chi2pid/optimization_%s_no_chi2pid.png", label_cut.Data());
-    TString filename = Form("./cuts_background/optimization_%s.png", label_cut.Data());
-    TString filename_pdf = Form("./cuts_background/optimization_%s.pdf", label_cut.Data());
+    TString filename = Form("./cuts_background/optimization_%s_backgorund.png", label_cut.Data());
+    TString filename_pdf = Form("./cuts_background/optimization_%s_background.pdf", label_cut.Data());
     canvas->SaveAs(filename);
     canvas->SaveAs(filename_pdf);
     delete canvas;
