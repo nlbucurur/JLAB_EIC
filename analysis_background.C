@@ -209,7 +209,7 @@ void analysis_background () {
     hs_base_background[var] = h_base_backgroung;
   }
   
-  auto cuts = generate_cuts(hs_base);
+  auto cuts = generate_cuts(hs_base_background);
     
   gStyle->SetOptStat(0);
   gStyle->SetPadGridX(true);
@@ -247,7 +247,7 @@ void analysis_background () {
         stack->Add(h_cut_background);
         stack->Draw("nostack");
 
-        stats_legend(hs_base_background[var], h_cut, var.Data());
+        stats_legend(hs_base_background[var], h_cut_background, var.Data());
         
         gPad->Modified();
     }

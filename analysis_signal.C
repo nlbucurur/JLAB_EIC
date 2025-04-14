@@ -210,7 +210,7 @@ void analysis_signal () {
     hs_base_signal[var] = h_base_signal;
   }
   
-  auto cuts = generate_cuts(hs_base);
+  auto cuts = generate_cuts(hs_base_signal);
     
   gStyle->SetOptStat(0);
   gStyle->SetPadGridX(true);
@@ -247,7 +247,7 @@ void analysis_signal () {
       stack->Add(h_cut_signal);
       stack->Draw("nostack");
 
-      stats_legend(hs_base_signal[var], h_cut, var.Data());
+      stats_legend(hs_base_signal[var], h_cut_signal, var.Data());
       gPad->Modified();
 
     }
