@@ -26,7 +26,8 @@ bool should_move_stats (const TString& branch_name) {
   std::vector<TString> move_stats = {
     "_t_Nuc",
     "_Phi_Nuc",
-    "_Phi_Ph"
+    "_Phi_Ph",
+    "_strip_Ph_chi2pid"
   };
   
   return std::find(move_stats.begin(), move_stats.end(), branch_name) != move_stats.end();
@@ -165,7 +166,7 @@ void analysis_signal () {
   double N_mass = 0.9395654;
 
   TFile *file = TFile::Open("./data/0pDVCS_inbending_FTPhotonsCorrected_test.root");
-  // TFile *output_file = new TFile("./output_files/analysis")
+  TFile *output_file = new TFile("./output_files/analysis_signal.root", "RECREATE");
 
   TTree *tree = (TTree*) file->Get("pDVCS_stripped");
 
@@ -199,15 +200,18 @@ void analysis_signal () {
   for (const auto& [var, range] : branch_names) {
     const auto& [min, max] = range;
     
-    TString base_hist_name_signal = Form("h_%s_base", var.Data());
-    TH1D* h_base_signal = new TH1D(base_hist_name_signal, Form("DVCS%s", var.Data()), 60, min, max);
+    TString base_hist_name_signal = Form("h%s_base_signal", var.Data());
+    TH1D* h_base_signal = new TH1D(base_hist_name_signal, Form("DVCS%s_signal", var.Data()), 60, min, max);
     
     tree->Project(base_hist_name_signal, var, "");
     
     h_base_signal->SetLineColor(kBlack);
     h_base_signal->SetStats(true);
-    gStyle->SetOptStat("emr");
     hs_base_signal[var] = h_base_signal;
+    gStyle->SetOptStat("emr");
+
+    output_file->cd();
+    hs_base_signal[var]->Write();
   }
   
   auto cuts = generate_cuts(hs_base_signal);
@@ -215,7 +219,7 @@ void analysis_signal () {
   gStyle->SetOptStat(0);
   gStyle->SetPadGridX(true);
   gStyle->SetPadGridY(true);
-
+  
   for (const auto& [label_cut, cut] : cuts) {
 
     TCanvas *canvas = new TCanvas("canvas", label_cut, 1920, 1080);
@@ -228,7 +232,7 @@ void analysis_signal () {
       canvas->cd(i + 1);
       if (should_set_logy(var.Data())) gPad->SetLogy();
 
-      TString cut_hist_name_signal = Form("h_%s_cut_%s_signal", var.Data(), label_cut.Data());
+      TString cut_hist_name_signal = Form("h%s_%s_signal", var.Data(), label_cut.Data());
 
       TH1D* h_cut_signal = new TH1D(cut_hist_name_signal, Form("DVCS%s", var.Data()), 60, min, max);
 
@@ -242,13 +246,16 @@ void analysis_signal () {
 
       gStyle->SetOptStat("emr");
 
-      THStack* stack = new THStack(Form("stack_%s_signal", var.Data()), Form("DVCS%s_signal", var.Data()));
+      THStack* stack = new THStack(Form("stack%s_signal", var.Data()), Form("DVCS%s_signal", var.Data()));
       stack->Add(hs_base_signal[var]);
       stack->Add(h_cut_signal);
       stack->Draw("nostack");
 
       stats_legend(hs_base_signal[var], h_cut_signal, var.Data());
       gPad->Modified();
+
+      output_file->cd();
+      h_cut_signal->Write();
 
     }
 
@@ -261,4 +268,6 @@ void analysis_signal () {
   }
 
   file->Close();
+  output_file->Close();
+  delete output_file;
 }

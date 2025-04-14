@@ -26,7 +26,8 @@ bool should_move_stats (const TString& branch_name) {
   std::vector<TString> move_stats = {
     "_t_Nuc",
     "_Phi_Nuc",
-    "_Phi_Ph"
+    "_Phi_Ph",
+    "_strip_Ph_chi2pid"
   };
   
   return std::find(move_stats.begin(), move_stats.end(), branch_name) != move_stats.end();
@@ -156,6 +157,8 @@ void stats_legend (TH1D* htemp, TH1D* htemp_cut, const TString& branch_name) {
   legend->AddEntry(htemp, "No cuts", "l");
   legend->AddEntry(htemp_cut, "Cuts", "f");
   legend->Draw();
+
+  gPad->Update();
 }
 
 
@@ -164,7 +167,8 @@ void analysis_background () {
 //   double P_mass = 0.938272;
 //   double N_mass = 0.9395654;
 
-  TFile *file = TFile::Open("./data/0pDVCS_Pi0dataAsDVCS_10p2.root");
+TFile *file = TFile::Open("./data/0pDVCS_Pi0dataAsDVCS_10p2.root");
+TFile *output_file = new TFile("./output_files/analysis_background.root", "RECREATE");
 
   TTree *tree = (TTree*) file->Get("pDVCS_stripped");
 
@@ -198,15 +202,19 @@ void analysis_background () {
   for (const auto& [var, range] : branch_names) {
     const auto& [min, max] = range;
     
-    TString base_hist_name_background = Form("h_%s_base_background", var.Data());
-    TH1D* h_base_backgroung = new TH1D(base_hist_name_background, Form("DVCS%s", var.Data()), 60, min, max);
+    TString base_hist_name_background = Form("h%s_base_background", var.Data());
+    TH1D* h_base_backgroung = new TH1D(base_hist_name_background, Form("DVCS%s_background", var.Data()), 60, min, max);
     
     tree->Project(base_hist_name_background, var, "");
     
     h_base_backgroung->SetLineColor(kBlack);
-    gStyle->SetOptStat("emr");
     h_base_backgroung->SetStats(true);
+    
     hs_base_background[var] = h_base_backgroung;
+    gStyle->SetOptStat("emr");
+
+    output_file->cd();
+    hs_base_background[var]->Write();
   }
   
   auto cuts = generate_cuts(hs_base_background);
@@ -227,7 +235,7 @@ void analysis_background () {
         canvas->cd(i + 1);
         if (should_set_logy(var.Data())) gPad->SetLogy();
 
-        TString cut_hist_name_background = Form("h_%s_cut_%s_background", var.Data(), label_cut.Data());
+        TString cut_hist_name_background = Form("h%s_%s_background", var.Data(), label_cut.Data());
 
         TH1D* h_cut_background = new TH1D(cut_hist_name_background, Form("DVCS%s", var.Data()), 60, min, max);
 
@@ -242,7 +250,7 @@ void analysis_background () {
         h_cut_background->SetStats(true);
 
 
-        THStack* stack = new THStack(Form("stack_%s", var.Data()), Form("DVCS%s", var.Data()));
+        THStack* stack = new THStack(Form("stack%s", var.Data()), Form("DVCS%s", var.Data()));
         stack->Add(hs_base_background[var]);
         stack->Add(h_cut_background);
         stack->Draw("nostack");
@@ -250,6 +258,9 @@ void analysis_background () {
         stats_legend(hs_base_background[var], h_cut_background, var.Data());
         
         gPad->Modified();
+
+        output_file->cd();
+        h_cut_background->Write();
     }
 
     // TString filename = Form("./cuts_no_chi2pid/optimization_%s_no_chi2pid.png", label_cut.Data());
@@ -258,7 +269,10 @@ void analysis_background () {
     canvas->SaveAs(filename);
     canvas->SaveAs(filename_pdf);
     delete canvas;
+
   }
 
   file->Close();
+  output_file->Close();
+  delete output_file;
 }
