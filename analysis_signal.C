@@ -185,7 +185,7 @@ void analysis_signal () {
       {"_Phi_Ph", {0, 360}},
       {"_delta_Phi", {-3, 3}},
       {"_strip_El_chi2pid", {-5, 5}},
-      {"_strip_Ph_chi2pid", {-0.2, 0.2}},
+      {"_strip_Ph_chi2pid", {-0.2, 10100}},
       {"_strip_Nuc_chi2pid", {-6, 6}}
   };
 
