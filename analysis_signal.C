@@ -159,7 +159,7 @@ void stats_legend (TH1D* htemp, TH1D* htemp_cut, const TString& branch_name) {
 }
 
 
-void optimization_data () {
+void analysis_signal () {
 
   double P_mass = 0.938272;
   double N_mass = 0.9395654;
