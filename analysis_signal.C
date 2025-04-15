@@ -12,29 +12,28 @@
 #include <vector>
 #include <utility>
 
-bool should_set_logy (const TString& branch_name) {
+bool should_set_logy(const TString &branch_name)
+{
   std::vector<TString> logy_branches = {
-    "_t_Nuc",
-    "_t_Ph"
-  };
-  
+      "_t_Nuc",
+      "_t_Ph"};
+
   return std::find(logy_branches.begin(), logy_branches.end(), branch_name) != logy_branches.end();
 }
 
-
-bool should_move_stats (const TString& branch_name) {
+bool should_move_stats(const TString &branch_name)
+{
   std::vector<TString> move_stats = {
-    "_t_Nuc",
-    "_Phi_Nuc",
-    "_Phi_Ph",
-    "_strip_Ph_chi2pid"
-  };
-  
+      "_t_Nuc",
+      "_Phi_Nuc",
+      "_Phi_Ph",
+      "_strip_Ph_chi2pid"};
+
   return std::find(move_stats.begin(), move_stats.end(), branch_name) != move_stats.end();
 }
 
-
-std::pair<TString, TString> auto_cut (const TString& var, TH1D* hist, const TString& cut_label) {
+std::pair<TString, TString> auto_cut(const TString &var, TH1D *hist, const TString &cut_label)
+{
   double mean = hist->GetMean();
   double sigma = hist->GetStdDev();
 
@@ -46,26 +45,28 @@ std::pair<TString, TString> auto_cut (const TString& var, TH1D* hist, const TStr
   return {cut_label, cut};
 }
 
-
-std::vector<std::pair<TString, TCut>> generate_cuts(const std::map<TString, TH1D*>& hs_base) {
+std::vector<std::pair<TString, TCut>> generate_cuts(const std::map<TString, TH1D *> &hs_base)
+{
   std::vector<std::pair<TString, TString>> cuts_definitions = {
-    {"_theta_gamma_e", "_theta_gamma_e > 6"},
-    {"_chi2pid", ""},
-    {"_delta_t", ""},
-    {"_delta_phi", "abs(fmod(_delta_Phi, 180)) <= 1.5"},
-    {"_mm2_eNg_neutron_expected", ""},
-    {"_mm2_eNg_N_nothing_expected", ""},
-    {"_mm2_eNX_N_photon_expected", ""},
-    {"_mm2_eg_proton_expected", ""}
-  };
-    
+      {"_theta_gamma_e", "_theta_gamma_e > 6"},
+      {"_chi2pid", ""},
+      {"_delta_t", ""},
+      {"_delta_phi", "abs(fmod(_delta_Phi, 180)) <= 1.5"},
+      {"_mm2_eNg_neutron_expected", ""},
+      {"_mm2_eNg_N_nothing_expected", ""},
+      {"_mm2_eNX_N_photon_expected", ""},
+      {"_mm2_eg_proton_expected", ""}};
+
   // for (const auto& cut_def : cuts_definitions) {
   //   std::cout << cut_def.first << ": " << cut_def.second << std::endl;
   // }
 
-  for (auto& [cut_label, cut] : cuts_definitions) {
-    if (cut == "") {
-      if (cut_label == "_chi2pid") {
+  for (auto &[cut_label, cut] : cuts_definitions)
+  {
+    if (cut == "")
+    {
+      if (cut_label == "_chi2pid")
+      {
         TString var_El = "_strip_El_chi2pid";
         TString var_Nuc = "_strip_Nuc_chi2pid";
 
@@ -75,15 +76,22 @@ std::vector<std::pair<TString, TCut>> generate_cuts(const std::map<TString, TH1D
         cut = cut_El + " && " + cut_Nuc;
 
         // std::cout << "Auto cut" << cut_label << " : " << cut << std::endl;
-        
-      } else {
+      }
+      else
+      {
         TString var;
-        if (cut_label == "_mm2_eNg_neutron_expected") var = "_mm2_eNg";
-        else if (cut_label == "_mm2_eNg_N_nothing_expected") var = "_mm2_eNg_N";
-        else if (cut_label == "_mm2_eNX_N_photon_expected") var = "_mm2_eNX_N";
-        else if (cut_label == "_mm2_eg_proton_expected") var = "_mm2_eg";
-        else if (cut_label == "_delta_t") var = "_delta_t";
-        else continue;
+        if (cut_label == "_mm2_eNg_neutron_expected")
+          var = "_mm2_eNg";
+        else if (cut_label == "_mm2_eNg_N_nothing_expected")
+          var = "_mm2_eNg_N";
+        else if (cut_label == "_mm2_eNX_N_photon_expected")
+          var = "_mm2_eNX_N";
+        else if (cut_label == "_mm2_eg_proton_expected")
+          var = "_mm2_eg";
+        else if (cut_label == "_delta_t")
+          var = "_delta_t";
+        else
+          continue;
 
         cut = auto_cut(var, hs_base.at(var), cut_label).second;
 
@@ -91,66 +99,80 @@ std::vector<std::pair<TString, TCut>> generate_cuts(const std::map<TString, TH1D
       }
     }
   }
-  
+
   std::vector<std::pair<TString, TCut>> cuts;
-  
+
   TCut all_cuts = "";
-    
-  for (size_t i = 0; i < cuts_definitions.size(); ++i) {
-    const auto& [cut_label, cut] = cuts_definitions[i];
+
+  for (size_t i = 0; i < cuts_definitions.size(); ++i)
+  {
+    const auto &[cut_label, cut] = cuts_definitions[i];
 
     TCut this_cut = TCut(cut.Data());
     all_cuts += this_cut;
 
     TString cut_name = Form("cut%lu%s", i, cut_label.Data());
     cuts.emplace_back(cut_name, all_cuts);
-    
+
     // std::cout << cut_name << " : " << all_cuts << std::endl;
   }
 
   return cuts;
 }
 
-
-void stats_legend (TH1D* htemp, TH1D* htemp_cut, const TString& branch_name) {
+void stats_legend(TH1D *htemp, TH1D *htemp_cut, const TString &branch_name)
+{
 
   gPad->cd();
 
-  htemp->Draw("HIST"); 
+  htemp->Draw("HIST");
   htemp_cut->Draw("HIST SAMES");
   gPad->Update();
 
   htemp->GetXaxis()->SetTitle(Form("DVCS%s", branch_name.Data()));
   htemp->GetYaxis()->SetTitle("Events");
   htemp->SetMinimum(10.0);
-  htemp->SetMaximum(1.2 * htemp->GetMaximum());
 
-  TPaveStats* stats1 = (TPaveStats*)htemp->FindObject("stats");
-  TPaveStats* stats2 = (TPaveStats*)htemp_cut->FindObject("stats");
+  TPaveStats *stats1 = (TPaveStats *)htemp->FindObject("stats");
+  TPaveStats *stats2 = (TPaveStats *)htemp_cut->FindObject("stats");
 
   bool move_stats = should_move_stats(branch_name);
-  
-  if (move_stats) {
-    stats1->SetX1NDC(0.15); stats1->SetX2NDC(0.33);
-    stats1->SetY1NDC(0.78); stats1->SetY2NDC(0.88);
 
-    stats2->SetX1NDC(0.15); stats2->SetX2NDC(0.33);
-    stats2->SetY1NDC(0.66); stats2->SetY2NDC(0.76);
-  } else {
-    stats1->SetX1NDC(0.80); stats1->SetX2NDC(0.98);
-    stats1->SetY1NDC(0.85); stats1->SetY2NDC(0.95);
+  if (move_stats)
+  {
+    stats1->SetX1NDC(0.15);
+    stats1->SetX2NDC(0.33);
+    stats1->SetY1NDC(0.78);
+    stats1->SetY2NDC(0.88);
 
-    stats2->SetX1NDC(0.80); stats2->SetX2NDC(0.98);
-    stats2->SetY1NDC(0.7); stats2->SetY2NDC(0.8);
+    stats2->SetX1NDC(0.15);
+    stats2->SetX2NDC(0.33);
+    stats2->SetY1NDC(0.66);
+    stats2->SetY2NDC(0.76);
+  }
+  else
+  {
+    stats1->SetX1NDC(0.80);
+    stats1->SetX2NDC(0.98);
+    stats1->SetY1NDC(0.85);
+    stats1->SetY2NDC(0.95);
+
+    stats2->SetX1NDC(0.80);
+    stats2->SetX2NDC(0.98);
+    stats2->SetY1NDC(0.7);
+    stats2->SetY2NDC(0.8);
   }
   stats1->SetTextColor(kBlack);
   stats2->SetTextColor(kRed);
 
-  TLegend* legend;
-  if (move_stats) {
+  TLegend *legend;
+  if (move_stats)
+  {
     // legend = new TLegend(0.15, 0.45, 0.33, 0.55);
     legend = new TLegend(0.36, 0.78, 0.59, 0.88);
-  } else {
+  }
+  else
+  {
     legend = new TLegend(0.8, 0.55, 0.98, 0.65);
   }
 
@@ -159,8 +181,8 @@ void stats_legend (TH1D* htemp, TH1D* htemp_cut, const TString& branch_name) {
   legend->Draw();
 }
 
-
-void analysis_signal () {
+void analysis_signal()
+{
 
   double P_mass = 0.938272;
   double N_mass = 0.9395654;
@@ -168,7 +190,7 @@ void analysis_signal () {
   TFile *file = TFile::Open("./data/0pDVCS_inbending_FTPhotonsCorrected_test.root");
   TFile *output_file = new TFile("./output_files/analysis_signal.root", "RECREATE");
 
-  TTree *tree = (TTree*) file->Get("pDVCS_stripped");
+  TTree *tree = (TTree *)file->Get("pDVCS_stripped");
 
   //   tree->Print();
 
@@ -187,24 +209,26 @@ void analysis_signal () {
       {"_delta_Phi", {-3, 3}},
       {"_strip_El_chi2pid", {-5, 5}},
       {"_strip_Ph_chi2pid", {-0.2, 10100}},
-      {"_strip_Nuc_chi2pid", {-6, 6}}
-  };
+      {"_strip_Nuc_chi2pid", {-6, 6}}};
 
   // printf("Number of branches: %lu\n", branch_names.size());
   // for (const auto& branch_name : branch_names) {
   //   std::cout << "Branch name: " << branch_name.first << ", Min: " << branch_name.second.first << ", Max: " << branch_name.second.second << std::endl;
   // }
 
-  std::map<TString, TH1D*> hs_base_signal;
-  
-  for (const auto& [var, range] : branch_names) {
-    const auto& [min, max] = range;
-    
+  std::map<TString, TH1D *> hs_base_signal;
+
+  for (const auto &[var, range] : branch_names)
+  {
+    const auto &[min, max] = range;
+
     TString base_hist_name_signal = Form("h%s_base_signal", var.Data());
-    TH1D* h_base_signal = new TH1D(base_hist_name_signal, Form("DVCS%s_signal", var.Data()), 60, min, max);
-    
+    TH1D *h_base_signal = new TH1D(base_hist_name_signal, Form("DVCS%s_signal", var.Data()), 60, min, max);
+
     tree->Project(base_hist_name_signal, var, "");
-    
+
+    h_base_signal->SetMaximum(1.2 * h_base_signal->GetMaximum());
+
     h_base_signal->SetLineColor(kBlack);
     h_base_signal->SetStats(true);
     hs_base_signal[var] = h_base_signal;
@@ -213,28 +237,31 @@ void analysis_signal () {
     output_file->cd();
     hs_base_signal[var]->Write();
   }
-  
+
   auto cuts = generate_cuts(hs_base_signal);
-    
+
   gStyle->SetOptStat(0);
   gStyle->SetPadGridX(true);
   gStyle->SetPadGridY(true);
-  
-  for (const auto& [label_cut, cut] : cuts) {
+
+  for (const auto &[label_cut, cut] : cuts)
+  {
 
     TCanvas *canvas = new TCanvas("canvas", label_cut, 1920, 1080);
     canvas->Divide(4, 4);
 
-    for (size_t i = 0; i < branch_names.size(); ++i) {
-      const auto& [var, range] = branch_names[i];
-      const auto& [min, max] = range;
-      
+    for (size_t i = 0; i < branch_names.size(); ++i)
+    {
+      const auto &[var, range] = branch_names[i];
+      const auto &[min, max] = range;
+
       canvas->cd(i + 1);
-      if (should_set_logy(var.Data())) gPad->SetLogy();
+      if (should_set_logy(var.Data()))
+        gPad->SetLogy();
 
       TString cut_hist_name_signal = Form("h%s_%s_signal", var.Data(), label_cut.Data());
 
-      TH1D* h_cut_signal = new TH1D(cut_hist_name_signal, Form("DVCS%s", var.Data()), 60, min, max);
+      TH1D *h_cut_signal = new TH1D(cut_hist_name_signal, Form("DVCS%s", var.Data()), 60, min, max);
 
       tree->Project(cut_hist_name_signal, var, cut);
 
@@ -246,7 +273,7 @@ void analysis_signal () {
 
       gStyle->SetOptStat("emr");
 
-      THStack* stack = new THStack(Form("stack%s_signal", var.Data()), Form("DVCS%s_signal", var.Data()));
+      THStack *stack = new THStack(Form("stack%s_signal", var.Data()), Form("DVCS%s_signal", var.Data()));
       stack->Add(hs_base_signal[var]);
       stack->Add(h_cut_signal);
       stack->Draw("nostack");
@@ -256,7 +283,6 @@ void analysis_signal () {
 
       output_file->cd();
       h_cut_signal->Write();
-
     }
 
     // TString filename = Form("./cuts_no_chi2pid/optimization_%s_no_chi2pid.png", label_cut.Data());

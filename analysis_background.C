@@ -123,7 +123,6 @@ void stats_legend (TH1D* htemp, TH1D* htemp_cut, const TString& branch_name) {
   htemp->GetXaxis()->SetTitle(Form("DVCS%s", branch_name.Data()));
   htemp->GetYaxis()->SetTitle("Events");
   htemp->SetMinimum(10.0);
-  htemp->SetMaximum(1.2 * htemp->GetMaximum());
 
   TPaveStats* stats1 = (TPaveStats*)htemp->FindObject("stats");
   TPaveStats* stats2 = (TPaveStats*)htemp_cut->FindObject("stats");
@@ -206,6 +205,7 @@ TFile *output_file = new TFile("./output_files/analysis_background.root", "RECRE
     TH1D* h_base_backgroung = new TH1D(base_hist_name_background, Form("DVCS%s_background", var.Data()), 60, min, max);
     
     tree->Project(base_hist_name_background, var, "");
+    h_base_backgroung->SetMaximum(1.2 * h_base_backgroung->GetMaximum());
     
     h_base_backgroung->SetLineColor(kBlack);
     h_base_backgroung->SetStats(true);
