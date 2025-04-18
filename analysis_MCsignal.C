@@ -21,17 +21,6 @@ bool should_set_logy(const TString &branch_name)
     return std::find(logy_branches.begin(), logy_branches.end(), branch_name) != logy_branches.end();
 }
 
-bool should_move_stats(const TString &branch_name)
-{
-    std::vector<TString> move_stats = {
-        "_t_Nuc",
-        "_Phi_Nuc",
-        "_Phi_Ph",
-        "_strip_Ph_chi2pid"};
-
-    return std::find(move_stats.begin(), move_stats.end(), branch_name) != move_stats.end();
-}
-
 std::pair<TString, TString> auto_cut(const TString &var, TH1D *hist, const TString &cut_label)
 {
     double mean = hist->GetMean();
@@ -136,45 +125,20 @@ void stats_legend(TH1D *htemp, TH1D *htemp_cut, const TString &branch_name)
     TPaveStats *stats1 = (TPaveStats *)htemp->FindObject("stats");
     TPaveStats *stats2 = (TPaveStats *)htemp_cut->FindObject("stats");
 
-    // bool move_stats = should_move_stats(branch_name);
+    stats1->SetX1NDC(0.15);
+    stats1->SetX2NDC(0.33);
+    stats1->SetY1NDC(0.78);
+    stats1->SetY2NDC(0.88);
 
-    // if (move_stats)
-    // {
-        stats1->SetX1NDC(0.15);
-        stats1->SetX2NDC(0.33);
-        stats1->SetY1NDC(0.78);
-        stats1->SetY2NDC(0.88);
+    stats2->SetX1NDC(0.15);
+    stats2->SetX2NDC(0.33);
+    stats2->SetY1NDC(0.66);
+    stats2->SetY2NDC(0.76);
 
-        stats2->SetX1NDC(0.15);
-        stats2->SetX2NDC(0.33);
-        stats2->SetY1NDC(0.66);
-        stats2->SetY2NDC(0.76);
-    // }
-    // else
-    // {
-        // stats1->SetX1NDC(0.80);
-        // stats1->SetX2NDC(0.98);
-        // stats1->SetY1NDC(0.85);
-        // stats1->SetY2NDC(0.95);
-
-        // stats2->SetX1NDC(0.80);
-        // stats2->SetX2NDC(0.98);
-        // stats2->SetY1NDC(0.7);
-        // stats2->SetY2NDC(0.8);
-    // }
     stats1->SetTextColor(kBlack);
     stats2->SetTextColor(kRed);
 
-    // TLegend *legend;
-    // if (move_stats)
-    // {
-        // legend = new TLegend(0.15, 0.45, 0.33, 0.55);
-        TLegend *legend = new TLegend(0.36, 0.78, 0.54, 0.88);
-    // }
-    // else
-    // {
-    //     legend = new TLegend(0.8, 0.55, 0.98, 0.65);
-    // }
+    TLegend *legend = new TLegend(0.36, 0.78, 0.54, 0.88);
 
     legend->AddEntry(htemp, "No cuts", "l");
     legend->AddEntry(htemp_cut, "Cuts", "f");
