@@ -109,7 +109,7 @@ std::vector<std::pair<TString, TCut>> generate_cuts(const std::map<TString, TH1D
     return cuts;
 }
 
-void stats_legend(TH1D *htemp, TH1D *htemp_cut, const TString &branch_name)
+void stats_legend(TH1D *htemp, TH1D *htemp_cut, const TString &branch_name, const std::map<TString, TString> &latex_labels)
 {
 
     gPad->cd();
@@ -118,7 +118,7 @@ void stats_legend(TH1D *htemp, TH1D *htemp_cut, const TString &branch_name)
     htemp_cut->Draw("HIST SAMES");
     gPad->Update();
 
-    htemp->GetXaxis()->SetTitle(Form("DVCS%s", branch_name.Data()));
+    htemp->GetXaxis()->SetTitle(Form("DVCS %s", latex_labels.at(branch_name).Data()));
     htemp->GetYaxis()->SetTitle("Events");
     htemp->SetMinimum(10.0);
 
@@ -159,18 +159,18 @@ void analysis_MCsignal()
     //   tree->Print();
 
     std::vector<std::pair<TString, std::pair<double, double>>> branch_names = {
-        {"_mm2_eg", {-1, 3}},
-        {"_mm2_eNg", {-1, 3.3}},
-        {"_mm2_eNg_N", {-0.5, 0.5}},
-        {"_mm2_eNX_N", {-10, 6}},
-        {"_strip_Q2", {0, 8}},
+        {"_mm2_eg", {0, 2.6}},
+        {"_mm2_eNg", {-0.5, 3.0}},
+        {"_mm2_eNg_N", {-0.2, 0.2}},
+        {"_mm2_eNX_N", {-4, 4}},
+        {"_strip_Q2", {1, 6}},
         {"_strip_Xbj", {0, 0.7}},
-        {"_t_Nuc", {-2, 0}},
-        {"_t_Ph", {-1.6, 0.2}},
-        {"_delta_t", {-1, 1}},
+        {"_t_Nuc", {-3, 0}},
+        {"_t_Ph", {-2, 0.3}},
+        {"_delta_t", {-0.6, 0.6}},
         {"_Phi_Nuc", {0, 360}},
         {"_Phi_Ph", {0, 360}},
-        {"_delta_Phi", {-3, 3}},
+        {"_delta_Phi", {-2, 2}},
         {"_strip_El_chi2pid", {-5.5, 5.5}},
         {"_strip_Ph_chi2pid", {-0.2, 10100}},
         {"_strip_Nuc_chi2pid", {-0.2, 10100}}};
@@ -179,6 +179,25 @@ void analysis_MCsignal()
     // for (const auto& branch_name : branch_names) {
     //   std::cout << "Branch name: " << branch_name.first << ", Min: " << branch_name.second.first << ", Max: " << branch_name.second.second << std::endl;
     // }
+
+    std::map<TString, TString> latex_labels = {
+        {"_mm2_eg", "MM^{2}_{P} e P#rightarrow e'#gamma(P_{miss}) (GeV^2)"},
+        {"_mm2_eNg", "MM^{2}_{P} e D#rightarrow e'P'#gamma(N_{miss}) (GeV^2)"},
+        {"_mm2_eNg_N", "MM^{2}_{X} e P#rightarrow e'P'#gamma (GeV^2)"},
+        {"_mm2_eNX_N", "MM^{2}_{#gamma} e P#rightarrow e'P'(#gamma_{miss}) (GeV^2)"},
+        {"_strip_Q2", "Q^{2}"},
+        {"_strip_Xbj", "x_{B}"},
+        {"_t_Nuc", "t_{Nuc}"},
+        {"_t_Ph", "t_{Ph}"},
+        {"_delta_t", "#Delta t"},
+        {"_Phi_Nuc", "#Phi_{Nuc}"},
+        {"_Phi_Ph", "#Phi_{Ph}"},
+        {"_delta_Phi", "#Delta#Phi"},
+        {"_strip_El_chi2pid", "#chi^{2}_{pid}^{e}"},
+        {"_strip_Ph_chi2pid", "#chi^{2}_{pid}^{#gamma}"},
+        {"_strip_Nuc_chi2pid", "#chi^{2}_{pid}^{N}"}
+    };
+    
 
     std::map<TString, TH1D *> hs_base_MCsignal;
 
@@ -242,7 +261,7 @@ void analysis_MCsignal()
             stack->Add(h_cut_MCsignal);
             stack->Draw("nostack");
 
-            stats_legend(hs_base_MCsignal[var], h_cut_MCsignal, var.Data());
+            stats_legend(hs_base_MCsignal[var], h_cut_MCsignal, var, latex_labels);
             gPad->Modified();
 
             output_file->cd();
