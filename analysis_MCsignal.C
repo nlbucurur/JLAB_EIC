@@ -136,10 +136,10 @@ void stats_legend(TH1D *htemp, TH1D *htemp_cut, const TString &branch_name)
     TPaveStats *stats1 = (TPaveStats *)htemp->FindObject("stats");
     TPaveStats *stats2 = (TPaveStats *)htemp_cut->FindObject("stats");
 
-    bool move_stats = should_move_stats(branch_name);
+    // bool move_stats = should_move_stats(branch_name);
 
-    if (move_stats)
-    {
+    // if (move_stats)
+    // {
         stats1->SetX1NDC(0.15);
         stats1->SetX2NDC(0.33);
         stats1->SetY1NDC(0.78);
@@ -149,32 +149,32 @@ void stats_legend(TH1D *htemp, TH1D *htemp_cut, const TString &branch_name)
         stats2->SetX2NDC(0.33);
         stats2->SetY1NDC(0.66);
         stats2->SetY2NDC(0.76);
-    }
-    else
-    {
-        stats1->SetX1NDC(0.80);
-        stats1->SetX2NDC(0.98);
-        stats1->SetY1NDC(0.85);
-        stats1->SetY2NDC(0.95);
+    // }
+    // else
+    // {
+        // stats1->SetX1NDC(0.80);
+        // stats1->SetX2NDC(0.98);
+        // stats1->SetY1NDC(0.85);
+        // stats1->SetY2NDC(0.95);
 
-        stats2->SetX1NDC(0.80);
-        stats2->SetX2NDC(0.98);
-        stats2->SetY1NDC(0.7);
-        stats2->SetY2NDC(0.8);
-    }
+        // stats2->SetX1NDC(0.80);
+        // stats2->SetX2NDC(0.98);
+        // stats2->SetY1NDC(0.7);
+        // stats2->SetY2NDC(0.8);
+    // }
     stats1->SetTextColor(kBlack);
     stats2->SetTextColor(kRed);
 
-    TLegend *legend;
-    if (move_stats)
-    {
+    // TLegend *legend;
+    // if (move_stats)
+    // {
         // legend = new TLegend(0.15, 0.45, 0.33, 0.55);
-        legend = new TLegend(0.36, 0.78, 0.59, 0.88);
-    }
-    else
-    {
-        legend = new TLegend(0.8, 0.55, 0.98, 0.65);
-    }
+        TLegend *legend = new TLegend(0.36, 0.78, 0.54, 0.88);
+    // }
+    // else
+    // {
+    //     legend = new TLegend(0.8, 0.55, 0.98, 0.65);
+    // }
 
     legend->AddEntry(htemp, "No cuts", "l");
     legend->AddEntry(htemp_cut, "Cuts", "f");
@@ -226,7 +226,7 @@ void analysis_MCsignal()
         TH1D *h_base_MCsignal = new TH1D(base_hist_name_MCsignal, Form("DVCS%s_MCsignal", var.Data()), 60, min, max);
 
         tree->Project(base_hist_name_MCsignal, var, "");
-        h_base_MCsignal->SetMaximum(1.2 * h_base_MCsignal->GetMaximum());
+        h_base_MCsignal->SetMaximum(1.5 * h_base_MCsignal->GetMaximum());
 
         h_base_MCsignal->SetLineColor(kBlack);
         h_base_MCsignal->SetStats(true);
@@ -240,6 +240,7 @@ void analysis_MCsignal()
     auto cuts = generate_cuts(hs_base_MCsignal);
 
     gStyle->SetOptStat(0);
+    gStyle->SetOptTitle(0);
     gStyle->SetPadGridX(true);
     gStyle->SetPadGridY(true);
 
