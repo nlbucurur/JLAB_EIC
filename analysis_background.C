@@ -21,17 +21,6 @@ bool should_set_logy(const TString &branch_name)
   return std::find(logy_branches.begin(), logy_branches.end(), branch_name) != logy_branches.end();
 }
 
-bool should_move_stats(const TString &branch_name)
-{
-  std::vector<TString> move_stats = {
-      "_t_Nuc",
-      "_Phi_Nuc",
-      "_Phi_Ph",
-      "_strip_Ph_chi2pid"};
-
-  return std::find(move_stats.begin(), move_stats.end(), branch_name) != move_stats.end();
-}
-
 std::pair<TString, TString> auto_cut(const TString &var, TH1D *hist, const TString &cut_label)
 {
   double mean = hist->GetMean();
@@ -56,39 +45,6 @@ std::vector<std::pair<TString, TCut>> generate_cuts(const std::map<TString, TH1D
       {"_mm2_eNg_N_nothing_expected", "_mm2_eNg_N >= -0.19478 && _mm2_eNg_N <= 0.15635"},
       {"_mm2_eNX_N_photon_expected", "_mm2_eNX_N >= -3.95236 && _mm2_eNX_N <= 3.74568"},
       {"_mm2_eg_proton_expected", "_mm2_eg >= -0.12854 && _mm2_eg <= 2.21362"}};
-
-  // for (const auto& cut_def : cuts_definitions) {
-  //   std::cout << cut_def.first << ": " << cut_def.second << std::endl;
-  // }
-
-  // for (auto& [cut_label, cut] : cuts_definitions) {
-  //   if (cut == "") {
-  //     if (cut_label == "_chi2pid") {
-  //       TString var_El = "_strip_El_chi2pid";
-  //       TString var_Nuc = "_strip_Nuc_chi2pid";
-
-  //       TString cut_El = auto_cut(var_El, hs_base.at(var_El), cut_label).second;
-  //       TString cut_Nuc = auto_cut(var_Nuc, hs_base.at(var_Nuc), cut_label).second;
-
-  //       cut = cut_El + " && " + cut_Nuc;
-
-  //       // std::cout << "Auto cut" << cut_label << " : " << cut << std::endl;
-
-  //     } else {
-  //       TString var;
-  //       if (cut_label == "_mm2_eNg_neutron_expected") var = "_mm2_eNg";
-  //       else if (cut_label == "_mm2_eNg_N_nothing_expected") var = "_mm2_eNg_N";
-  //       else if (cut_label == "_mm2_eNX_N_photon_expected") var = "_mm2_eNX_N";
-  //       else if (cut_label == "_mm2_eg_proton_expected") var = "_mm2_eg";
-  //       else if (cut_label == "_delta_t") var = "_delta_t";
-  //       else continue;
-
-  //       cut = auto_cut(var, hs_base.at(var), cut_label).second;
-
-  //       // std::cout << "Auto cut" << cut_label << " : " << cut << std::endl;
-  //     }
-  //   }
-  // }
 
   std::vector<std::pair<TString, TCut>> cuts;
 
@@ -126,45 +82,20 @@ void stats_legend(TH1D *htemp, TH1D *htemp_cut, const TString &branch_name)
   TPaveStats *stats1 = (TPaveStats *)htemp->FindObject("stats");
   TPaveStats *stats2 = (TPaveStats *)htemp_cut->FindObject("stats");
 
-  bool move_stats = should_move_stats(branch_name);
+  stats1->SetX1NDC(0.15);
+  stats1->SetX2NDC(0.33);
+  stats1->SetY1NDC(0.78);
+  stats1->SetY2NDC(0.88);
 
-  if (move_stats)
-  {
-    stats1->SetX1NDC(0.15);
-    stats1->SetX2NDC(0.33);
-    stats1->SetY1NDC(0.78);
-    stats1->SetY2NDC(0.88);
+  stats2->SetX1NDC(0.15);
+  stats2->SetX2NDC(0.33);
+  stats2->SetY1NDC(0.66);
+  stats2->SetY2NDC(0.76);
 
-    stats2->SetX1NDC(0.15);
-    stats2->SetX2NDC(0.33);
-    stats2->SetY1NDC(0.66);
-    stats2->SetY2NDC(0.76);
-  }
-  else
-  {
-    stats1->SetX1NDC(0.80);
-    stats1->SetX2NDC(0.98);
-    stats1->SetY1NDC(0.85);
-    stats1->SetY2NDC(0.95);
-
-    stats2->SetX1NDC(0.80);
-    stats2->SetX2NDC(0.98);
-    stats2->SetY1NDC(0.7);
-    stats2->SetY2NDC(0.8);
-  }
   stats1->SetTextColor(kBlack);
   stats2->SetTextColor(kRed);
 
-  TLegend *legend;
-  if (move_stats)
-  {
-    // legend = new TLegend(0.15, 0.45, 0.33, 0.55);
-    legend = new TLegend(0.36, 0.78, 0.59, 0.88);
-  }
-  else
-  {
-    legend = new TLegend(0.8, 0.55, 0.98, 0.65);
-  }
+  TLegend *legend = new TLegend(0.36, 0.78, 0.59, 0.88);
 
   legend->AddEntry(htemp, "No cuts", "l");
   legend->AddEntry(htemp_cut, "Cuts", "f");
@@ -175,9 +106,6 @@ void stats_legend(TH1D *htemp, TH1D *htemp_cut, const TString &branch_name)
 
 void analysis_background()
 {
-
-  //   double P_mass = 0.938272;
-  //   double N_mass = 0.9395654;
 
   TFile *file = TFile::Open("./data/0pDVCS_Pi0dataAsDVCS_10p2.root");
   TFile *output_file = new TFile("./output_root_hists/analysis_background.root", "RECREATE");
@@ -218,7 +146,7 @@ void analysis_background()
     TH1D *h_base_backgroung = new TH1D(base_hist_name_background, Form("DVCS%s_background", var.Data()), 60, min, max);
 
     tree->Project(base_hist_name_background, var, "");
-    h_base_backgroung->SetMaximum(1.4 * h_base_backgroung->GetMaximum());
+    h_base_backgroung->SetMaximum(1.5 * h_base_backgroung->GetMaximum());
 
     h_base_backgroung->SetLineColor(kBlack);
     h_base_backgroung->SetStats(true);
