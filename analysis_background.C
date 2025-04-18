@@ -62,7 +62,7 @@ void stats_legend(TH1D *htemp, TH1D *htemp_cut, const TString &branch_name, cons
   htemp_cut->Draw("HIST SAMES");
   gPad->Update();
 
-  htemp->GetXaxis()->SetTitle(Form("DVCS%s", latex_labels.at(branch_name).Data()));
+  htemp->GetXaxis()->SetTitle(Form("DVCS %s", latex_labels.at(branch_name).Data()));
   htemp->GetYaxis()->SetTitle("Events");
   htemp->SetMinimum(10.0);
 
@@ -82,7 +82,7 @@ void stats_legend(TH1D *htemp, TH1D *htemp_cut, const TString &branch_name, cons
   stats1->SetTextColor(kBlack);
   stats2->SetTextColor(kRed);
 
-  TLegend *legend = new TLegend(0.36, 0.78, 0.59, 0.88);
+  TLegend *legend = new TLegend(0.36, 0.78, 0.55, 0.88);
 
   legend->AddEntry(htemp, "No cuts", "l");
   legend->AddEntry(htemp_cut, "Cuts", "f");
@@ -102,18 +102,18 @@ void analysis_background()
   //   tree->Print();
 
   std::vector<std::pair<TString, std::pair<double, double>>> branch_names = {
-      {"_mm2_eg", {-1, 4.5}},
-      {"_mm2_eNg", {-1.5, 4.5}},
-      {"_mm2_eNg_N", {-1, 1}},
-      {"_mm2_eNX_N", {-6, 6}},
-      {"_strip_Q2", {0, 9}},
-      {"_strip_Xbj", {0, 0.8}},
-      {"_t_Nuc", {-4, 0}},
-      {"_t_Ph", {-3, 0}},
-      {"_delta_t", {-2, 1.5}},
+      {"_mm2_eg", {0, 3.5}},
+      {"_mm2_eNg", {-0.5, 3.5}},
+      {"_mm2_eNg_N", {-0.4, 0.4}},
+      {"_mm2_eNX_N", {-3, 3}},
+      {"_strip_Q2", {1, 7}},
+      {"_strip_Xbj", {0, 0.7}},
+      {"_t_Nuc", {-5, 0}},
+      {"_t_Ph", {-5, 0.1}},
+      {"_delta_t", {-1, 1}},
       {"_Phi_Nuc", {0, 360}},
       {"_Phi_Ph", {0, 360}},
-      {"_delta_Phi", {-20, 20}},
+      {"_delta_Phi", {-8, 8}},
       {"_strip_El_chi2pid", {-5, 3}},
       {"_strip_Ph_chi2pid", {-0.2, 10100}},
       {"_strip_Nuc_chi2pid", {-50, 80}}};
