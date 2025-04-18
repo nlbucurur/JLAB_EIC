@@ -114,7 +114,7 @@ std::vector<std::pair<TString, TCut>> generate_cuts(const std::map<TString, TH1D
         TString cut_name = Form("cut%lu%s", i, cut_label.Data());
         cuts.emplace_back(cut_name, all_cuts);
 
-        // std::cout << cut_name << " : " << all_cuts << std::endl;
+        std::cout << cut_name << " : " << all_cuts << std::endl;
     }
 
     return cuts;
@@ -163,7 +163,7 @@ void stats_legend(TH1D *htemp, TH1D *htemp_cut, const TString &branch_name)
         stats2->SetY2NDC(0.8);
     }
     stats1->SetTextColor(kBlack);
-    stats2->SetTextColor(KRed);
+    stats2->SetTextColor(kRed);
 
     TLegend *legend;
     if (move_stats)
@@ -188,7 +188,7 @@ void analysis_MCsignal()
     double N_mass = 0.9395654;
 
     TFile *file = TFile::Open("./data/1pDVCS_simulation.root");
-    TFile *output_file = new TFile("./output_files/analysis_MCsignal.root", "RECREATE");
+    TFile *output_file = new TFile("./output_root_hists/analysis_MCsignal.root", "RECREATE");
 
     TTree *tree = (TTree *)file->Get("pDVCS_stripped");
 
@@ -265,7 +265,7 @@ void analysis_MCsignal()
             tree->Project(cut_hist_name_MCsignal, var, cut);
 
             h_cut_MCsignal->SetMinimum(10.0);
-            h_cut_MCsignal->SetLineColor(KRed);
+            h_cut_MCsignal->SetLineColor(kRed);
             h_cut_MCsignal->SetFillColor(kRed - 9);
             h_cut_MCsignal->SetFillStyle(3004);
             h_cut_MCsignal->SetStats(true);
