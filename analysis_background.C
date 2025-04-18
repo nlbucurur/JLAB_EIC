@@ -82,7 +82,7 @@ void stats_legend(TH1D *htemp, TH1D *htemp_cut, const TString &branch_name, cons
   stats1->SetTextColor(kBlack);
   stats2->SetTextColor(kRed);
 
-  TLegend *legend = new TLegend(0.36, 0.78, 0.55, 0.88);
+  TLegend *legend = new TLegend(0.36, 0.78, 0.54, 0.88);
 
   legend->AddEntry(htemp, "No cuts", "l");
   legend->AddEntry(htemp_cut, "Cuts", "f");
@@ -124,10 +124,10 @@ void analysis_background()
   // }
 
   std::map<TString, TString> latex_labels = {
-      {"_mm2_eg", "MM^{2}_{P} e P#rightarrow e'#gamma(P_{miss}) (GeV^2)"},
-      {"_mm2_eNg", "MM^{2}_{P} e D#rightarrow e'P'#gamma(N_{miss}) (GeV^2)"},
-      {"_mm2_eNg_N", "MM^{2}_{X} e P#rightarrow e'P'#gamma (GeV^2)"},
-      {"_mm2_eNX_N", "MM^{2}_{#gamma} e P#rightarrow e'P'(#gamma_{miss}) (GeV^2)"},
+      {"_mm2_eg", "MM^{2}_{P} e P#rightarrow e'#gamma(P_{miss}) (GeV^{2})"},
+      {"_mm2_eNg", "MM^{2}_{P} e D#rightarrow e'P'#gamma(N_{miss}) (GeV^{2})"},
+      {"_mm2_eNg_N", "MM^{2}_{X} e P#rightarrow e'P'#gamma (GeV^{2})"},
+      {"_mm2_eNX_N", "MM^{2}_{#gamma} e P#rightarrow e'P'(#gamma_{miss}) (GeV^{2})"},
       {"_strip_Q2", "Q^{2}"},
       {"_strip_Xbj", "x_{B}"},
       {"_t_Nuc", "t_{Nuc}"},

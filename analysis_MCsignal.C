@@ -165,8 +165,8 @@ void analysis_MCsignal()
         {"_mm2_eNX_N", {-4, 4}},
         {"_strip_Q2", {1, 6}},
         {"_strip_Xbj", {0, 0.7}},
-        {"_t_Nuc", {-3, 0}},
-        {"_t_Ph", {-2, 0.3}},
+        {"_t_Nuc", {-3, 0.1}},
+        {"_t_Ph", {-2, 0.5}},
         {"_delta_t", {-0.6, 0.6}},
         {"_Phi_Nuc", {0, 360}},
         {"_Phi_Ph", {0, 360}},
@@ -181,10 +181,10 @@ void analysis_MCsignal()
     // }
 
     std::map<TString, TString> latex_labels = {
-        {"_mm2_eg", "MM^{2}_{P} e P#rightarrow e'#gamma(P_{miss}) (GeV^2)"},
-        {"_mm2_eNg", "MM^{2}_{P} e D#rightarrow e'P'#gamma(N_{miss}) (GeV^2)"},
-        {"_mm2_eNg_N", "MM^{2}_{X} e P#rightarrow e'P'#gamma (GeV^2)"},
-        {"_mm2_eNX_N", "MM^{2}_{#gamma} e P#rightarrow e'P'(#gamma_{miss}) (GeV^2)"},
+        {"_mm2_eg", "MM^{2}_{P} e P#rightarrow e'#gamma(P_{miss}) (GeV^{2})"},
+        {"_mm2_eNg", "MM^{2}_{P} e D#rightarrow e'P'#gamma(N_{miss}) (GeV^{2})"},
+        {"_mm2_eNg_N", "MM^{2}_{X} e P#rightarrow e'P'#gamma (GeV^{2})"},
+        {"_mm2_eNX_N", "MM^{2}_{#gamma} e P#rightarrow e'P'(#gamma_{miss}) (GeV^{2})"},
         {"_strip_Q2", "Q^{2}"},
         {"_strip_Xbj", "x_{B}"},
         {"_t_Nuc", "t_{Nuc}"},
@@ -195,9 +195,7 @@ void analysis_MCsignal()
         {"_delta_Phi", "#Delta#Phi"},
         {"_strip_El_chi2pid", "#chi^{2}_{pid}^{e}"},
         {"_strip_Ph_chi2pid", "#chi^{2}_{pid}^{#gamma}"},
-        {"_strip_Nuc_chi2pid", "#chi^{2}_{pid}^{N}"}
-    };
-    
+        {"_strip_Nuc_chi2pid", "#chi^{2}_{pid}^{N}"}};
 
     std::map<TString, TH1D *> hs_base_MCsignal;
 
