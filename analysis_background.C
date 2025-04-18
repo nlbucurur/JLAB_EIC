@@ -21,19 +21,6 @@ bool should_set_logy(const TString &branch_name)
   return std::find(logy_branches.begin(), logy_branches.end(), branch_name) != logy_branches.end();
 }
 
-std::pair<TString, TString> auto_cut(const TString &var, TH1D *hist, const TString &cut_label)
-{
-  double mean = hist->GetMean();
-  double sigma = hist->GetStdDev();
-
-  double min_cut = mean - 3.0 * sigma;
-  double max_cut = mean + 3.0 * sigma;
-
-  TString cut = Form("%s >= %.5f && %s <= %.5f", var.Data(), min_cut, var.Data(), max_cut);
-
-  return {cut_label, cut};
-}
-
 std::vector<std::pair<TString, TCut>> generate_cuts(const std::map<TString, TH1D *> &hs_base)
 {
   std::vector<std::pair<TString, TString>> cuts_definitions = {
@@ -66,7 +53,7 @@ std::vector<std::pair<TString, TCut>> generate_cuts(const std::map<TString, TH1D
   return cuts;
 }
 
-void stats_legend(TH1D *htemp, TH1D *htemp_cut, const TString &branch_name)
+void stats_legend(TH1D *htemp, TH1D *htemp_cut, const TString &branch_name, const std::map<TString, TString> &latex_labels)
 {
 
   gPad->cd();
@@ -75,7 +62,7 @@ void stats_legend(TH1D *htemp, TH1D *htemp_cut, const TString &branch_name)
   htemp_cut->Draw("HIST SAMES");
   gPad->Update();
 
-  htemp->GetXaxis()->SetTitle(Form("DVCS%s", branch_name.Data()));
+  htemp->GetXaxis()->SetTitle(Form("DVCS%s", latex_labels.at(branch_name).Data()));
   htemp->GetYaxis()->SetTitle("Events");
   htemp->SetMinimum(10.0);
 
@@ -135,6 +122,23 @@ void analysis_background()
   // for (const auto& branch_name : branch_names) {
   //   std::cout << "Branch name: " << branch_name.first << ", Min: " << branch_name.second.first << ", Max: " << branch_name.second.second << std::endl;
   // }
+
+  std::map<TString, TString> latex_labels = {
+      {"_mm2_eg", "MM^{2}_{P} e P#rightarrow e'#gamma(P_{miss}) (GeV^2)"},
+      {"_mm2_eNg", "MM^{2}_{P} e D#rightarrow e'P'#gamma(N_{miss}) (GeV^2)"},
+      {"_mm2_eNg_N", "MM^{2}_{X} e P#rightarrow e'P'#gamma (GeV^2)"},
+      {"_mm2_eNX_N", "MM^{2}_{#gamma} e P#rightarrow e'P'(#gamma_{miss}) (GeV^2)"},
+      {"_strip_Q2", "Q^{2}"},
+      {"_strip_Xbj", "x_{B}"},
+      {"_t_Nuc", "t_{Nuc}"},
+      {"_t_Ph", "t_{Ph}"},
+      {"_delta_t", "#Delta t"},
+      {"_Phi_Nuc", "#Phi_{Nuc}"},
+      {"_Phi_Ph", "#Phi_{Ph}"},
+      {"_delta_Phi", "#Delta#Phi"},
+      {"_strip_El_chi2pid", "#chi^{2}_{pid}^{e}"},
+      {"_strip_Ph_chi2pid", "#chi^{2}_{pid}^{#gamma}"},
+      {"_strip_Nuc_chi2pid", "#chi^{2}_{pid}^{N}"}};
 
   std::map<TString, TH1D *> hs_base_background;
 
@@ -199,7 +203,7 @@ void analysis_background()
       stack->Add(h_cut_background);
       stack->Draw("nostack");
 
-      stats_legend(hs_base_background[var], h_cut_background, var.Data());
+      stats_legend(hs_base_background[var], h_cut_background, var, latex_labels);
 
       gPad->Modified();
 
