@@ -168,8 +168,8 @@ void plot_variables () {
 }
 
 
-  std::string output_file = "./plots_variables/Histograms_Variables.png";
-  std::string output_file_pdf = "./plots_variables/Histograms_Variables.pdf";
+  std::string output_file = "Histograms_Variables.png";
+  std::string output_file_pdf = "Histograms_Variables.pdf";
   canvas_all->SaveAs(output_file.c_str());
   canvas_all->SaveAs(output_file_pdf.c_str());
   delete canvas_all;
