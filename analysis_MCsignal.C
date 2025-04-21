@@ -247,7 +247,7 @@ void analysis_MCsignal()
     for (const auto &[label_cut, cut] : cuts)
     {
         // TCanvas *canvas = new TCanvas("canvas", label_cut, 1920, 1080);
-        // canvas->Divide(3, 4);
+        // canvas->Divide(4, 4);
 
         int canvas_index = 0;
         TCanvas *canvas = nullptr;
