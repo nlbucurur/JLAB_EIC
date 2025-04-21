@@ -162,10 +162,10 @@ void compare_MC_data_background()
         canvas_base->SaveAs(Form("./comparison/base_all_%d.png", canvas_index));
         canvas_base->SaveAs(Form("./comparison/base_all_%d.pdf", canvas_index));
         delete canvas_base;
+        ++canvas_index;
       }
       canvas_base = new TCanvas(Form("canvas_base_%d", canvas_index), Form("MC-data-Bkg base comparison %d", canvas_index), 1200, 900);
       canvas_base->Divide(2, 2);
-      canvas_index++;
     }
 
     const auto &var = branch_names[i];
