@@ -158,22 +158,39 @@ void analysis_MCsignal()
 
     //   tree->Print();
 
+    // std::vector<std::pair<TString, std::pair<double, double>>> branch_names = {
+    //     {"_mm2_eg", {0, 2.6}},
+    //     {"_mm2_eNg", {-0.5, 3.0}},
+    //     {"_mm2_eNg_N", {-0.2, 0.2}},
+    //     {"_mm2_eNX_N", {-4, 4}},
+    //     {"_strip_Q2", {1, 6}},
+    //     {"_strip_Xbj", {0, 0.7}},
+    //     {"_t_Nuc", {-3, 0.1}},
+    //     {"_t_Ph", {-2, 0.5}},
+    //     {"_delta_t", {-0.6, 0.6}},
+    //     {"_Phi_Nuc", {0, 360}},
+    //     {"_Phi_Ph", {0, 360}},
+    //     {"_delta_Phi", {-2, 2}},
+    //     {"_strip_El_chi2pid", {-5.5, 5.5}},
+    //     {"_strip_Ph_chi2pid", {-0.2, 10100}},
+    //     {"_strip_Nuc_chi2pid", {-0.2, 10100}}};
+
     std::vector<std::pair<TString, std::pair<double, double>>> branch_names = {
-        {"_mm2_eg", {0, 2.6}},
-        {"_mm2_eNg", {-0.5, 3.0}},
-        {"_mm2_eNg_N", {-0.2, 0.2}},
-        {"_mm2_eNX_N", {-4, 4}},
-        {"_strip_Q2", {1, 6}},
+        {"_mm2_eg", {-2, 5.5}},
+        {"_mm2_eNg", {-1.5, 5}},
+        {"_mm2_eNg_N", {-1, 1}},
+        {"_mm2_eNX_N", {-5, 9}},
+        {"_strip_Q2", {1, 8}},
         {"_strip_Xbj", {0, 0.7}},
-        {"_t_Nuc", {-3, 0.1}},
-        {"_t_Ph", {-2, 0.5}},
-        {"_delta_t", {-0.6, 0.6}},
+        {"_t_Nuc", {-14, 1}},
+        {"_t_Ph", {-12, 1}},
+        {"_delta_t", {-2, 2}},
         {"_Phi_Nuc", {0, 360}},
         {"_Phi_Ph", {0, 360}},
-        {"_delta_Phi", {-2, 2}},
+        {"_delta_Phi", {-4, 3}},
         {"_strip_El_chi2pid", {-5.5, 5.5}},
         {"_strip_Ph_chi2pid", {-0.2, 10100}},
-        {"_strip_Nuc_chi2pid", {-0.2, 10100}}};
+        {"_strip_Nuc_chi2pid", {-6, 6}}};
 
     // printf("Number of branches: %lu\n", branch_names.size());
     // for (const auto& branch_name : branch_names) {
@@ -225,18 +242,40 @@ void analysis_MCsignal()
     gStyle->SetPadGridX(true);
     gStyle->SetPadGridY(true);
 
+    int plots_per_canvas = 4;
+
     for (const auto &[label_cut, cut] : cuts)
     {
+        // TCanvas *canvas = new TCanvas("canvas", label_cut, 1920, 1080);
+        // canvas->Divide(3, 4);
 
-        TCanvas *canvas = new TCanvas("canvas", label_cut, 1920, 1080);
-        canvas->Divide(4, 4);
+        int canvas_index = 0;
+        TCanvas *canvas = nullptr;
 
         for (size_t i = 0; i < branch_names.size(); ++i)
         {
+
+            if (i % plots_per_canvas == 0)
+            {
+                if (i > 0)
+                {
+                    canvas->SaveAs(Form("./cutsMC/optimization_%s_MCsignal_%d.png", label_cut.Data(), canvas_index));
+                    canvas->SaveAs(Form("./cutsMC/optimization_%s_MCsignal_%d.pdf", label_cut.Data(), canvas_index));
+                    delete canvas;
+                    ++canvas_index;
+                }
+
+                canvas = new TCanvas(Form("canvas_%s_%d", label_cut.Data(), canvas_index),
+                                     Form("%s - Part %d", label_cut.Data(), canvas_index),
+                                     1600, 1200);
+                canvas->Divide(2, 2);
+            }
+
             const auto &[var, range] = branch_names[i];
             const auto &[min, max] = range;
 
-            canvas->cd(i + 1);
+            // canvas->cd(i + 1);
+            canvas->cd(i % plots_per_canvas + 1);
             if (should_set_logy(var.Data()))
                 gPad->SetLogy();
 
@@ -266,12 +305,18 @@ void analysis_MCsignal()
             h_cut_MCsignal->Write();
         }
 
-        // TString filename = Form("./cuts_no_chi2pid/optimization_%s_no_chi2pid.png", label_cut.Data());
-        TString filename = Form("./cutsMC/optimization_%s_MCsignal.png", label_cut.Data());
-        TString filename_pdf = Form("./cutsMC/optimization_%s_MCsignal.pdf", label_cut.Data());
-        canvas->SaveAs(filename);
-        canvas->SaveAs(filename_pdf);
-        delete canvas;
+        // // TString filename = Form("./cuts_no_chi2pid/optimization_%s_no_chi2pid.png", label_cut.Data());
+        // TString filename = Form("./cutsMC/AllTogether/optimization_%s_MCsignal.png", label_cut.Data());
+        // TString filename_pdf = Form("./cutsMC/AllTogether/optimization_%s_MCsignal.pdf", label_cut.Data());
+        // canvas->SaveAs(filename);
+        // canvas->SaveAs(filename_pdf);
+        // delete canvas;
+        if (canvas)
+        {
+            canvas->SaveAs(Form("./cutsMC/optimization_%s_MCsignal_%d.png", label_cut.Data(), canvas_index));
+            canvas->SaveAs(Form("./cutsMC/optimization_%s_MCsignal_%d.pdf", label_cut.Data(), canvas_index));
+            delete canvas;
+        }
     }
 
     file->Close();
