@@ -261,7 +261,7 @@ void analysis_background()
     if (canvas)
     {
       canvas->SaveAs(Form("./cuts_background/optimization_%s_backgorund_%d.png", label_cut.Data(), canvas_index));
-      canvas->SaveAs(Form("./cuts_background/optimization_%s_backgorund_%d.png", label_cut.Data(), canvas_index));
+      canvas->SaveAs(Form("./cuts_background/optimization_%s_backgorund_%d.pdf", label_cut.Data(), canvas_index));
       delete canvas;
     }
   }

@@ -241,7 +241,7 @@ void analysis_data()
     if (canvas)
         {
             canvas->SaveAs(Form("./cuts_data/optimization_%s_data_%d.png", label_cut.Data(), canvas_index));
-            canvas->SaveAs(Form("./cuts_data/optimization_%s_data_%d.png", label_cut.Data(), canvas_index));
+            canvas->SaveAs(Form("./cuts_data/optimization_%s_data_%d.pdf", label_cut.Data(), canvas_index));
             delete canvas;
         }
   }
