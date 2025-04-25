@@ -109,6 +109,30 @@ std::vector<std::pair<TString, TCut>> generate_cuts(const std::map<TString, TH1D
     return cuts;
 }
 
+void AdjustHistogramRange(TH1D *hist)
+{
+    int firstBin = -1, lastBin = -1;
+
+    // Find the first and last non-empty bins
+    for (int i = 1; i <= hist->GetNbinsX(); ++i)
+    {
+        if (hist->GetBinContent(i) > 0)
+        {
+            if (firstBin == -1)
+                firstBin = i;
+            lastBin = i;
+        }
+    }
+
+    // Adjust the axis range
+    if (firstBin != -1 && lastBin != -1)
+    {
+        double xMin = hist->GetXaxis()->GetBinLowEdge(firstBin);
+        double xMax = hist->GetXaxis()->GetBinUpEdge(lastBin);
+        hist->GetXaxis()->SetRangeUser(xMin, xMax);
+    }
+}
+
 void stats_legend(TH1D *htemp, TH1D *htemp_cut, const TString &branch_name, const std::map<TString, TString> &latex_labels)
 {
 
@@ -116,12 +140,27 @@ void stats_legend(TH1D *htemp, TH1D *htemp_cut, const TString &branch_name, cons
 
     htemp->Draw("HIST");
     htemp_cut->Draw("HIST SAMES");
-    gPad->Update();
+
+    htemp->SetFillStyle(0);
 
     htemp->GetXaxis()->SetTitle(Form("DVCS %s", latex_labels.at(branch_name).Data()));
     htemp->GetYaxis()->SetTitle("Events");
-    htemp->SetMinimum(10.0);
+    // htemp->SetMinimum(10.0);
 
+    double max_total = std::max({htemp->GetMaximum(), htemp_cut->GetMaximum()});
+
+
+    if (should_set_logy(branch_name))
+            {
+                gPad->SetLogy();
+                htemp_cut->SetMaximum(100 * max_total);
+            }
+            else
+            {
+                htemp_cut->SetMaximum(1.4 * max_total);
+            }
+
+    gPad->Update();
     TPaveStats *stats1 = (TPaveStats *)htemp->FindObject("stats");
     TPaveStats *stats2 = (TPaveStats *)htemp_cut->FindObject("stats");
 
@@ -143,6 +182,8 @@ void stats_legend(TH1D *htemp, TH1D *htemp_cut, const TString &branch_name, cons
     legend->AddEntry(htemp, "No cuts", "l");
     legend->AddEntry(htemp_cut, "Cuts", "f");
     legend->Draw();
+
+    gPad->ModifiedUpdate();
 }
 
 void analysis_MCsignal()
@@ -179,7 +220,7 @@ void analysis_MCsignal()
         {"_mm2_eg", {-2, 5.5}},
         {"_mm2_eNg", {-1.5, 5}},
         {"_mm2_eNg_N", {-1, 1}},
-        {"_mm2_eNX_N", {-5, 9}},
+        {"_mm2_eNX_N", {-5, 10}},
         {"_strip_Q2", {1, 8}},
         {"_strip_Xbj", {0, 0.7}},
         {"_t_Nuc", {-14, 1}},
@@ -188,6 +229,10 @@ void analysis_MCsignal()
         {"_Phi_Nuc", {0, 360}},
         {"_Phi_Ph", {0, 360}},
         {"_delta_Phi", {-4, 3}},
+        {"_mp_eg", {-2, 2}},
+        {"_mp_eNg", {-2, 2}},
+        {"_mp_eNg_N", {-2, 2}},
+        {"_mp_eNX_N", {1.5, 15}},
         {"_strip_El_chi2pid", {-5.5, 5.5}},
         {"_strip_Ph_chi2pid", {-0.2, 10100}},
         {"_strip_Nuc_chi2pid", {-6, 6}}};
@@ -212,7 +257,11 @@ void analysis_MCsignal()
         {"_delta_Phi", "#Delta#Phi"},
         {"_strip_El_chi2pid", "#chi^{2}_{pid}^{e}"},
         {"_strip_Ph_chi2pid", "#chi^{2}_{pid}^{#gamma}"},
-        {"_strip_Nuc_chi2pid", "#chi^{2}_{pid}^{N}"}};
+        {"_strip_Nuc_chi2pid", "#chi^{2}_{pid}^{N}"},
+        {"_mp_eg", "P_{P} = 10.6 - (P_{e'} + P_{#gamma}) (GeV)"},
+        {"_mp_eNg", "P_{N} = 10.6 - (P_{P'} + P_{e'} + P_{#gamma}) (GeV)"},
+        {"_mp_eNg_N", "P_{#text{nothing}} = 10.6 - (P_{P'} + P_{e'} + P_{#gamma}) (GeV)"},
+        {"_mp_eNX_N", "P_{#gamma} = 10.6 - (P_{P'} + P_{e'}) (GeV)"}};
 
     std::map<TString, TH1D *> hs_base_MCsignal;
 
@@ -221,9 +270,40 @@ void analysis_MCsignal()
         const auto &[min, max] = range;
 
         TString base_hist_name_MCsignal = Form("h%s_base_MCsignal", var.Data());
-        TH1D *h_base_MCsignal = new TH1D(base_hist_name_MCsignal, Form("DVCS%s_MCsignal", var.Data()), 60, min, max);
+        TH1D *h_base_MCsignal = nullptr;
 
-        tree->Project(base_hist_name_MCsignal, var, "");
+        if (var == "_t_Nuc" || var == "_t_Ph")
+        {
+            h_base_MCsignal = new TH1D(base_hist_name_MCsignal, Form("DVCS%s_MCsignal", var.Data()), 300, min, max);
+        }
+        else
+        {
+            h_base_MCsignal = new TH1D(base_hist_name_MCsignal, Form("DVCS%s_MCsignal", var.Data()), 60, min, max);
+        }
+
+        TString expression;
+        if (var == "_mp_eg")
+        {
+            expression = Form("10.6 - (_strip_El_P + _strip_Ph_P)");
+        }
+        else if (var == "_mp_eNg")
+        {
+            expression = Form("10.6 - (_strip_Nuc_P + _strip_El_P + _strip_Ph_P)");
+        }
+        else if (var == "_mp_eNg_N")
+        {
+            expression = Form("10.6 - (_strip_Nuc_P + _strip_El_P + _strip_Ph_P)");
+        }
+        else if (var == "_mp_eNX_N")
+        {
+            expression = Form("10.6 - (_strip_Nuc_P + _strip_El_P)");
+        }
+        else
+        {
+            expression = var;
+        }
+
+        tree->Project(base_hist_name_MCsignal, expression, "");
         h_base_MCsignal->SetMaximum(1.5 * h_base_MCsignal->GetMaximum());
 
         h_base_MCsignal->SetLineColor(kBlack);
@@ -267,7 +347,7 @@ void analysis_MCsignal()
 
                 canvas = new TCanvas(Form("canvas_%s_%d", label_cut.Data(), canvas_index),
                                      Form("%s - Part %d", label_cut.Data(), canvas_index),
-                                     1600, 1200);
+                                     1920, 1080);
                 canvas->Divide(2, 2);
             }
 
@@ -276,16 +356,46 @@ void analysis_MCsignal()
 
             // canvas->cd(i + 1);
             canvas->cd(i % plots_per_canvas + 1);
-            if (should_set_logy(var.Data()))
-                gPad->SetLogy();
+            // if (should_set_logy(var.Data()))
+            //     gPad->SetLogy();
+
+            TString expression;
+            if (var == "_mp_eg")
+            {
+                expression = Form("10.6 - (_strip_El_P + _strip_Ph_P)");
+            }
+            else if (var == "_mp_eNg")
+            {
+                expression = Form("10.6 - (_strip_Nuc_P + _strip_El_P + _strip_Ph_P)");
+            }
+            else if (var == "_mp_eNg_N")
+            {
+                expression = Form("10.6 - (_strip_Nuc_P + _strip_El_P + _strip_Ph_P)");
+            }
+            else if (var == "_mp_eNX_N")
+            {
+                expression = Form("10.6 - (_strip_Nuc_P + _strip_El_P)");
+            }
+            else
+            {
+                expression = var;
+            }
 
             TString cut_hist_name_MCsignal = Form("h%s_%s_MCsignal", var.Data(), label_cut.Data());
+            TH1D *h_cut_MCsignal = nullptr;
 
-            TH1D *h_cut_MCsignal = new TH1D(cut_hist_name_MCsignal, Form("DVCS%s", var.Data()), 60, min, max);
+            if (var == "_t_Nuc" || var == "_t_Ph")
+            {
+                h_cut_MCsignal = new TH1D(cut_hist_name_MCsignal, Form("DVCS%s", var.Data()), 300, min, max);
+            }
+            else
+            {
+                h_cut_MCsignal = new TH1D(cut_hist_name_MCsignal, Form("DVCS%s", var.Data()), 60, min, max);
+            }
 
-            tree->Project(cut_hist_name_MCsignal, var, cut);
+            tree->Project(cut_hist_name_MCsignal, expression, cut);
 
-            h_cut_MCsignal->SetMinimum(10.0);
+            // h_cut_MCsignal->SetMinimum(10.0);
             h_cut_MCsignal->SetLineColor(kRed);
             h_cut_MCsignal->SetFillColor(kRed - 9);
             h_cut_MCsignal->SetFillStyle(3004);
@@ -293,13 +403,16 @@ void analysis_MCsignal()
 
             gStyle->SetOptStat("emr");
 
+            AdjustHistogramRange(hs_base_MCsignal[var]);
+            AdjustHistogramRange(h_cut_MCsignal);
+
             THStack *stack = new THStack(Form("stack%s_MCsignal", var.Data()), Form("DVCS%s_MCsignal", var.Data()));
             stack->Add(hs_base_MCsignal[var]);
             stack->Add(h_cut_MCsignal);
             stack->Draw("nostack");
 
             stats_legend(hs_base_MCsignal[var], h_cut_MCsignal, var, latex_labels);
-            gPad->Modified();
+            // gPad->Modified();
 
             output_file->cd();
             h_cut_MCsignal->Write();
