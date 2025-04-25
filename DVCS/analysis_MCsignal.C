@@ -145,7 +145,7 @@ void stats_legend(TH1D *htemp, TH1D *htemp_cut, const TString &branch_name, cons
 
     htemp->GetXaxis()->SetTitle(Form("DVCS %s", latex_labels.at(branch_name).Data()));
     htemp->GetYaxis()->SetTitle("Events");
-    // htemp->SetMinimum(10.0);
+    htemp_cut->SetMinimum(10.0);
 
     double max_total = std::max({htemp->GetMaximum(), htemp_cut->GetMaximum()});
 
@@ -274,7 +274,7 @@ void analysis_MCsignal()
 
         if (var == "_t_Nuc" || var == "_t_Ph")
         {
-            h_base_MCsignal = new TH1D(base_hist_name_MCsignal, Form("DVCS%s_MCsignal", var.Data()), 300, min, max);
+            h_base_MCsignal = new TH1D(base_hist_name_MCsignal, Form("DVCS%s_MCsignal", var.Data()), 100, min, max);
         }
         else
         {
@@ -386,7 +386,7 @@ void analysis_MCsignal()
 
             if (var == "_t_Nuc" || var == "_t_Ph")
             {
-                h_cut_MCsignal = new TH1D(cut_hist_name_MCsignal, Form("DVCS%s", var.Data()), 300, min, max);
+                h_cut_MCsignal = new TH1D(cut_hist_name_MCsignal, Form("DVCS%s", var.Data()), 100, min, max);
             }
             else
             {
