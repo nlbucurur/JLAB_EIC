@@ -53,6 +53,30 @@ std::vector<std::pair<TString, TCut>> generate_cuts(const std::map<TString, TH1D
   return cuts;
 }
 
+void AdjustHistogramRange(TH1D *hist)
+{
+  int firstBin = -1, lastBin = -1;
+
+  // Find the first and last non-empty bins
+  for (int i = 1; i <= hist->GetNbinsX(); ++i)
+  {
+    if (hist->GetBinContent(i) > 0)
+    {
+      if (firstBin == -1)
+        firstBin = i;
+      lastBin = i;
+    }
+  }
+
+  // Adjust the axis range
+  if (firstBin != -1 && lastBin != -1)
+  {
+    double xMin = hist->GetXaxis()->GetBinLowEdge(firstBin);
+    double xMax = hist->GetXaxis()->GetBinUpEdge(lastBin);
+    hist->GetXaxis()->SetRangeUser(xMin, xMax);
+  }
+}
+
 void stats_legend(TH1D *htemp, TH1D *htemp_cut, const TString &branch_name, const std::map<TString, TString> &latex_labels)
 {
 
@@ -60,11 +84,26 @@ void stats_legend(TH1D *htemp, TH1D *htemp_cut, const TString &branch_name, cons
 
   htemp->Draw("HIST");
   htemp_cut->Draw("HIST SAMES");
-  gPad->Update();
+
+  htemp->SetFillStyle(0);
 
   htemp->GetXaxis()->SetTitle(Form("DVCS %s", latex_labels.at(branch_name).Data()));
   htemp->GetYaxis()->SetTitle("Events");
-  htemp->SetMinimum(10.0);
+  htemp_cut->SetMinimum(10.0);
+
+  double max_total = std::max({htemp->GetMaximum(), htemp_cut->GetMaximum()});
+
+  if (should_set_logy(branch_name))
+  {
+    gPad->SetLogy();
+    htemp_cut->SetMaximum(100 * max_total);
+  }
+  else
+  {
+    htemp_cut->SetMaximum(1.4 * max_total);
+  }
+
+  gPad->Update();
 
   TPaveStats *stats1 = (TPaveStats *)htemp->FindObject("stats");
   TPaveStats *stats2 = (TPaveStats *)htemp_cut->FindObject("stats");
@@ -88,7 +127,7 @@ void stats_legend(TH1D *htemp, TH1D *htemp_cut, const TString &branch_name, cons
   legend->AddEntry(htemp_cut, "Cuts", "f");
   legend->Draw();
 
-  gPad->Update();
+  gPad->ModifiedUpdate();
 }
 
 void analysis_background()
@@ -122,7 +161,7 @@ void analysis_background()
       {"_mm2_eg", {-2, 5.5}},
       {"_mm2_eNg", {-1.5, 5}},
       {"_mm2_eNg_N", {-1, 1}},
-      {"_mm2_eNX_N", {-5, 9}},
+      {"_mm2_eNX_N", {-5, 10}},
       {"_strip_Q2", {1, 8}},
       {"_strip_Xbj", {0, 0.7}},
       {"_t_Nuc", {-14, 1}},
@@ -131,6 +170,10 @@ void analysis_background()
       {"_Phi_Nuc", {0, 360}},
       {"_Phi_Ph", {0, 360}},
       {"_delta_Phi", {-4, 3}},
+      {"_mp_eg", {-2, 6}},
+      {"_mp_eNg", {-2, 2}},
+      {"_mp_eNg_N", {-2, 2}},
+      {"_mp_eNX_N", {1.5, 15}},
       {"_strip_El_chi2pid", {-5.5, 5.5}},
       {"_strip_Ph_chi2pid", {-0.2, 10100}},
       {"_strip_Nuc_chi2pid", {-6, 6}}};
@@ -155,7 +198,11 @@ void analysis_background()
       {"_delta_Phi", "#Delta#Phi"},
       {"_strip_El_chi2pid", "#chi^{2}_{pid}^{e}"},
       {"_strip_Ph_chi2pid", "#chi^{2}_{pid}^{#gamma}"},
-      {"_strip_Nuc_chi2pid", "#chi^{2}_{pid}^{N}"}};
+      {"_strip_Nuc_chi2pid", "#chi^{2}_{pid}^{N}"},
+      {"_mp_eg", "P_{P} = 10.6 - (P_{e'} + P_{#gamma}) (GeV)"},
+      {"_mp_eNg", "P_{N} = 10.6 - (P_{P'} + P_{e'} + P_{#gamma}) (GeV)"},
+      {"_mp_eNg_N", "P_{#text{nothing}} = 10.6 - (P_{P'} + P_{e'} + P_{#gamma}) (GeV)"},
+      {"_mp_eNX_N", "P_{#gamma} = 10.6 - (P_{P'} + P_{e'}) (GeV)"}};
 
   std::map<TString, TH1D *> hs_base_background;
 
@@ -164,15 +211,46 @@ void analysis_background()
     const auto &[min, max] = range;
 
     TString base_hist_name_background = Form("h%s_base_background", var.Data());
-    TH1D *h_base_backgroung = new TH1D(base_hist_name_background, Form("DVCS%s_background", var.Data()), 60, min, max);
+    TH1D *h_base_background = nullptr;
 
-    tree->Project(base_hist_name_background, var, "");
-    h_base_backgroung->SetMaximum(1.5 * h_base_backgroung->GetMaximum());
+    if (var == "_t_Nuc" || var == "_t_Ph")
+    {
+      h_base_background = new TH1D(base_hist_name_background, Form("DVCS%s_background", var.Data()), 100, min, max);
+    }
+    else
+    {
+      h_base_background = new TH1D(base_hist_name_background, Form("DVCS%s_background", var.Data()), 60, min, max);
+    }
 
-    h_base_backgroung->SetLineColor(kBlack);
-    h_base_backgroung->SetStats(true);
+    TString expression;
+    if (var == "_mp_eg")
+    {
+      expression = Form("10.6 - (_strip_El_P + _strip_Ph_P)");
+    }
+    else if (var == "_mp_eNg")
+    {
+      expression = Form("10.6 - (_strip_Nuc_P + _strip_El_P + _strip_Ph_P)");
+    }
+    else if (var == "_mp_eNg_N")
+    {
+      expression = Form("10.6 - (_strip_Nuc_P + _strip_El_P + _strip_Ph_P)");
+    }
+    else if (var == "_mp_eNX_N")
+    {
+      expression = Form("10.6 - (_strip_Nuc_P + _strip_El_P)");
+    }
+    else
+    {
+      expression = var;
+    }
 
-    hs_base_background[var] = h_base_backgroung;
+    tree->Project(base_hist_name_background, expression, "");
+    h_base_background->SetMaximum(1.5 * h_base_background->GetMaximum());
+
+    h_base_background->SetLineColor(kBlack);
+    h_base_background->SetStats(true);
+
+    hs_base_background[var] = h_base_background;
     gStyle->SetOptStat("emr");
 
     output_file->cd();
@@ -212,7 +290,7 @@ void analysis_background()
 
         canvas = new TCanvas(Form("canvas_%s_%d", label_cut.Data(), canvas_index),
                              Form("%s - Part %d", label_cut.Data(), canvas_index),
-                             1600, 1200);
+                             1920, 1080);
         canvas->Divide(2, 2);
       }
 
@@ -221,22 +299,56 @@ void analysis_background()
 
       // canvas->cd(i + 1);
       canvas->cd(i % plots_per_canvas + 1);
-      if (should_set_logy(var.Data()))
-        gPad->SetLogy();
+      // if (should_set_logy(var.Data()))
+      //   gPad->SetLogy();
+
+      TString expression;
+      if (var == "_mp_eg")
+      {
+        expression = Form("10.6 - (_strip_El_P + _strip_Ph_P)");
+      }
+      else if (var == "_mp_eNg")
+      {
+        expression = Form("10.6 - (_strip_Nuc_P + _strip_El_P + _strip_Ph_P)");
+      }
+      else if (var == "_mp_eNg_N")
+      {
+        expression = Form("10.6 - (_strip_Nuc_P + _strip_El_P + _strip_Ph_P)");
+      }
+      else if (var == "_mp_eNX_N")
+      {
+        expression = Form("10.6 - (_strip_Nuc_P + _strip_El_P)");
+      }
+      else
+      {
+        expression = var;
+      }
 
       TString cut_hist_name_background = Form("h%s_%s_background", var.Data(), label_cut.Data());
 
-      TH1D *h_cut_background = new TH1D(cut_hist_name_background, Form("DVCS%s", var.Data()), 60, min, max);
+      TH1D *h_cut_background = nullptr;
 
-      tree->Project(cut_hist_name_background, var, cut);
+      if (var == "_t_Nuc" || var == "_t_Ph")
+      {
+        h_cut_background = new TH1D(cut_hist_name_background, Form("DVCS%s_background", var.Data()), 100, min, max);
+      }
+      else
+      {
+        h_cut_background = new TH1D(cut_hist_name_background, Form("DVCS%s_background", var.Data()), 60, min, max);
+      }
 
-      h_cut_background->SetMinimum(10.0);
+      tree->Project(cut_hist_name_background, expression, cut);
+
+      // h_cut_background->SetMinimum(10.0);
       h_cut_background->SetLineColor(kRed);
       h_cut_background->SetFillColor(kRed - 9);
       h_cut_background->SetFillStyle(3004);
       gStyle->SetOptStat("emr");
 
       h_cut_background->SetStats(true);
+
+      AdjustHistogramRange(hs_base_background[var]);
+      AdjustHistogramRange(h_cut_background);
 
       THStack *stack = new THStack(Form("stack%s", var.Data()), Form("DVCS%s", var.Data()));
       stack->Add(hs_base_background[var]);
@@ -245,7 +357,7 @@ void analysis_background()
 
       stats_legend(hs_base_background[var], h_cut_background, var, latex_labels);
 
-      gPad->Modified();
+      // gPad->Modified();
 
       output_file->cd();
       h_cut_background->Write();
