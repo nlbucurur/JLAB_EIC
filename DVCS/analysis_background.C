@@ -84,26 +84,27 @@ void stats_legend(TH1D *htemp, TH1D *htemp_cut, const TString &branch_name, cons
 
   htemp->Draw("HIST");
   htemp_cut->Draw("HIST SAMES");
+  gPad->Update();
 
   htemp->SetFillStyle(0);
 
   htemp->GetXaxis()->SetTitle(Form("DVCS %s", latex_labels.at(branch_name).Data()));
   htemp->GetYaxis()->SetTitle("Events");
-  htemp_cut->SetMinimum(10.0);
+  // htemp->SetMinimum(10.0);
 
-  double max_total = std::max({htemp->GetMaximum(), htemp_cut->GetMaximum()});
+  // double max_total = std::max({htemp->GetMaximum(), htemp_cut->GetMaximum()});
 
-  if (should_set_logy(branch_name))
-  {
-    gPad->SetLogy();
-    htemp_cut->SetMaximum(100 * max_total);
-  }
-  else
-  {
-    htemp_cut->SetMaximum(1.4 * max_total);
-  }
+  // if (should_set_logy(branch_name))
+  // {
+  //   gPad->SetLogy();
+  //   htemp_cut->SetMaximum(100 * max_total);
+  // }
+  // else
+  // {
+  //   htemp_cut->SetMaximum(1.4 * max_total);
+  // }
 
-  gPad->Update();
+  // gPad->Update();
 
   TPaveStats *stats1 = (TPaveStats *)htemp->FindObject("stats");
   TPaveStats *stats2 = (TPaveStats *)htemp_cut->FindObject("stats");
@@ -121,13 +122,13 @@ void stats_legend(TH1D *htemp, TH1D *htemp_cut, const TString &branch_name, cons
   stats1->SetTextColor(kBlack);
   stats2->SetTextColor(kRed);
 
-  TLegend *legend = new TLegend(0.36, 0.78, 0.54, 0.88);
+  TLegend *legend = new TLegend(0.36, 0.78, 0.46, 0.88);
 
   legend->AddEntry(htemp, "No cuts", "l");
   legend->AddEntry(htemp_cut, "Cuts", "f");
   legend->Draw();
 
-  gPad->ModifiedUpdate();
+  // gPad->ModifiedUpdate();
 }
 
 void analysis_background()
@@ -213,9 +214,9 @@ void analysis_background()
     TString base_hist_name_background = Form("h%s_base_background", var.Data());
     TH1D *h_base_background = nullptr;
 
-    if (var == "_t_Nuc" || var == "_t_Ph")
+    if (var == "_t_Nuc" || var == "_t_Ph" || var == "_mp_eg" || var == "_mp_eNg" || var == "_mp_eNg_N" || var == "_mp_eNX_N")
     {
-      h_base_background = new TH1D(base_hist_name_background, Form("DVCS%s_background", var.Data()), 100, min, max);
+      h_base_background = new TH1D(base_hist_name_background, Form("DVCS%s_background", var.Data()), 200, min, max);
     }
     else
     {
@@ -245,7 +246,11 @@ void analysis_background()
     }
 
     tree->Project(base_hist_name_background, expression, "");
+
+    // h_base_background->Scale(1.0 / h_base_background->Integral());
+
     h_base_background->SetMaximum(1.5 * h_base_background->GetMaximum());
+    h_base_background->SetMinimum(10.0);
 
     h_base_background->SetLineColor(kBlack);
     h_base_background->SetStats(true);
@@ -299,8 +304,8 @@ void analysis_background()
 
       // canvas->cd(i + 1);
       canvas->cd(i % plots_per_canvas + 1);
-      // if (should_set_logy(var.Data()))
-      //   gPad->SetLogy();
+      if (should_set_logy(var.Data()))
+        gPad->SetLogy();
 
       TString expression;
       if (var == "_mp_eg")
@@ -328,9 +333,9 @@ void analysis_background()
 
       TH1D *h_cut_background = nullptr;
 
-      if (var == "_t_Nuc" || var == "_t_Ph")
+      if (var == "_t_Nuc" || var == "_t_Ph" || var == "_mp_eg" || var == "_mp_eNg" || var == "_mp_eNg_N" || var == "_mp_eNX_N")
       {
-        h_cut_background = new TH1D(cut_hist_name_background, Form("DVCS%s_background", var.Data()), 100, min, max);
+        h_cut_background = new TH1D(cut_hist_name_background, Form("DVCS%s_background", var.Data()), 200, min, max);
       }
       else
       {
@@ -339,16 +344,20 @@ void analysis_background()
 
       tree->Project(cut_hist_name_background, expression, cut);
 
-      // h_cut_background->SetMinimum(10.0);
+      h_cut_background->SetMinimum(10.0);
       h_cut_background->SetLineColor(kRed);
       h_cut_background->SetFillColor(kRed - 9);
       h_cut_background->SetFillStyle(3004);
+      // h_cut_background->Scale(1.0 / h_cut_background->Integral());
+
       gStyle->SetOptStat("emr");
 
       h_cut_background->SetStats(true);
 
       AdjustHistogramRange(hs_base_background[var]);
       AdjustHistogramRange(h_cut_background);
+
+      // gPad->ModifiedUpdate();
 
       THStack *stack = new THStack(Form("stack%s", var.Data()), Form("DVCS%s", var.Data()));
       stack->Add(hs_base_background[var]);

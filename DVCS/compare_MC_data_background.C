@@ -15,6 +15,30 @@ bool should_set_logy(const TString &branch_name)
   return std::find(logy_branches.begin(), logy_branches.end(), branch_name) != logy_branches.end();
 }
 
+void AdjustHistogramRange(TH1D *hist)
+{
+  int firstBin = -1, lastBin = -1;
+
+  // Find the first and last non-empty bins
+  for (int i = 1; i <= hist->GetNbinsX(); ++i)
+  {
+    if (hist->GetBinContent(i) > 0)
+    {
+      if (firstBin == -1)
+        firstBin = i;
+      lastBin = i;
+    }
+  }
+
+  // Adjust the axis range
+  if (firstBin != -1 && lastBin != -1)
+  {
+    double xMin = hist->GetXaxis()->GetBinLowEdge(firstBin);
+    double xMax = hist->GetXaxis()->GetBinUpEdge(lastBin);
+    hist->GetXaxis()->SetRangeUser(xMin, xMax);
+  }
+}
+
 void stats_legend(TH1D *htemp_MC, TH1D *htemp_data, TH1D *htemp_bkg,
                   const TString &branch_name,
                   const std::map<TString, TString> &latex_labels) //,
@@ -48,7 +72,7 @@ void stats_legend(TH1D *htemp_MC, TH1D *htemp_data, TH1D *htemp_bkg,
     htemp_data->SetMaximum(1.4 * max_total);
   }
 
-  gPad->Update();
+  gPad->ModifiedUpdate();
 
   TPaveStats *stats0 = (TPaveStats *)htemp_MC->FindObject("stats");
   TPaveStats *stats1 = (TPaveStats *)htemp_data->FindObject("stats");
@@ -91,6 +115,10 @@ void compare_MC_data_background()
   TFile *file_MC = TFile::Open("./output_root_hists/analysis_MCsignal.root");
 
   std::vector<TString> branch_names = {
+      "_mp_eg",
+      "_mp_eNg",
+      "_mp_eNg_N",
+      "_mp_eNX_N",
       "_mm2_eg",
       "_mm2_eNg",
       "_mm2_eNg_N",
@@ -116,7 +144,11 @@ void compare_MC_data_background()
       {"_delta_t", "#Delta t"},
       {"_Phi_Nuc", "#Phi_{Nuc}"},
       {"_Phi_Ph", "#Phi_{Ph}"},
-      {"_delta_Phi", "#Delta#Phi"}};
+      {"_delta_Phi", "#Delta#Phi"},
+      {"_mp_eg", "P_{P} = 10.6 - (P_{e'} + P_{#gamma}) (GeV)"},
+      {"_mp_eNg", "P_{N} = 10.6 - (P_{P'} + P_{e'} + P_{#gamma}) (GeV)"},
+      {"_mp_eNg_N", "P_{#text{nothing}} = 10.6 - (P_{P'} + P_{e'} + P_{#gamma}) (GeV)"},
+      {"_mp_eNX_N", "P_{#gamma} = 10.6 - (P_{P'} + P_{e'}) (GeV)"}};
 
   // std::map<TString, std::pair<double, double>> x_axis_ranges = {
   //     {"_mm2_eg", {-0.2, 5.5}},
@@ -162,10 +194,10 @@ void compare_MC_data_background()
         canvas_base->SaveAs(Form("./comparison/base_all_%d.png", canvas_index));
         canvas_base->SaveAs(Form("./comparison/base_all_%d.pdf", canvas_index));
         delete canvas_base;
-        ++canvas_index;
       }
       canvas_base = new TCanvas(Form("canvas_base_%d", canvas_index), Form("MC-data-Bkg base comparison %d", canvas_index), 1200, 900);
       canvas_base->Divide(2, 2);
+      ++canvas_index;
     }
 
     const auto &var = branch_names[i];
@@ -177,6 +209,10 @@ void compare_MC_data_background()
     TH1D *h_base_MC = (TH1D *)file_MC->Get(base_MC);
     TH1D *h_base_data = (TH1D *)file_data->Get(base_sig);
     TH1D *h_base_bkg = (TH1D *)file_background->Get(base_bkg);
+
+    AdjustHistogramRange(h_base_MC);
+    AdjustHistogramRange(h_base_data);
+    AdjustHistogramRange(h_base_bkg);
 
     double int_base_data = h_base_data->Integral();
     double int_base_MC = h_base_MC->Integral();
@@ -226,18 +262,18 @@ void compare_MC_data_background()
     for (size_t i = 0; i < branch_names.size(); i++)
     {
 
-        if (i % plots_per_canvas == 0)
+      if (i % plots_per_canvas == 0)
+      {
+        if (i > 0)
         {
-          if (i > 0)
-          {
-            canvas_cut->SaveAs(Form("./comparison/%s_%d.png", label_cut.Data(), canvas_cut_index));
-            canvas_cut->SaveAs(Form("./comparison/%s_%d.pdf", label_cut.Data(), canvas_cut_index));
-            delete canvas_cut;
-          }
-          canvas_cut = new TCanvas(Form("canvas_cut_%s_%d", label_cut.Data(), canvas_cut_index), Form("MC-data-Bkg cut comparison %s %d", label_cut.Data(), canvas_cut_index), 1200, 900);
-          canvas_cut->Divide(2, 2);
-          canvas_cut_index++;
+          canvas_cut->SaveAs(Form("./comparison/%s_%d.png", label_cut.Data(), canvas_cut_index));
+          canvas_cut->SaveAs(Form("./comparison/%s_%d.pdf", label_cut.Data(), canvas_cut_index));
+          delete canvas_cut;
         }
+        canvas_cut = new TCanvas(Form("canvas_cut_%s_%d", label_cut.Data(), canvas_cut_index), Form("MC-data-Bkg cut comparison %s %d", label_cut.Data(), canvas_cut_index), 1200, 900);
+        canvas_cut->Divide(2, 2);
+        canvas_cut_index++;
+      }
 
       const auto &var = branch_names[i];
 

@@ -140,27 +140,31 @@ void stats_legend(TH1D *htemp, TH1D *htemp_cut, const TString &branch_name, cons
 
     htemp->Draw("HIST");
     htemp_cut->Draw("HIST SAMES");
+    gPad->Update();
 
     htemp->SetFillStyle(0);
 
     htemp->GetXaxis()->SetTitle(Form("DVCS %s", latex_labels.at(branch_name).Data()));
     htemp->GetYaxis()->SetTitle("Events");
-    htemp_cut->SetMinimum(10.0);
+    // htemp->SetMinimum(10.0);
 
-    double max_total = std::max({htemp->GetMaximum(), htemp_cut->GetMaximum()});
+    // printf("h_base_MCsignal %s: %f\n", branch_name.Data(), htemp->GetMinimum());
+    // printf("h_cut_MCsignal %s: %f\n", branch_name.Data(), htemp_cut->GetMinimum());
 
+    // double max_total = std::max({htemp->GetMaximum(), htemp_cut->GetMaximum()});
 
-    if (should_set_logy(branch_name))
-            {
-                gPad->SetLogy();
-                htemp_cut->SetMaximum(100 * max_total);
-            }
-            else
-            {
-                htemp_cut->SetMaximum(1.4 * max_total);
-            }
+    // if (should_set_logy(branch_name))
+    //         {
+    //             gPad->SetLogy();
+    //             htemp_cut->SetMaximum(100 * max_total);
+    //         }
+    //         else
+    //         {
+    //             htemp_cut->SetMaximum(1.4 * max_total);
+    //         }
 
-    gPad->Update();
+    // gPad->Update();
+
     TPaveStats *stats1 = (TPaveStats *)htemp->FindObject("stats");
     TPaveStats *stats2 = (TPaveStats *)htemp_cut->FindObject("stats");
 
@@ -177,13 +181,13 @@ void stats_legend(TH1D *htemp, TH1D *htemp_cut, const TString &branch_name, cons
     stats1->SetTextColor(kBlack);
     stats2->SetTextColor(kRed);
 
-    TLegend *legend = new TLegend(0.36, 0.78, 0.54, 0.88);
+    TLegend *legend = new TLegend(0.36, 0.78, 0.46, 0.88);
 
     legend->AddEntry(htemp, "No cuts", "l");
     legend->AddEntry(htemp_cut, "Cuts", "f");
     legend->Draw();
 
-    gPad->ModifiedUpdate();
+    // gPad->ModifiedUpdate();
 }
 
 void analysis_MCsignal()
@@ -272,9 +276,9 @@ void analysis_MCsignal()
         TString base_hist_name_MCsignal = Form("h%s_base_MCsignal", var.Data());
         TH1D *h_base_MCsignal = nullptr;
 
-        if (var == "_t_Nuc" || var == "_t_Ph")
+        if (var == "_t_Nuc" || var == "_t_Ph" || var == "_mp_eg" || var == "_mp_eNg" || var == "_mp_eNg_N" || var == "_mp_eNX_N")
         {
-            h_base_MCsignal = new TH1D(base_hist_name_MCsignal, Form("DVCS%s_MCsignal", var.Data()), 100, min, max);
+            h_base_MCsignal = new TH1D(base_hist_name_MCsignal, Form("DVCS%s_MCsignal", var.Data()), 200, min, max);
         }
         else
         {
@@ -304,7 +308,11 @@ void analysis_MCsignal()
         }
 
         tree->Project(base_hist_name_MCsignal, expression, "");
+
         h_base_MCsignal->SetMaximum(1.5 * h_base_MCsignal->GetMaximum());
+        h_base_MCsignal->SetMinimum(10.0);
+
+        // printf("h_base_MCsignal %s: %f\n", var.Data(), h_base_MCsignal->GetMinimum());
 
         h_base_MCsignal->SetLineColor(kBlack);
         h_base_MCsignal->SetStats(true);
@@ -356,8 +364,8 @@ void analysis_MCsignal()
 
             // canvas->cd(i + 1);
             canvas->cd(i % plots_per_canvas + 1);
-            // if (should_set_logy(var.Data()))
-            //     gPad->SetLogy();
+            if (should_set_logy(var.Data()))
+                gPad->SetLogy();
 
             TString expression;
             if (var == "_mp_eg")
@@ -384,9 +392,9 @@ void analysis_MCsignal()
             TString cut_hist_name_MCsignal = Form("h%s_%s_MCsignal", var.Data(), label_cut.Data());
             TH1D *h_cut_MCsignal = nullptr;
 
-            if (var == "_t_Nuc" || var == "_t_Ph")
+            if (var == "_t_Nuc" || var == "_t_Ph" || var == "_mp_eg" || var == "_mp_eNg" || var == "_mp_eNg_N" || var == "_mp_eNX_N")
             {
-                h_cut_MCsignal = new TH1D(cut_hist_name_MCsignal, Form("DVCS%s", var.Data()), 100, min, max);
+                h_cut_MCsignal = new TH1D(cut_hist_name_MCsignal, Form("DVCS%s", var.Data()), 200, min, max);
             }
             else
             {
@@ -395,7 +403,9 @@ void analysis_MCsignal()
 
             tree->Project(cut_hist_name_MCsignal, expression, cut);
 
-            // h_cut_MCsignal->SetMinimum(10.0);
+            h_cut_MCsignal->SetMinimum(10.0);
+            // printf("h_cut_MCsignal %s: %f\n", var.Data(), h_cut_MCsignal->GetMinimum());
+
             h_cut_MCsignal->SetLineColor(kRed);
             h_cut_MCsignal->SetFillColor(kRed - 9);
             h_cut_MCsignal->SetFillStyle(3004);

@@ -85,26 +85,27 @@ void stats_legend(TH1D *htemp, TH1D *htemp_cut, const TString &branch_name, cons
 
   htemp->Draw("HIST");
   htemp_cut->Draw("HIST SAMES");
+  gPad->Update();
 
   htemp->SetFillStyle(0);
 
   htemp->GetXaxis()->SetTitle(Form("DVCS %s", latex_labels.at(branch_name).Data()));
   htemp->GetYaxis()->SetTitle("Events");
-  htemp_cut->SetMinimum(10.0);
+  // htemp->SetMinimum(10.0);
 
-  double max_total = std::max({htemp->GetMaximum(), htemp_cut->GetMaximum()});
+  // double max_total = std::max({htemp->GetMaximum(), htemp_cut->GetMaximum()});
 
-  if (should_set_logy(branch_name))
-  {
-    gPad->SetLogy();
-    htemp_cut->SetMaximum(100 * max_total);
-  }
-  else
-  {
-    htemp_cut->SetMaximum(1.4 * max_total);
-  }
+  // if (should_set_logy(branch_name))
+  // {
+  //   gPad->SetLogy();
+    // htemp_cut->SetMaximum(100 * max_total);
+  // }
+  // else
+  // {
+    // htemp_cut->SetMaximum(1.4 * max_total);
+  // }
 
-  gPad->Update();
+  // gPad->Update();
 
   TPaveStats *stats1 = (TPaveStats *)htemp->FindObject("stats");
   TPaveStats *stats2 = (TPaveStats *)htemp_cut->FindObject("stats");
@@ -122,13 +123,13 @@ void stats_legend(TH1D *htemp, TH1D *htemp_cut, const TString &branch_name, cons
   stats1->SetTextColor(kBlack);
   stats2->SetTextColor(kRed);
 
-  TLegend *legend = new TLegend(0.36, 0.78, 0.54, 0.88);
+  TLegend *legend = new TLegend(0.36, 0.78, 0.46, 0.88);
 
   legend->AddEntry(htemp, "No cuts", "l");
   legend->AddEntry(htemp_cut, "Cuts", "f");
   legend->Draw();
 
-  gPad->ModifiedUpdate();
+  // gPad->ModifiedUpdate();
 }
 
 void analysis_data()
@@ -197,9 +198,9 @@ void analysis_data()
     TString base_hist_name_data = Form("h%s_base_data", var.Data());
     TH1D *h_base_data = nullptr;
 
-    if (var == "_t_Nuc" || var == "_t_Ph")
+    if (var == "_t_Nuc" || var == "_t_Ph" || var == "_mp_eg" || var == "_mp_eNg" || var == "_mp_eNg_N" || var == "_mp_eNX_N")
     {
-      h_base_data = new TH1D(base_hist_name_data, Form("DVCS%s_data", var.Data()), 100, min, max);
+      h_base_data = new TH1D(base_hist_name_data, Form("DVCS%s_data", var.Data()), 200, min, max);
     }
     else
     {
@@ -231,6 +232,8 @@ void analysis_data()
     tree->Project(base_hist_name_data, expression, "");
 
     h_base_data->SetMaximum(1.5 * h_base_data->GetMaximum());
+    h_base_data->SetMinimum(10.0);
+
 
     h_base_data->SetLineColor(kBlack);
     h_base_data->SetStats(true);
@@ -282,8 +285,8 @@ void analysis_data()
 
       canvas->cd(i % plots_per_canvas + 1);
       // canvas->cd(i + 1);
-      // if (should_set_logy(var.Data()))
-      //   gPad->SetLogy();
+      if (should_set_logy(var.Data()))
+        gPad->SetLogy();
 
       TString expression;
       if (var == "_mp_eg")
@@ -311,9 +314,9 @@ void analysis_data()
 
       TH1D *h_cut_data = nullptr;
 
-      if (var == "_t_Nuc" || var == "_t_Ph")
+      if (var == "_t_Nuc" || var == "_t_Ph" || var == "_mp_eg" || var == "_mp_eNg" || var == "_mp_eNg_N" || var == "_mp_eNX_N")
       {
-        h_cut_data = new TH1D(cut_hist_name_data, Form("DVCS%s", var.Data()), 100, min, max);
+        h_cut_data = new TH1D(cut_hist_name_data, Form("DVCS%s", var.Data()), 200, min, max);
       }
       else
       {
@@ -322,7 +325,7 @@ void analysis_data()
 
       tree->Project(cut_hist_name_data, expression, cut);
 
-      // h_cut_data->SetMinimum(10.0);
+      h_cut_data->SetMinimum(10.0);
       h_cut_data->SetLineColor(kRed);
       h_cut_data->SetFillColor(kRed - 9);
       h_cut_data->SetFillStyle(3004);
