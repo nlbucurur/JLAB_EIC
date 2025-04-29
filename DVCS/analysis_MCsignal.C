@@ -10,6 +10,7 @@
 #include <TLegend.h>
 #include <TROOT.h>
 #include <vector>
+#include <TLorentzVector.h>
 #include <utility>
 
 bool should_set_logy(const TString &branch_name)
@@ -192,10 +193,6 @@ void stats_legend(TH1D *htemp, TH1D *htemp_cut, const TString &branch_name, cons
 
 void analysis_MCsignal()
 {
-
-    double P_mass = 0.938272;
-    double N_mass = 0.9395654;
-
     TFile *file = TFile::Open("./data/1pDVCS_simulation.root");
     TFile *output_file = new TFile("./output_root_hists/analysis_MCsignal.root", "RECREATE");
 
@@ -203,40 +200,92 @@ void analysis_MCsignal()
 
     //   tree->Print();
 
-    // std::vector<std::pair<TString, std::pair<double, double>>> branch_names = {
-    //     {"_mm2_eg", {0, 2.6}},
-    //     {"_mm2_eNg", {-0.5, 3.0}},
-    //     {"_mm2_eNg_N", {-0.2, 0.2}},
-    //     {"_mm2_eNX_N", {-4, 4}},
-    //     {"_strip_Q2", {1, 6}},
-    //     {"_strip_Xbj", {0, 0.7}},
-    //     {"_t_Nuc", {-3, 0.1}},
-    //     {"_t_Ph", {-2, 0.5}},
-    //     {"_delta_t", {-0.6, 0.6}},
-    //     {"_Phi_Nuc", {0, 360}},
-    //     {"_Phi_Ph", {0, 360}},
-    //     {"_delta_Phi", {-2, 2}},
-    //     {"_strip_El_chi2pid", {-5.5, 5.5}},
-    //     {"_strip_Ph_chi2pid", {-0.2, 10100}},
-    //     {"_strip_Nuc_chi2pid", {-0.2, 10100}}};
+    double Pmass = 0.938272;
+    double Nmass = 0.9395654;
+    double Dmass = 1.8756;
+    double Ebeam = 10.6;
+
+    TLorentzVector ElectronBeam;
+    TLorentzVector NucTarget_Vec;
+    TLorentzVector Target_Vec;
+    TLorentzVector Ph_Vec;
+    TLorentzVector Nuc_Vec;
+    TLorentzVector El_Vec;
+
+    ElectronBeam.SetXYZT(0, 0, Ebeam, Ebeam);
+    Target_Vec.SetXYZT(0, 0, 0, Dmass);
+    NucTarget_Vec.SetXYZT(0, 0, 0, Pmass);
+
+    double _strip_El_px, _strip_El_py, _strip_El_pz, _strip_El_E;
+    double _strip_Nuc_px, _strip_Nuc_py, _strip_Nuc_pz, _strip_Nuc_E;
+    double _strip_Ph_px, _strip_Ph_py, _strip_Ph_pz, _strip_Ph_E;
+
+    tree->SetBranchAddress("_strip_El_px", &_strip_El_px);
+    tree->SetBranchAddress("_strip_El_py", &_strip_El_py);
+    tree->SetBranchAddress("_strip_El_pz", &_strip_El_pz);
+    tree->SetBranchAddress("_strip_El_E", &_strip_El_E);
+    tree->SetBranchAddress("_strip_Nuc_px", &_strip_Nuc_px);
+    tree->SetBranchAddress("_strip_Nuc_py", &_strip_Nuc_py);
+    tree->SetBranchAddress("_strip_Nuc_pz", &_strip_Nuc_pz);
+    tree->SetBranchAddress("_strip_Nuc_E", &_strip_Nuc_E);
+    tree->SetBranchAddress("_strip_Ph_px", &_strip_Ph_px);
+    tree->SetBranchAddress("_strip_Ph_py", &_strip_Ph_py);
+    tree->SetBranchAddress("_strip_Ph_pz", &_strip_Ph_pz);
+    tree->SetBranchAddress("_strip_Ph_E", &_strip_Ph_E);
+
+    std::map<TString, TH1D *> hs_base_MCsignal;
+
+    TLorentzVector Pmiss;
+    TLorentzVector Pmiss_Nuc;
+
+    double Pmiss_mag;
+    double Pmiss_Nuc_mag;
+    double Pmiss_perpendicular;
+    double Pmiss_Nuc_perpendicular;
+
+    TTree *newtree = tree->CloneTree(0);
+    TBranch *branch_Pmiss_mag = newtree->Branch("_Pmiss_mag", &Pmiss_mag, "Pmiss_mag/D");
+    TBranch *branch_Pmiss_Nuc_mag = newtree->Branch("_Pmiss_Nuc_mag", &Pmiss_Nuc_mag, "Pmiss_Nuc_mag/D");
+    TBranch *branch_Pmiss_perp = newtree->Branch("_Pmiss_perp", &Pmiss_perpendicular, "Pmiss_perp/D");
+    TBranch *branch_Pmiss_Nuc_perp = newtree->Branch("_Pmiss_Nuc_perp", &Pmiss_Nuc_perpendicular, "Pmiss_Nuc_perp/D");
+
+    for (int i = 0; i < tree->GetEntries(); i++)
+    {
+        tree->GetEntry(i);
+
+        Ph_Vec.SetXYZT(_strip_Ph_px, _strip_Ph_py, _strip_Ph_pz, _strip_Ph_E);
+        Nuc_Vec.SetXYZT(_strip_Nuc_px, _strip_Nuc_py, _strip_Nuc_pz, _strip_Nuc_E);
+        El_Vec.SetXYZT(_strip_El_px, _strip_El_py, _strip_El_pz, _strip_El_E);
+
+        Pmiss = ElectronBeam + Target_Vec - El_Vec - Ph_Vec - Nuc_Vec;
+        Pmiss_Nuc = ElectronBeam + NucTarget_Vec - El_Vec - Ph_Vec - Nuc_Vec;
+
+        Pmiss_mag = Pmiss.P();
+        Pmiss_Nuc_mag = Pmiss_Nuc.P();
+
+        Pmiss_perpendicular = Pmiss.Perp();
+        Pmiss_Nuc_perpendicular = Pmiss_Nuc.Perp();
+
+        newtree->Fill();
+    }
 
     std::vector<std::pair<TString, std::pair<double, double>>> branch_names = {
+        {"_Pmiss_mag", {-0.1, 1.5}},
+        {"_Pmiss_perp", {-0.1, 0.8}},
+        {"_Pmiss_Nuc_mag", {-0.1, 1.5}},
+        {"_Pmiss_Nuc_perp", {-0.1, 0.8}},
         {"_mm2_eg", {-2, 5.5}},
         {"_mm2_eNg", {-1.5, 5}},
         {"_mm2_eNg_N", {-1, 1}},
         {"_mm2_eNX_N", {-5, 10}},
         {"_strip_Q2", {1, 8}},
         {"_strip_Xbj", {0, 0.7}},
-        {"_t_Nuc", {-14, 1}},
-        {"_t_Ph", {-12, 1}},
+        {"_t_Nuc", {-3, 0}},
+        {"_t_Ph", {-2, 1}},
         {"_delta_t", {-2, 2}},
         {"_Phi_Nuc", {0, 360}},
         {"_Phi_Ph", {0, 360}},
         {"_delta_Phi", {-4, 3}},
-        {"_mp_eg", {-2, 2}},
-        {"_mp_eNg", {-2, 2}},
-        {"_mp_eNg_N", {-2, 2}},
-        {"_mp_eNX_N", {1.5, 15}},
         {"_strip_El_chi2pid", {-5.5, 5.5}},
         {"_strip_Ph_chi2pid", {-0.2, 10100}},
         {"_strip_Nuc_chi2pid", {-6, 6}}};
@@ -247,6 +296,10 @@ void analysis_MCsignal()
     // }
 
     std::map<TString, TString> latex_labels = {
+        {"_Pmiss_mag", "|P_{miss}| (GeV)"},
+        {"_Pmiss_perp", "|P_{miss}^{Perp}| (GeV)"},
+        {"_Pmiss_Nuc_mag", "|P_{miss} (Nuc)| (GeV)"},
+        {"_Pmiss_Nuc_perp", "|P_{miss}^{Perp} (Nuc)| (GeV)"},
         {"_mm2_eg", "MM^{2}_{P} e P#rightarrow e'#gamma(P_{miss}) (GeV^{2})"},
         {"_mm2_eNg", "MM^{2}_{P} e D#rightarrow e'P'#gamma(N_{miss}) (GeV^{2})"},
         {"_mm2_eNg_N", "MM^{2}_{X} e P#rightarrow e'P'#gamma (GeV^{2})"},
@@ -261,13 +314,7 @@ void analysis_MCsignal()
         {"_delta_Phi", "#Delta#Phi"},
         {"_strip_El_chi2pid", "#chi^{2}_{pid}^{e}"},
         {"_strip_Ph_chi2pid", "#chi^{2}_{pid}^{#gamma}"},
-        {"_strip_Nuc_chi2pid", "#chi^{2}_{pid}^{N}"},
-        {"_mp_eg", "P_{P} = 10.6 - (P_{e'} + P_{#gamma}) (GeV)"},
-        {"_mp_eNg", "P_{N} = 10.6 - (P_{P'} + P_{e'} + P_{#gamma}) (GeV)"},
-        {"_mp_eNg_N", "P_{#text{nothing}} = 10.6 - (P_{P'} + P_{e'} + P_{#gamma}) (GeV)"},
-        {"_mp_eNX_N", "P_{#gamma} = 10.6 - (P_{P'} + P_{e'}) (GeV)"}};
-
-    std::map<TString, TH1D *> hs_base_MCsignal;
+        {"_strip_Nuc_chi2pid", "#chi^{2}_{pid}^{N}"}};
 
     for (const auto &[var, range] : branch_names)
     {
@@ -276,38 +323,16 @@ void analysis_MCsignal()
         TString base_hist_name_MCsignal = Form("h%s_base_MCsignal", var.Data());
         TH1D *h_base_MCsignal = nullptr;
 
-        if (var == "_t_Nuc" || var == "_t_Ph" || var == "_mp_eg" || var == "_mp_eNg" || var == "_mp_eNg_N" || var == "_mp_eNX_N")
+        h_base_MCsignal = new TH1D(base_hist_name_MCsignal, Form("DVCS%s_MCsignal", var.Data()), 100, min, max);
+
+        if (var == "_Pmiss_mag" || var == "_Pmiss_Nuc_mag" || var == "_Pmiss_perp" || var == "_Pmiss_Nuc_perp")
         {
-            h_base_MCsignal = new TH1D(base_hist_name_MCsignal, Form("DVCS%s_MCsignal", var.Data()), 200, min, max);
+            newtree->Project(base_hist_name_MCsignal, var, "");
         }
         else
         {
-            h_base_MCsignal = new TH1D(base_hist_name_MCsignal, Form("DVCS%s_MCsignal", var.Data()), 60, min, max);
+            tree->Project(base_hist_name_MCsignal, var, "");
         }
-
-        TString expression;
-        if (var == "_mp_eg")
-        {
-            expression = Form("10.6 - (_strip_El_P + _strip_Ph_P)");
-        }
-        else if (var == "_mp_eNg")
-        {
-            expression = Form("10.6 - (_strip_Nuc_P + _strip_El_P + _strip_Ph_P)");
-        }
-        else if (var == "_mp_eNg_N")
-        {
-            expression = Form("10.6 - (_strip_Nuc_P + _strip_El_P + _strip_Ph_P)");
-        }
-        else if (var == "_mp_eNX_N")
-        {
-            expression = Form("10.6 - (_strip_Nuc_P + _strip_El_P)");
-        }
-        else
-        {
-            expression = var;
-        }
-
-        tree->Project(base_hist_name_MCsignal, expression, "");
 
         h_base_MCsignal->SetMaximum(1.5 * h_base_MCsignal->GetMaximum());
         h_base_MCsignal->SetMinimum(10.0);
@@ -338,70 +363,59 @@ void analysis_MCsignal()
         // canvas->Divide(4, 4);
 
         int canvas_index = 0;
+        int plot_index = 0;
         TCanvas *canvas = nullptr;
+
+        bool canvas_has_been_created = false;
 
         for (size_t i = 0; i < branch_names.size(); ++i)
         {
 
-            if (i % plots_per_canvas == 0)
+            const auto &[var, range] = branch_names[i];
+            const auto &[min, max] = range;
+
+            bool is_missing_momentum_var = var.Contains("_Pmiss");
+
+            bool is_last_cut = (label_cut.Contains("_mm2_eNX_N_photon_expected") ||
+                                label_cut.Contains("_mm2_eg_proton_expected"));
+
+            if ((is_missing_momentum_var && !is_last_cut) || var.Contains("_chi2pid"))
+                continue;
+
+            if (plot_index % plots_per_canvas == 0)
             {
-                if (i > 0)
+                if (canvas_has_been_created)
                 {
                     canvas->SaveAs(Form("./cutsMC/optimization_%s_MCsignal_%d.png", label_cut.Data(), canvas_index));
                     canvas->SaveAs(Form("./cutsMC/optimization_%s_MCsignal_%d.pdf", label_cut.Data(), canvas_index));
                     delete canvas;
-                    ++canvas_index;
                 }
-
                 canvas = new TCanvas(Form("canvas_%s_%d", label_cut.Data(), canvas_index),
                                      Form("%s - Part %d", label_cut.Data(), canvas_index),
                                      1920, 1080);
                 canvas->Divide(2, 2);
+                ++canvas_index;
+                canvas_has_been_created = true;
             }
-
-            const auto &[var, range] = branch_names[i];
-            const auto &[min, max] = range;
 
             // canvas->cd(i + 1);
-            canvas->cd(i % plots_per_canvas + 1);
+            canvas->cd((plot_index % plots_per_canvas) + 1);
             if (should_set_logy(var.Data()))
                 gPad->SetLogy();
-
-            TString expression;
-            if (var == "_mp_eg")
-            {
-                expression = Form("10.6 - (_strip_El_P + _strip_Ph_P)");
-            }
-            else if (var == "_mp_eNg")
-            {
-                expression = Form("10.6 - (_strip_Nuc_P + _strip_El_P + _strip_Ph_P)");
-            }
-            else if (var == "_mp_eNg_N")
-            {
-                expression = Form("10.6 - (_strip_Nuc_P + _strip_El_P + _strip_Ph_P)");
-            }
-            else if (var == "_mp_eNX_N")
-            {
-                expression = Form("10.6 - (_strip_Nuc_P + _strip_El_P)");
-            }
-            else
-            {
-                expression = var;
-            }
 
             TString cut_hist_name_MCsignal = Form("h%s_%s_MCsignal", var.Data(), label_cut.Data());
             TH1D *h_cut_MCsignal = nullptr;
 
-            if (var == "_t_Nuc" || var == "_t_Ph" || var == "_mp_eg" || var == "_mp_eNg" || var == "_mp_eNg_N" || var == "_mp_eNX_N")
+            h_cut_MCsignal = new TH1D(cut_hist_name_MCsignal, Form("DVCS%s", var.Data()), 100, min, max);
+
+            if (is_missing_momentum_var)
             {
-                h_cut_MCsignal = new TH1D(cut_hist_name_MCsignal, Form("DVCS%s", var.Data()), 200, min, max);
+                newtree->Project(cut_hist_name_MCsignal, var, cut);
             }
             else
             {
-                h_cut_MCsignal = new TH1D(cut_hist_name_MCsignal, Form("DVCS%s", var.Data()), 60, min, max);
+                tree->Project(cut_hist_name_MCsignal, var, cut);
             }
-
-            tree->Project(cut_hist_name_MCsignal, expression, cut);
 
             h_cut_MCsignal->SetMinimum(10.0);
             // printf("h_cut_MCsignal %s: %f\n", var.Data(), h_cut_MCsignal->GetMinimum());
@@ -426,6 +440,7 @@ void analysis_MCsignal()
 
             output_file->cd();
             h_cut_MCsignal->Write();
+            ++plot_index;
         }
 
         // // TString filename = Form("./cuts_no_chi2pid/optimization_%s_no_chi2pid.png", label_cut.Data());
@@ -434,7 +449,7 @@ void analysis_MCsignal()
         // canvas->SaveAs(filename);
         // canvas->SaveAs(filename_pdf);
         // delete canvas;
-        if (canvas)
+        if (canvas_has_been_created)
         {
             canvas->SaveAs(Form("./cutsMC/optimization_%s_MCsignal_%d.png", label_cut.Data(), canvas_index));
             canvas->SaveAs(Form("./cutsMC/optimization_%s_MCsignal_%d.pdf", label_cut.Data(), canvas_index));
