@@ -280,8 +280,8 @@ void analysis_MCsignal()
         {"_mm2_eNX_N", {-5, 10}},
         {"_strip_Q2", {1, 8}},
         {"_strip_Xbj", {0, 0.7}},
-        {"_t_Nuc", {-3, 0}},
-        {"_t_Ph", {-2, 1}},
+        {"_t_Nuc", {-14, 1}},
+        {"_t_Ph", {-12, 1}},
         {"_delta_t", {-2, 2}},
         {"_Phi_Nuc", {0, 360}},
         {"_Phi_Ph", {0, 360}},
@@ -323,7 +323,14 @@ void analysis_MCsignal()
         TString base_hist_name_MCsignal = Form("h%s_base_MCsignal", var.Data());
         TH1D *h_base_MCsignal = nullptr;
 
-        h_base_MCsignal = new TH1D(base_hist_name_MCsignal, Form("DVCS%s_MCsignal", var.Data()), 100, min, max);
+        if (var == "_t_Nuc" || var == "_t_Ph")
+        {
+            h_base_MCsignal = new TH1D(base_hist_name_MCsignal, Form("DVCS%s_MCsignal", var.Data()), 200, min, max);
+        }
+        else
+        {
+            h_base_MCsignal = new TH1D(base_hist_name_MCsignal, Form("DVCS%s_MCsignal", var.Data()), 100, min, max);
+        }
 
         if (var == "_Pmiss_mag" || var == "_Pmiss_Nuc_mag" || var == "_Pmiss_perp" || var == "_Pmiss_Nuc_perp")
         {
@@ -406,7 +413,14 @@ void analysis_MCsignal()
             TString cut_hist_name_MCsignal = Form("h%s_%s_MCsignal", var.Data(), label_cut.Data());
             TH1D *h_cut_MCsignal = nullptr;
 
-            h_cut_MCsignal = new TH1D(cut_hist_name_MCsignal, Form("DVCS%s", var.Data()), 100, min, max);
+            if (var == "_t_Nuc" || var == "_t_Ph")
+            {
+                h_cut_MCsignal = new TH1D(cut_hist_name_MCsignal, Form("DVCS%s", var.Data()), 200, min, max);
+            }
+            else
+            {
+                h_cut_MCsignal = new TH1D(cut_hist_name_MCsignal, Form("DVCS%s", var.Data()), 100, min, max);
+            }
 
             if (is_missing_momentum_var)
             {

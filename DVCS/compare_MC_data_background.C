@@ -47,11 +47,6 @@ void stats_legend(TH1D *htemp_MC, TH1D *htemp_data, TH1D *htemp_bkg,
 
   gPad->cd();
 
-  // auto range = x_axis_ranges.at(branch_name);
-  // htemp_data->GetXaxis()->SetRangeUser(range.first, range.second);
-  // htemp_MC->GetXaxis()->SetRangeUser(range.first, range.second);
-  // htemp_bkg->GetXaxis()->SetRangeUser(range.first, range.second);
-
   htemp_data->Draw("HIST");
   htemp_MC->Draw("HIST SAMES");
   htemp_bkg->Draw("HIST SAMES");
@@ -115,10 +110,10 @@ void compare_MC_data_background()
   TFile *file_MC = TFile::Open("./output_root_hists/analysis_MCsignal.root");
 
   std::vector<TString> branch_names = {
-      "_mp_eg",
-      "_mp_eNg",
-      "_mp_eNg_N",
-      "_mp_eNX_N",
+      "_Pmiss_mag",
+      "_Pmiss_perp",
+      "_Pmiss_Nuc_mag",
+      "_Pmiss_Nuc_perp",
       "_mm2_eg",
       "_mm2_eNg",
       "_mm2_eNg_N",
@@ -133,8 +128,12 @@ void compare_MC_data_background()
       "_delta_Phi"};
 
   std::map<TString, TString> latex_labels = {
+      {"_Pmiss_mag", "|P_{miss}| (GeV)"},
+      {"_Pmiss_perp", "|P_{miss}^{Perp}| (GeV)"},
+      {"_Pmiss_Nuc_mag", "|P_{miss} (Nuc)| (GeV)"},
+      {"_Pmiss_Nuc_perp", "|P_{miss}^{Perp} (Nuc)| (GeV)"},
       {"_mm2_eg", "MM^{2}_{P} e P#rightarrow e'#gamma(P_{miss}) (GeV^{2})"},
-      {"_mm2_eNg", "MM^{2}_{N} e D#rightarrow e'P'#gamma(N_{miss}) (GeV^{2})"},
+      {"_mm2_eNg", "MM^{2}_{P} e D#rightarrow e'P'#gamma(N_{miss}) (GeV^{2})"},
       {"_mm2_eNg_N", "MM^{2}_{X} e P#rightarrow e'P'#gamma (GeV^{2})"},
       {"_mm2_eNX_N", "MM^{2}_{#gamma} e P#rightarrow e'P'(#gamma_{miss}) (GeV^{2})"},
       {"_strip_Q2", "Q^{2}"},
@@ -144,25 +143,7 @@ void compare_MC_data_background()
       {"_delta_t", "#Delta t"},
       {"_Phi_Nuc", "#Phi_{Nuc}"},
       {"_Phi_Ph", "#Phi_{Ph}"},
-      {"_delta_Phi", "#Delta#Phi"},
-      {"_mp_eg", "P_{P} = 10.6 - (P_{e'} + P_{#gamma}) (GeV)"},
-      {"_mp_eNg", "P_{N} = 10.6 - (P_{P'} + P_{e'} + P_{#gamma}) (GeV)"},
-      {"_mp_eNg_N", "P_{#text{nothing}} = 10.6 - (P_{P'} + P_{e'} + P_{#gamma}) (GeV)"},
-      {"_mp_eNX_N", "P_{#gamma} = 10.6 - (P_{P'} + P_{e'}) (GeV)"}};
-
-  // std::map<TString, std::pair<double, double>> x_axis_ranges = {
-  //     {"_mm2_eg", {-0.2, 5.5}},
-  //     {"_mm2_eNg", {-1.5, 5}},
-  //     {"_mm2_eNg_N", {-1, 1}},
-  //     {"_mm2_eNX_N", {-5, 9}},
-  //     {"_strip_Q2", {0.0, 8.0}},
-  //     {"_strip_Xbj", {0.0, 0.7}},
-  //     {"_t_Nuc", {-9.0, 1.0}},
-  //     {"_t_Ph", {-9.0, 1.0}},
-  //     {"_delta_t", {-2.0, 2.0}},
-  //     {"_Phi_Nuc", {0.0, 360.0}},
-  //     {"_Phi_Ph", {0.0, 360.0}},
-  //     {"_delta_Phi", {-1.6, 1.6}}};
+      {"_delta_Phi", "#Delta#Phi"}};
 
   std::vector<TString> cut_labels = {
       "cut0_theta_gamma_e",
@@ -209,6 +190,12 @@ void compare_MC_data_background()
     TH1D *h_base_MC = (TH1D *)file_MC->Get(base_MC);
     TH1D *h_base_data = (TH1D *)file_data->Get(base_sig);
     TH1D *h_base_bkg = (TH1D *)file_background->Get(base_bkg);
+
+    if (!h_base_MC || !h_base_data || !h_base_bkg)
+    {
+      std::cerr << "Skipping " << var << " due to missing base histograms." << std::endl;
+      continue;
+    }
 
     AdjustHistogramRange(h_base_MC);
     AdjustHistogramRange(h_base_data);
@@ -257,14 +244,26 @@ void compare_MC_data_background()
     // canvas_cut->Divide(3, 4);
 
     int canvas_cut_index = 0;
+    int plot_index = 0;
     TCanvas *canvas_cut = nullptr;
+
+    bool canvas_has_been_created = false;
 
     for (size_t i = 0; i < branch_names.size(); i++)
     {
+      const auto &var = branch_names[i];
 
-      if (i % plots_per_canvas == 0)
+      bool is_missing_momentum_var = var.Contains("_Pmiss");
+
+      bool is_last_cut = (label_cut.Contains("_mm2_eNX_N_photon_expected") ||
+                          label_cut.Contains("_mm2_eg_proton_expected"));
+
+      if ((is_missing_momentum_var && !is_last_cut) || var.Contains("_chi2pid"))
+        continue;
+
+      if (plot_index % plots_per_canvas == 0)
       {
-        if (i > 0)
+        if (canvas_has_been_created)
         {
           canvas_cut->SaveAs(Form("./comparison/%s_%d.png", label_cut.Data(), canvas_cut_index));
           canvas_cut->SaveAs(Form("./comparison/%s_%d.pdf", label_cut.Data(), canvas_cut_index));
@@ -273,9 +272,8 @@ void compare_MC_data_background()
         canvas_cut = new TCanvas(Form("canvas_cut_%s_%d", label_cut.Data(), canvas_cut_index), Form("MC-data-Bkg cut comparison %s %d", label_cut.Data(), canvas_cut_index), 1200, 900);
         canvas_cut->Divide(2, 2);
         canvas_cut_index++;
+        canvas_has_been_created = true;
       }
-
-      const auto &var = branch_names[i];
 
       auto cut_MC = Form("h%s_%s_MCsignal", var.Data(), label_cut.Data());
       auto cut_data = Form("h%s_%s_data", var.Data(), label_cut.Data());
@@ -284,6 +282,12 @@ void compare_MC_data_background()
       TH1D *h_cut_MC = (TH1D *)file_MC->Get(cut_MC);
       TH1D *h_cut_data = (TH1D *)file_data->Get(cut_data);
       TH1D *h_cut_bkg = (TH1D *)file_background->Get(cut_bkg);
+
+      if (!h_cut_MC || !h_cut_data || !h_cut_bkg)
+      {
+        std::cerr << "Skipping " << var << " in cut " << label_cut << " due to missing histograms." << std::endl;
+        continue;
+      }
 
       double int_cut_data = h_cut_data->Integral();
       double int_cut_MC = h_cut_MC->Integral();
@@ -303,10 +307,12 @@ void compare_MC_data_background()
       h_cut_bkg->SetFillStyle(3004);
 
       // canvas_cut->cd(i + 1);
-      canvas_cut->cd(i % plots_per_canvas + 1);
+      canvas_cut->cd((plot_index % plots_per_canvas) + 1);
 
       // stats_legend(h_cut_MC, h_cut_data, h_cut_bkg, var, latex_labels, x_axis_ranges);
       stats_legend(h_cut_MC, h_cut_data, h_cut_bkg, var, latex_labels);
+
+      ++plot_index;
     }
 
     if (canvas_cut)
