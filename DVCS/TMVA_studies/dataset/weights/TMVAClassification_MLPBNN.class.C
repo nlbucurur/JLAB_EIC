@@ -8,11 +8,11 @@
 
 Method         : MLP::MLPBNN
 TMVA Release   : 4.2.1         [262657]
-ROOT Release   : 6.32/10       [401418]
-Creator        : lorena
-Date           : Tue Apr 22 00:46:39 2025
-Host           : Linux wl-atoui 5.15.167.4-microsoft-standard-WSL2 #1 SMP Tue Nov 5 00:21:55 UTC 2024 x86_64 x86_64 x86_64 GNU/Linux
-Dir            : /home/lorena/Thesis/JLAB_EIC/TMVA_studies
+ROOT Release   : 6.34/06       [401926]
+Creator        : nlbucurur
+Date           : Thu May  1 20:53:12 2025
+Host           : Linux arch-nspawn-33111 6.13.6-arch1-1 #1 SMP PREEMPT_DYNAMIC Fri, 07 Mar 2025 20:19:00 +0000 x86_64 GNU/Linux
+Dir            : /hdd/Documentos/Erasmus/Tesis/JLAB_EIC/DVCS/TMVA_studies
 Training events: 2000
 Analysis type  : [Classification]
 
@@ -59,10 +59,10 @@ WeightRange: "1.000000e+00" [Take the events for the estimator calculations from
 #VAR -*-*-*-*-*-*-*-*-*-*-*-* variables *-*-*-*-*-*-*-*-*-*-*-*-
 
 NVar 4
-_mm2_eNg                      _mm2_eNg                      _mm2_eNg                      mm2_eNg missing Neutron       GeV                               'F'    [-0.832648932934,3.38111948967]
-_mm2_eNg_N                    _mm2_eNg_N                    _mm2_eNg_N                    mm2_eNg_N All detected        GeV                               'F'    [-0.922752559185,0.62141174078]
-_mm2_eNX_N                    _mm2_eNX_N                    _mm2_eNX_N                    mm2_eNX_N missing photon      GeV                               'F'    [-12.7379922867,6.32826185226]
-_mm2_eg                       _mm2_eg                       _mm2_eg                       mm2_eg missing proton         GeV                               'F'    [-0.768935024738,3.38438796997]
+_mm2_eNg                      _mm2_eNg                      _mm2_eNg                      mm2_eNg missing Neutron       GeV                               'D'    [-0.832648932934,3.38111948967]
+_mm2_eNg_N                    _mm2_eNg_N                    _mm2_eNg_N                    mm2_eNg_N All detected        GeV                               'D'    [-0.922752559185,0.62141174078]
+_mm2_eNX_N                    _mm2_eNX_N                    _mm2_eNX_N                    mm2_eNX_N missing photon      GeV                               'D'    [-12.7379922867,6.32826185226]
+_mm2_eg                       _mm2_eg                       _mm2_eg                       mm2_eg missing proton         GeV                               'D'    [-0.768935024738,3.38438796997]
 NSpec 0
 
 
@@ -143,10 +143,10 @@ class ReadMLPBNN : public IClassifierReader {
       fVmax[3] = 1;
 
       // initialize input variable types
-      fType[0] = 'F';
-      fType[1] = 'F';
-      fType[2] = 'F';
-      fType[3] = 'F';
+      fType[0] = 'D';
+      fType[1] = 'D';
+      fType[2] = 'D';
+      fType[3] = 'D';
 
       // initialize constants
       Initialize();
