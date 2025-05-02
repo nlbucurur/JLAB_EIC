@@ -178,48 +178,48 @@ void plot_variables () {
   // 2D //
   //****//
 
-  // std::vector<branches_cuts_2D> branch_names_2D = {
-  //   {"Electron_P_vs_Phi", "_strip_El_Phi", "_strip_El_P", -180, 180, 0, 9},
-  //   {"Electron_Theta_vs_Phi", "_strip_El_Phi", "_strip_El_Theta", -180, 180, 0, 50},
+  std::vector<branches_cuts_2D> branch_names_2D = {
+    {"Electron_P_vs_Phi", "_strip_El_Phi", "_strip_El_P", -180, 180, 0, 9},
+    {"Electron_Theta_vs_Phi", "_strip_El_Phi", "_strip_El_Theta", -180, 180, 0, 50},
     
-  //   {"Photon_P_vs_Phi", "_strip_Ph_Phi", "_strip_Ph_P", -180, 180, 0, 11},
-  //   {"Photon_Theta_vs_Phi", "_strip_Ph_Phi", "_strip_Ph_Theta", -180, 180, 0, 40},
+    {"Photon_P_vs_Phi", "_strip_Ph_Phi", "_strip_Ph_P", -180, 180, 0, 11},
+    {"Photon_Theta_vs_Phi", "_strip_Ph_Phi", "_strip_Ph_Theta", -180, 180, 0, 40},
     
-  //   {"Nucleon_P_vs_Phi", "_strip_Nuc_Phi", "_strip_Nuc_P", -180, 180, 0, 8},
-  //   {"Nucleon_Theta_vs_Phi", "_strip_Nuc_Phi", "_strip_Nuc_Theta", -180, 180, 0, 100}
-  // };
+    {"Nucleon_P_vs_Phi", "_strip_Nuc_Phi", "_strip_Nuc_P", -180, 180, 0, 8},
+    {"Nucleon_Theta_vs_Phi", "_strip_Nuc_Phi", "_strip_Nuc_Theta", -180, 180, 0, 100}
+  };
   
-  // gStyle->SetOptStat(0);
+  gStyle->SetOptStat(0);
   
-  // for (const auto& branch_name_2D : branch_names_2D) {
-  //   TCanvas *canvas = new TCanvas(("canvas_" + branch_name_2D.name).c_str(), branch_name_2D.name.c_str(), 1300, 600);
+  for (const auto& branch_name_2D : branch_names_2D) {
+    TCanvas *canvas = new TCanvas(("canvas_" + branch_name_2D.name).c_str(), branch_name_2D.name.c_str(), 1300, 600);
 
-  //   std::string histDef = ">>htemp(60," +
-  //                         std::to_string(branch_name_2D.x_min) + "," +
-  //                         std::to_string(branch_name_2D.x_max) + "," + "60," +
-  //                         std::to_string(branch_name_2D.y_min) + "," +
-  //                         std::to_string(branch_name_2D.y_max) + ")";
+    std::string histDef = ">>htemp(60," +
+                          std::to_string(branch_name_2D.x_min) + "," +
+                          std::to_string(branch_name_2D.x_max) + "," + "60," +
+                          std::to_string(branch_name_2D.y_min) + "," +
+                          std::to_string(branch_name_2D.y_max) + ")";
 
-  //   std::string cut = branch_name_2D.x_branch + " >= " + std::to_string(branch_name_2D.x_min) + " && " +
-  //                     branch_name_2D.x_branch + " <= " + std::to_string(branch_name_2D.x_max) + " && " +
-  //                     branch_name_2D.y_branch + " >= " + std::to_string(branch_name_2D.y_min) + " && " +
-  //                     branch_name_2D.y_branch + " <= " + std::to_string(branch_name_2D.y_max);
+    std::string cut = branch_name_2D.x_branch + " >= " + std::to_string(branch_name_2D.x_min) + " && " +
+                      branch_name_2D.x_branch + " <= " + std::to_string(branch_name_2D.x_max) + " && " +
+                      branch_name_2D.y_branch + " >= " + std::to_string(branch_name_2D.y_min) + " && " +
+                      branch_name_2D.y_branch + " <= " + std::to_string(branch_name_2D.y_max);
     
-  //   tree->Draw((branch_name_2D.y_branch + ":" + branch_name_2D.x_branch + histDef).c_str(), cut.c_str(), "COLZ");
-  //   TH2D *htemp = (TH2D*) gDirectory->Get("htemp");
+    tree->Draw((branch_name_2D.y_branch + ":" + branch_name_2D.x_branch + histDef).c_str(), cut.c_str(), "COLZ");
+    TH2D *htemp = (TH2D*) gDirectory->Get("htemp");
     
-  //   htemp->GetXaxis()->SetLimits(branch_name_2D.x_min, branch_name_2D.x_max);
-  //   htemp->GetYaxis()->SetLimits(branch_name_2D.y_min, branch_name_2D.y_max);
-  //   htemp->SetName(("hist_" + branch_name_2D.name).c_str());
-  //   htemp->SetTitle(("DVCS " + branch_name_2D.name).c_str());
-  //   htemp->GetXaxis()->SetTitle(branch_name_2D.x_branch.c_str());
-  //   htemp->GetYaxis()->SetTitle(branch_name_2D.y_branch.c_str());
+    htemp->GetXaxis()->SetLimits(branch_name_2D.x_min, branch_name_2D.x_max);
+    htemp->GetYaxis()->SetLimits(branch_name_2D.y_min, branch_name_2D.y_max);
+    htemp->SetName(("hist_" + branch_name_2D.name).c_str());
+    htemp->SetTitle(("DVCS " + branch_name_2D.name).c_str());
+    htemp->GetXaxis()->SetTitle(branch_name_2D.x_branch.c_str());
+    htemp->GetYaxis()->SetTitle(branch_name_2D.y_branch.c_str());
 
-  //   std::string output_file = "./plots/" + branch_name_2D.name + "_plot.pdf";
-  //   canvas->SaveAs(output_file.c_str());
-  //   delete canvas;
-  //   delete htemp;
-  // };
+    std::string output_file = "./plots/" + branch_name_2D.name + "_plot.pdf";
+    canvas->SaveAs(output_file.c_str());
+    delete canvas;
+    delete htemp;
+  };
 
   delete file;
  

@@ -246,8 +246,8 @@ int TMVAClassificationNew(TString myMethodList = "")
    dataloader->AddVariable("_mm2_eNg_N", "mm2_eNg_N All detected", "GeV", 'D');
    dataloader->AddVariable("_mm2_eNX_N", "mm2_eNX_N missing photon", "GeV", 'D');
    dataloader->AddVariable("_mm2_eg", "mm2_eg missing proton", "GeV", 'D');
-   // dataloader->AddVariable("_delta_t", "Delta t", "GeV", 'F');
-   // dataloader->AddVariable("_delta_Phi", "Delta Phi", "°", 'F');
+   dataloader->AddVariable("_delta_t", "Delta t", "GeV", 'D');
+   dataloader->AddVariable("_delta_Phi", "Delta Phi", "°", 'D');
 
    // You can add so-called "Spectator variables", which are not used in the MVA training,
    // but will appear in the final "TestTree" produced by TMVA. This TestTree will contain the
@@ -310,8 +310,8 @@ int TMVAClassificationNew(TString myMethodList = "")
    // dataloader->SetBackgroundWeightExpression( "weight" );
 
    // Apply additional cuts on the signal and background samples (can be different)
-   TCut mycuts = ""; // for example: TCut mycuts = "abs(var1)<0.5 && abs(var2-0.5)<1";
-   TCut mycutb = ""; // for example: TCut mycutb = "abs(var1)<0.5";
+   TCut mycuts = "abs(_delta_Phi)<5"; // for example: TCut mycuts = "abs(var1)<0.5 && abs(var2-0.5)<1";
+   TCut mycutb = "abs(_delta_Phi)<5"; // for example: TCut mycutb = "abs(var1)<0.5";
 
    // Tell the dataloader how to use the training and testing events
    //
@@ -554,7 +554,7 @@ int TMVAClassificationNew(TString myMethodList = "")
    //
    // Train MVAs using the set of training events
    factory->TrainAllMethods();
-   exit(0);
+   // exit(0);
 
    // Evaluate all MVAs using the set of test events
    factory->TestAllMethods();
