@@ -145,7 +145,15 @@ void analysis_data()
   double Pmass = 0.938272;
   double Nmass = 0.9395654;
   double Dmass = 1.8756;
-  double Ebeam = 10.6;
+  double RunNumber;
+  tree->SetBranchAddress("_RunNumber", &RunNumber);
+  double Ebeam = 10.2;
+
+  if (RunNumber >= 6420)
+    Ebeam = 10.2;
+
+  if (RunNumber > 10000)
+    Ebeam = 10.4;
 
   TLorentzVector ElectronBeam;
   TLorentzVector NucTarget_Vec;
@@ -195,9 +203,9 @@ void analysis_data()
   {
     tree->GetEntry(i);
 
-    Ph_Vec.SetXYZT(_strip_Ph_px, _strip_Ph_py, _strip_Ph_pz, _strip_Ph_E);
-    Nuc_Vec.SetXYZT(_strip_Nuc_px, _strip_Nuc_py, _strip_Nuc_pz, _strip_Nuc_E);
-    El_Vec.SetXYZT(_strip_El_px, _strip_El_py, _strip_El_pz, _strip_El_E);
+    Ph_Vec.SetPxPyPzE(_strip_Ph_px, _strip_Ph_py, _strip_Ph_pz, _strip_Ph_E);
+    Nuc_Vec.SetPxPyPzE(_strip_Nuc_px, _strip_Nuc_py, _strip_Nuc_pz, _strip_Nuc_E);
+    El_Vec.SetPxPyPzE(_strip_El_px, _strip_El_py, _strip_El_pz, _strip_El_E);
 
     Pmiss = ElectronBeam + Target_Vec - El_Vec - Ph_Vec - Nuc_Vec;
     Pmiss_Nuc = ElectronBeam + NucTarget_Vec - El_Vec - Ph_Vec - Nuc_Vec;
@@ -215,6 +223,7 @@ void analysis_data()
       {"_Pmiss_mag", {-0.1, 1.5}},
       {"_Pmiss_perp", {-0.1, 0.8}},
       {"_Pmiss_Nuc_mag", {-0.1, 1.5}},
+      {"_miss_mom_eNg", {0, 1.0}},
       {"_Pmiss_Nuc_perp", {-0.1, 0.8}},
       {"_mm2_eg", {-2, 5.5}},
       {"_mm2_eNg", {-1.5, 5}},
@@ -241,6 +250,7 @@ void analysis_data()
       {"_Pmiss_mag", "|P_{miss}| (GeV)"},
       {"_Pmiss_perp", "|P_{miss}^{Perp}| (GeV)"},
       {"_Pmiss_Nuc_mag", "|P_{miss} (Nuc)| (GeV)"},
+      {"_miss_mom_eNg", "|P_{miss} (Nuc Mostafa)| (GeV)"},
       {"_Pmiss_Nuc_perp", "|P_{miss}^{Perp} (Nuc)| (GeV)"},
       {"_mm2_eg", "MM^{2}_{P} e P#rightarrow e'#gamma(P_{miss}) (GeV^{2})"},
       {"_mm2_eNg", "MM^{2}_{P} e D#rightarrow e'P'#gamma(N_{miss}) (GeV^{2})"},

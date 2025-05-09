@@ -113,6 +113,7 @@ void compare_MC_data_background()
       "_Pmiss_mag",
       "_Pmiss_perp",
       "_Pmiss_Nuc_mag",
+      "_miss_mom_eNg",
       "_Pmiss_Nuc_perp",
       "_mm2_eg",
       "_mm2_eNg",
@@ -131,6 +132,7 @@ void compare_MC_data_background()
       {"_Pmiss_mag", "|P_{miss}| (GeV)"},
       {"_Pmiss_perp", "|P_{miss}^{Perp}| (GeV)"},
       {"_Pmiss_Nuc_mag", "|P_{miss} (Nuc)| (GeV)"},
+      {"_miss_mom_eNg", "|P_{miss} (Nuc Mostafa)| (GeV)"},
       {"_Pmiss_Nuc_perp", "|P_{miss}^{Perp} (Nuc)| (GeV)"},
       {"_mm2_eg", "MM^{2}_{P} e P#rightarrow e'#gamma(P_{miss}) (GeV^{2})"},
       {"_mm2_eNg", "MM^{2}_{P} e D#rightarrow e'P'#gamma(N_{miss}) (GeV^{2})"},
@@ -205,8 +207,9 @@ void compare_MC_data_background()
     double int_base_MC = h_base_MC->Integral();
     double int_base_bkg = h_base_bkg->Integral();
 
-    h_base_MC->Scale(int_base_data / int_base_MC);
-    h_base_bkg->Scale(int_base_data / int_base_bkg);
+    h_base_MC->Scale(1.0 / int_base_MC);
+    h_base_data->Scale(1.0 / int_base_data);
+    h_base_bkg->Scale(1.0 / int_base_bkg);
 
     h_base_MC->SetLineColor(kBlack);
 
