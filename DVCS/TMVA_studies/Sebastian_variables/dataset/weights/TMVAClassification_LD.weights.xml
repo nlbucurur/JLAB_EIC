@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<MethodSetup Method="LD::LD">
+  <GeneralInfo>
+    <Info name="TMVA Release" value="4.2.1 [262657]"/>
+    <Info name="ROOT Release" value="6.32/10 [401418]"/>
+    <Info name="Creator" value="lorena"/>
+    <Info name="Date" value="Mon May 19 20:51:02 2025"/>
+    <Info name="Host" value="Linux wl-atoui 5.15.167.4-microsoft-standard-WSL2 #1 SMP Tue Nov 5 00:21:55 UTC 2024 x86_64 x86_64 x86_64 GNU/Linux"/>
+    <Info name="Dir" value="/home/lorena/Documents/Thesis/JLAB_EIC/DVCS/TMVA_studies"/>
+    <Info name="Training events" value="2000"/>
+    <Info name="TrainingTime" value="5.30791283e-03"/>
+    <Info name="AnalysisType" value="Classification"/>
+  </GeneralInfo>
+  <Options>
+    <Option name="V" modified="Yes">False</Option>
+    <Option name="VerbosityLevel" modified="No">Default</Option>
+    <Option name="VarTransform" modified="Yes">None</Option>
+    <Option name="H" modified="Yes">True</Option>
+    <Option name="CreateMVAPdfs" modified="Yes">True</Option>
+    <Option name="IgnoreNegWeightsInTraining" modified="No">False</Option>
+  </Options>
+  <Variables NVar="7">
+    <Variable VarIndex="0" Expression="_mm2_eNg" Label="_mm2_eNg" Title="mm2_eNg missing Neutron" Unit="GeV" Internal="_mm2_eNg" Type="D" Min="-8.32648933e-01" Max="3.77702999e+00"/>
+    <Variable VarIndex="1" Expression="_mm2_eNX_N" Label="_mm2_eNX_N" Title="mm2_eNX_N missing photon" Unit="GeV" Internal="_mm2_eNX_N" Type="D" Min="-1.27379923e+01" Max="6.32826185e+00"/>
+    <Variable VarIndex="2" Expression="_mm2_eg" Label="_mm2_eg" Title="mm2_eg missing proton" Unit="GeV" Internal="_mm2_eg" Type="D" Min="-4.71607357e-01" Max="3.62626934e+00"/>
+    <Variable VarIndex="3" Expression="_delta_t" Label="_delta_t" Title="Delta t" Unit="GeV" Internal="_delta_t" Type="D" Min="-1.90244830e+00" Max="1.05165792e+00"/>
+    <Variable VarIndex="4" Expression="_delta_Phi" Label="_delta_Phi" Title="Delta Phi" Unit="°" Internal="_delta_Phi" Type="D" Min="-4.93853951e+00" Max="4.68485737e+00"/>
+    <Variable VarIndex="5" Expression="_Pmiss_mag" Label="_Pmiss_mag" Title="Magnitude of Missing Momentum" Unit="GeV" Internal="_Pmiss_mag" Type="D" Min="1.90456472e-02" Max="1.19304931e+00"/>
+    <Variable VarIndex="6" Expression="_Pmiss_perp" Label="_Pmiss_perp" Title="Transverse Missing Momentum" Unit="GeV" Internal="_Pmiss_perp" Type="D" Min="5.99980762e-04" Max="8.01529527e-01"/>
+  </Variables>
+  <Spectators NSpec="0"/>
+  <Classes NClass="2">
+    <Class Name="Signal" Index="0"/>
+    <Class Name="Background" Index="1"/>
+  </Classes>
+  <Transformations NTransformations="0"/>
+  <MVAPdfs>
+    <PDF Name="LD_PDFSig" MinNSmooth="10" MaxNSmooth="10" InterpolMethod="2" KDE_type="1" KDE_iter="1" KDE_border="1" KDE_finefactor="1.0000000000000000e+00">
+      <Histogram Name="LD_tr_S_original" NBins="50" XMin="-1.3218168020248413e+00" XMax="2.5899460315704346e+00" HasEquidistantBins="1">
+        0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 1.27947558e-02 0.00000000e+00 1.27947558e-02 3.83842673e-02 3.83842673e-02 3.32663650e-01 5.50174498e-01 2.22628750e+00 4.83641768e+00 3.19868894e+00 6.65327300e-01 2.43100359e-01 1.15152802e-01 3.83842673e-02 6.39737788e-02 1.02358046e-01 6.39737788e-02 3.83842673e-02 2.55895115e-02 2.55895115e-02 1.27947558e-02 3.83842673e-02 1.27947558e-02 1.27947558e-02 2.55895115e-02 0.00000000e+00 1.27947558e-02 1.27947558e-02 1.27947558e-02 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 1.27947558e-02 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 
+      </Histogram>
+    </PDF>
+    <PDF Name="LD_PDFBkg" MinNSmooth="10" MaxNSmooth="10" InterpolMethod="2" KDE_type="1" KDE_iter="1" KDE_border="1" KDE_finefactor="1.0000000000000000e+00">
+      <Histogram Name="LD_tr_B_original" NBins="50" XMin="-1.3218168020248413e+00" XMax="2.5899460315704346e+00" HasEquidistantBins="1">
+        3.83458830e-02 1.15037649e-01 3.06767064e-01 5.49624323e-01 8.05263543e-01 1.29097806e+00 1.54661728e+00 1.86616631e+00 2.50526436e+00 2.00676788e+00 6.64661972e-01 2.68421181e-01 1.91729415e-01 1.15037649e-01 1.15037649e-01 2.55639220e-02 2.55639220e-02 3.83458830e-02 1.27819610e-02 6.39098050e-02 0.00000000e+00 5.11278440e-02 2.55639220e-02 3.83458830e-02 3.83458830e-02 1.27819610e-02 2.55639220e-02 1.27819610e-02 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 1.27819610e-02 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 1.27819610e-02 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 0.00000000e+00 
+      </Histogram>
+    </PDF>
+  </MVAPdfs>
+  <Weights NOut="1" NCoeff="8">
+    <Coefficient IndexOut="0" IndexCoeff="0" Value="4.2250203899001459e-01"/>
+    <Coefficient IndexOut="0" IndexCoeff="1" Value="3.7154673831167617e-01"/>
+    <Coefficient IndexOut="0" IndexCoeff="2" Value="9.6342199077115845e-02"/>
+    <Coefficient IndexOut="0" IndexCoeff="3" Value="-1.4831420696002233e+00"/>
+    <Coefficient IndexOut="0" IndexCoeff="4" Value="-1.5443615844246357e+00"/>
+    <Coefficient IndexOut="0" IndexCoeff="5" Value="1.7137437658333032e-03"/>
+    <Coefficient IndexOut="0" IndexCoeff="6" Value="2.2205953752586316e+00"/>
+    <Coefficient IndexOut="0" IndexCoeff="7" Value="-1.6126470669644739e+00"/>
+  </Weights>
+</MethodSetup>
