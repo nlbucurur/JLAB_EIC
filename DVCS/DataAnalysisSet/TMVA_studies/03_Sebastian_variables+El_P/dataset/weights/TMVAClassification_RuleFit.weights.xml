@@ -1,0 +1,561 @@
+<?xml version="1.0"?>
+<MethodSetup Method="RuleFit::RuleFit">
+  <GeneralInfo>
+    <Info name="TMVA Release" value="4.2.1 [262657]"/>
+    <Info name="ROOT Release" value="6.32/10 [401418]"/>
+    <Info name="Creator" value="lorena"/>
+    <Info name="Date" value="Mon May 19 20:54:50 2025"/>
+    <Info name="Host" value="Linux wl-atoui 5.15.167.4-microsoft-standard-WSL2 #1 SMP Tue Nov 5 00:21:55 UTC 2024 x86_64 x86_64 x86_64 GNU/Linux"/>
+    <Info name="Dir" value="/home/lorena/Documents/Thesis/JLAB_EIC/DVCS/TMVA_studies"/>
+    <Info name="Training events" value="2000"/>
+    <Info name="TrainingTime" value="8.67745709e+00"/>
+    <Info name="AnalysisType" value="Classification"/>
+  </GeneralInfo>
+  <Options>
+    <Option name="V" modified="Yes">False</Option>
+    <Option name="VerbosityLevel" modified="No">Default</Option>
+    <Option name="VarTransform" modified="No">None</Option>
+    <Option name="H" modified="Yes">True</Option>
+    <Option name="CreateMVAPdfs" modified="No">False</Option>
+    <Option name="IgnoreNegWeightsInTraining" modified="No">False</Option>
+    <Option name="GDTau" modified="Yes">-1.000000e+00</Option>
+    <Option name="GDTauPrec" modified="Yes">1.000000e-02</Option>
+    <Option name="GDStep" modified="Yes">1.000000e-02</Option>
+    <Option name="GDNSteps" modified="Yes">10000</Option>
+    <Option name="GDErrScale" modified="Yes">1.020000e+00</Option>
+    <Option name="LinQuantile" modified="No">2.500000e-02</Option>
+    <Option name="GDPathEveFrac" modified="No">5.000000e-01</Option>
+    <Option name="GDValidEveFrac" modified="No">5.000000e-01</Option>
+    <Option name="fEventsMin" modified="Yes">1.000000e-02</Option>
+    <Option name="fEventsMax" modified="Yes">5.000000e-01</Option>
+    <Option name="nTrees" modified="Yes">20</Option>
+    <Option name="ForestType" modified="No">adaboost</Option>
+    <Option name="RuleMinDist" modified="Yes">1.000000e-03</Option>
+    <Option name="MinImp" modified="Yes">1.000000e-03</Option>
+    <Option name="Model" modified="Yes">modrulelinear</Option>
+    <Option name="RuleFitModule" modified="Yes">rftmva</Option>
+    <Option name="RFWorkDir" modified="No">./rulefit</Option>
+    <Option name="RFNrules" modified="No">2000</Option>
+    <Option name="RFNendnodes" modified="No">4</Option>
+  </Options>
+  <Variables NVar="7">
+    <Variable VarIndex="0" Expression="_mm2_eNg" Label="_mm2_eNg" Title="mm2_eNg missing Neutron" Unit="GeV" Internal="_mm2_eNg" Type="D" Min="-8.32648933e-01" Max="3.77702999e+00"/>
+    <Variable VarIndex="1" Expression="_mm2_eNX_N" Label="_mm2_eNX_N" Title="mm2_eNX_N missing photon" Unit="GeV" Internal="_mm2_eNX_N" Type="D" Min="-1.27379923e+01" Max="6.32826185e+00"/>
+    <Variable VarIndex="2" Expression="_mm2_eg" Label="_mm2_eg" Title="mm2_eg missing proton" Unit="GeV" Internal="_mm2_eg" Type="D" Min="-4.71607357e-01" Max="3.62626934e+00"/>
+    <Variable VarIndex="3" Expression="_delta_t" Label="_delta_t" Title="Delta t" Unit="GeV" Internal="_delta_t" Type="D" Min="-1.90244830e+00" Max="1.05165792e+00"/>
+    <Variable VarIndex="4" Expression="_delta_Phi" Label="_delta_Phi" Title="Delta Phi" Unit="°" Internal="_delta_Phi" Type="D" Min="-4.93853951e+00" Max="4.68485737e+00"/>
+    <Variable VarIndex="5" Expression="_Pmiss_mag" Label="_Pmiss_mag" Title="Magnitude of Missing Momentum" Unit="GeV" Internal="_Pmiss_mag" Type="D" Min="1.90456472e-02" Max="1.19304931e+00"/>
+    <Variable VarIndex="6" Expression="_Pmiss_perp" Label="_Pmiss_perp" Title="Transverse Missing Momentum" Unit="GeV" Internal="_Pmiss_perp" Type="D" Min="5.99980762e-04" Max="8.01529527e-01"/>
+  </Variables>
+  <Spectators NSpec="0"/>
+  <Classes NClass="2">
+    <Class Name="Signal" Index="0"/>
+    <Class Name="Background" Index="1"/>
+  </Classes>
+  <Transformations NTransformations="0"/>
+  <MVAPdfs/>
+  <Weights NRules="104" NLinear="7" LearningModel="0" ImportanceCut="1.0000000000000000e-03" LinQuantile="2.5000000000000001e-02" AverageSupport="1.3928731343283576e-01" AverageRuleSigma="3.4624609420107361e-01" Offset="-1.3996148616087654e+01">
+    <Rule Importance="3.8557243002846886e-01" Ref="8.1209304204335242e-01" Coeff="-8.7418187118083490e-01" Support="2.6450000000000001e-01" Sigma="4.4106660494759747e-01" Norm="2.2672312725167862e+00" SSB="4.1020793950850659e-01" SSBNeve="5.2900000000000000e+02" Nvars="1">
+      <Cut Selector="0" Min="1.1429277658462524e+00" Max="1.7705373764038086e+00" DoMin="T" DoMax="T"/>
+    </Rule>
+    <Rule Importance="2.1419121691351357e-02" Ref="8.1209304204335242e-01" Coeff="5.8799877923786888e-02" Support="1.5750000000000000e-01" Sigma="3.6427153333742673e-01" Norm="2.7452049048084537e+00" SSB="7.9365079365079361e-02" SSBNeve="3.1500000000000000e+02" Nvars="2">
+      <Cut Selector="3" Min="2.0762756466865540e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="6" Min="1.5626452863216400e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="7.4026291539390577e-03" Ref="8.1209304204335242e-01" Coeff="-2.5675149462073919e-02" Support="9.1499999999999998e-02" Sigma="2.8831883393215924e-01" Norm="3.4683825068302605e+00" SSB="2.1857923497267760e-02" SSBNeve="1.8300000000000000e+02" Nvars="3">
+      <Cut Selector="0" Min="2.1200077533721924e+00" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="3" Min="2.0762756466865540e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="6" Min="1.5626452863216400e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="2.0973636996108807e-02" Ref="8.1209304204335242e-01" Coeff="8.4475027385860810e-02" Support="6.6000000000000003e-02" Sigma="2.4828209762284512e-01" Norm="4.0276766209662762e+00" SSB="1.5909090909090909e-01" SSBNeve="1.3200000000000000e+02" Nvars="3">
+      <Cut Selector="0" Min="0.0000000000000000e+00" Max="2.1200077533721924e+00" DoMin="F" DoMax="T"/>
+      <Cut Selector="3" Min="2.0762756466865540e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="6" Min="1.5626452863216400e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="1.0921922383588921e-01" Ref="8.1209304204335242e-01" Coeff="3.5188826259688050e-01" Support="1.0800000000000000e-01" Sigma="3.1038041175306152e-01" Norm="3.2218528042794126e+00" SSB="2.0833333333333334e-01" SSBNeve="2.1600000000000000e+02" Nvars="2">
+      <Cut Selector="3" Min="2.0762756466865540e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="6" Min="0.0000000000000000e+00" Max="1.5626452863216400e-01" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="7.5490251347269458e-02" Ref="8.1209304204335242e-01" Coeff="3.2971856320867410e-01" Support="5.5500000000000001e-02" Sigma="2.2895359791887962e-01" Norm="4.3676972499655120e+00" SSB="2.1621621621621623e-01" SSBNeve="1.1100000000000000e+02" Nvars="3">
+      <Cut Selector="2" Min="1.4937720298767090e+00" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="3" Min="2.0762756466865540e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="6" Min="0.0000000000000000e+00" Max="1.5626452863216400e-01" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="4.9445760999414961e-03" Ref="8.1209304204335242e-01" Coeff="2.2169699388206437e-02" Support="5.2499999999999998e-02" Sigma="2.2303306929690941e-01" Norm="4.4836400411490773e+00" SSB="2.0000000000000001e-01" SSBNeve="1.0500000000000000e+02" Nvars="3">
+      <Cut Selector="2" Min="0.0000000000000000e+00" Max="1.4937720298767090e+00" DoMin="F" DoMax="T"/>
+      <Cut Selector="3" Min="2.0762756466865540e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="6" Min="0.0000000000000000e+00" Max="1.5626452863216400e-01" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="5.8827654265294593e-01" Ref="8.1209304204335242e-01" Coeff="1.2078021868408504e+00" Support="3.8700000000000001e-01" Sigma="4.8706365087121828e-01" Norm="2.0531197477193883e+00" SSB="5.5943152454780365e-01" SSBNeve="7.7400000000000000e+02" Nvars="3">
+      <Cut Selector="0" Min="9.2921918630599976e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="3" Min="0.0000000000000000e+00" Max="2.0762756466865540e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="5" Min="1.8676045536994934e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="2.5786272556580302e-02" Ref="8.1209304204335242e-01" Coeff="1.9665421752793116e-01" Support="1.7500000000000002e-02" Sigma="1.3112494041943357e-01" Norm="7.6263142374079855e+00" SSB="7.4285714285714288e-01" SSBNeve="3.5000000000000000e+01" Nvars="4">
+      <Cut Selector="0" Min="0.0000000000000000e+00" Max="9.2921918630599976e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="1" Min="4.3830028176307678e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="3" Min="0.0000000000000000e+00" Max="2.0762756466865540e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="5" Min="1.8676045536994934e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="2.8315440511483791e-01" Ref="8.1209304204335242e-01" Coeff="9.2956122717286205e-01" Support="1.0349999999999999e-01" Sigma="3.0461081727345141e-01" Norm="3.2828775056346489e+00" SSB="8.7922705314009664e-01" SSBNeve="2.0700000000000000e+02" Nvars="4">
+      <Cut Selector="0" Min="0.0000000000000000e+00" Max="9.2921918630599976e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="1" Min="0.0000000000000000e+00" Max="4.3830028176307678e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="3" Min="0.0000000000000000e+00" Max="2.0762756466865540e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="5" Min="1.8676045536994934e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="8.1623870105938107e-02" Ref="8.1209304204335242e-01" Coeff="1.9500822097374906e-01" Support="2.2650000000000001e-01" Sigma="4.1856630299153319e-01" Norm="2.3891077539039931e+00" SSB="6.3796909492273735e-01" SSBNeve="4.5300000000000000e+02" Nvars="2">
+      <Cut Selector="3" Min="0.0000000000000000e+00" Max="2.0762756466865540e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="5" Min="0.0000000000000000e+00" Max="1.8676045536994934e-01" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="2.5116243740071001e-02" Ref="8.1209304204335242e-01" Coeff="1.2246145204449106e-01" Support="4.3999999999999997e-02" Sigma="2.0509509989270830e-01" Norm="4.8757868936075583e+00" SSB="5.2272727272727271e-01" SSBNeve="8.8000000000000000e+01" Nvars="3">
+      <Cut Selector="3" Min="0.0000000000000000e+00" Max="2.0762756466865540e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="5" Min="0.0000000000000000e+00" Max="1.8676045536994934e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="6" Min="9.6744716167449951e-02" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="1.8239395156805543e-02" Ref="8.1209304204335242e-01" Coeff="1.5258017793034301e-01" Support="1.4500000000000001e-02" Sigma="1.1953974234538069e-01" Norm="8.3654187333844661e+00" SSB="4.4827586206896552e-01" SSBNeve="2.9000000000000000e+01" Nvars="4">
+      <Cut Selector="3" Min="0.0000000000000000e+00" Max="2.0762756466865540e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="4" Min="6.3540613651275635e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="5" Min="0.0000000000000000e+00" Max="1.8676045536994934e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="6" Min="9.6744716167449951e-02" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="5.0961872126217261e-03" Ref="8.1209304204335242e-01" Coeff="-3.0118725885852592e-02" Support="2.9499999999999998e-02" Sigma="1.6920328011004987e-01" Norm="5.9100509124267546e+00" SSB="5.5932203389830504e-01" SSBNeve="5.9000000000000000e+01" Nvars="4">
+      <Cut Selector="3" Min="0.0000000000000000e+00" Max="2.0762756466865540e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="4" Min="0.0000000000000000e+00" Max="6.3540613651275635e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="5" Min="0.0000000000000000e+00" Max="1.8676045536994934e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="6" Min="9.6744716167449951e-02" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="5.0541160510843546e-03" Ref="8.1209304204335242e-01" Coeff="-3.0118725885852592e-02" Support="2.9000000000000001e-02" Sigma="1.6780643611018023e-01" Norm="5.9592469942178425e+00" SSB="5.6896551724137934e-01" SSBNeve="5.8000000000000000e+01" Nvars="5">
+      <Cut Selector="2" Min="0.0000000000000000e+00" Max="1.6345336437225342e+00" DoMin="F" DoMax="T"/>
+      <Cut Selector="3" Min="0.0000000000000000e+00" Max="2.0762756466865540e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="4" Min="0.0000000000000000e+00" Max="6.3540613651275635e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="5" Min="0.0000000000000000e+00" Max="1.8676045536994934e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="6" Min="9.6744716167449951e-02" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="9.3553008860798297e-03" Ref="8.1209304204335242e-01" Coeff="-1.3977544088848476e-01" Support="4.4999999999999997e-03" Sigma="6.6930934551969315e-02" Norm="1.4940774496784266e+01" SSB="3.3333333333333331e-01" SSBNeve="9.0000000000000000e+00" Nvars="5">
+      <Cut Selector="2" Min="0.0000000000000000e+00" Max="1.6345336437225342e+00" DoMin="F" DoMax="T"/>
+      <Cut Selector="3" Min="1.9671853631734848e-02" Max="2.0762756466865540e-01" DoMin="T" DoMax="T"/>
+      <Cut Selector="4" Min="0.0000000000000000e+00" Max="6.3540613651275635e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="5" Min="0.0000000000000000e+00" Max="1.8676045536994934e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="6" Min="9.6744716167449951e-02" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="2.8021629706444513e-02" Ref="8.1209304204335242e-01" Coeff="7.2546768929257710e-02" Support="1.8250000000000000e-01" Sigma="3.8625606791350214e-01" Norm="2.5889560917498367e+00" SSB="6.6575342465753429e-01" SSBNeve="3.6500000000000000e+02" Nvars="3">
+      <Cut Selector="3" Min="0.0000000000000000e+00" Max="2.0762756466865540e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="5" Min="0.0000000000000000e+00" Max="1.8676045536994934e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="6" Min="0.0000000000000000e+00" Max="9.6744716167449951e-02" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="1.2389068111522227e-02" Ref="8.1209304204335242e-01" Coeff="-2.0978091091599077e-01" Support="3.5000000000000001e-03" Sigma="5.9057175685940148e-02" Norm="1.6932743369203681e+01" SSB="0.0000000000000000e+00" SSBNeve="7.0000000000000000e+00" Nvars="4">
+      <Cut Selector="0" Min="1.3329037427902222e+00" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="3" Min="0.0000000000000000e+00" Max="2.0762756466865540e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="5" Min="0.0000000000000000e+00" Max="1.8676045536994934e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="6" Min="0.0000000000000000e+00" Max="9.6744716167449951e-02" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="1.0823097060882676e-01" Ref="8.1209304204335242e-01" Coeff="2.8232767984524892e-01" Support="1.7899999999999999e-01" Sigma="3.8335231837045147e-01" Norm="2.6085664598320042e+00" SSB="6.7877094972067042e-01" SSBNeve="3.5800000000000000e+02" Nvars="4">
+      <Cut Selector="0" Min="0.0000000000000000e+00" Max="1.3329037427902222e+00" DoMin="F" DoMax="T"/>
+      <Cut Selector="3" Min="0.0000000000000000e+00" Max="2.0762756466865540e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="5" Min="0.0000000000000000e+00" Max="1.8676045536994934e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="6" Min="0.0000000000000000e+00" Max="9.6744716167449951e-02" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="9.9323025686982327e-02" Ref="8.1209304204335242e-01" Coeff="-5.1948212298680874e-01" Support="3.7999999999999999e-02" Sigma="1.9119623427254001e-01" Norm="5.2302285335523582e+00" SSB="3.6842105263157893e-01" SSBNeve="7.6000000000000000e+01" Nvars="4">
+      <Cut Selector="0" Min="0.0000000000000000e+00" Max="1.3329037427902222e+00" DoMin="F" DoMax="T"/>
+      <Cut Selector="3" Min="3.7945438176393509e-02" Max="2.0762756466865540e-01" DoMin="T" DoMax="T"/>
+      <Cut Selector="5" Min="0.0000000000000000e+00" Max="2.5018665194511414e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="6" Min="0.0000000000000000e+00" Max="9.6744716167449951e-02" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="3.1048648361275882e-01" Ref="8.1209304204335242e-01" Coeff="6.4804192631440427e-01" Support="3.5699999999999998e-01" Sigma="4.7911480878803986e-01" Norm="2.0871824073432044e+00" SSB="3.6134453781512604e-01" SSBNeve="7.1400000000000000e+02" Nvars="2">
+      <Cut Selector="4" Min="0.0000000000000000e+00" Max="7.5812005996704102e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="5" Min="4.1038021445274353e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="3.7586817980406051e-01" Ref="8.1209304204335242e-01" Coeff="7.9431232261340989e-01" Support="3.3850000000000002e-01" Sigma="4.7319948224823744e-01" Norm="2.1132736562788681e+00" SSB="3.3530280649926147e-01" SSBNeve="6.7700000000000000e+02" Nvars="3">
+      <Cut Selector="0" Min="1.0642321109771729e+00" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="4" Min="0.0000000000000000e+00" Max="7.5812005996704102e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="5" Min="4.1038021445274353e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="1.9710037666145985e-02" Ref="8.1209304204335242e-01" Coeff="-1.4627039629900318e-01" Support="1.8499999999999999e-02" Sigma="1.3475069573104251e-01" Norm="7.4211119621672577e+00" SSB="8.3783783783783783e-01" SSBNeve="3.7000000000000000e+01" Nvars="3">
+      <Cut Selector="0" Min="0.0000000000000000e+00" Max="1.0642321109771729e+00" DoMin="F" DoMax="T"/>
+      <Cut Selector="4" Min="0.0000000000000000e+00" Max="7.5812005996704102e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="5" Min="4.1038021445274353e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="2.0365129858321847e-02" Ref="8.1209304204335242e-01" Coeff="-1.7333437881209215e-01" Support="1.4000000000000000e-02" Sigma="1.1749042514179613e-01" Norm="8.5113318706024437e+00" SSB="7.8571428571428570e-01" SSBNeve="2.8000000000000000e+01" Nvars="4">
+      <Cut Selector="0" Min="0.0000000000000000e+00" Max="1.0642321109771729e+00" DoMin="F" DoMax="T"/>
+      <Cut Selector="4" Min="0.0000000000000000e+00" Max="7.5812005996704102e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="5" Min="4.1038021445274353e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="6" Min="6.7164368927478790e-02" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="1.8114176422992325e-03" Ref="8.1209304204335242e-01" Coeff="2.7063982513089457e-02" Support="4.4999999999999997e-03" Sigma="6.6930934551969315e-02" Norm="1.4940774496784266e+01" SSB="1.0000000000000000e+00" SSBNeve="9.0000000000000000e+00" Nvars="4">
+      <Cut Selector="0" Min="0.0000000000000000e+00" Max="1.0642321109771729e+00" DoMin="F" DoMax="T"/>
+      <Cut Selector="4" Min="0.0000000000000000e+00" Max="7.5812005996704102e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="5" Min="4.1038021445274353e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="6" Min="0.0000000000000000e+00" Max="6.7164368927478790e-02" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="1.1647865553847225e-03" Ref="8.1209304204335242e-01" Coeff="2.3324905484946923e-02" Support="2.5000000000000001e-03" Sigma="4.9937460888595450e-02" Norm="2.0025046972870353e+01" SSB="1.0000000000000000e+00" SSBNeve="5.0000000000000000e+00" Nvars="4">
+      <Cut Selector="0" Min="0.0000000000000000e+00" Max="1.0642321109771729e+00" DoMin="F" DoMax="T"/>
+      <Cut Selector="4" Min="4.6598543412983418e-03" Max="7.5812005996704102e-01" DoMin="T" DoMax="T"/>
+      <Cut Selector="5" Min="4.1038021445274353e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="6" Min="0.0000000000000000e+00" Max="6.7164368927478790e-02" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="2.4608234361259823e-01" Ref="8.1209304204335242e-01" Coeff="4.9216493330772465e-01" Support="4.9950000000000000e-01" Sigma="4.9999974999993746e-01" Norm="2.0000010000007502e+00" SSB="6.7767767767767773e-01" SSBNeve="9.9900000000000000e+02" Nvars="2">
+      <Cut Selector="4" Min="0.0000000000000000e+00" Max="7.5812005996704102e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="5" Min="0.0000000000000000e+00" Max="4.1038021445274353e-01" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="2.5142205123874650e-01" Ref="8.1209304204335242e-01" Coeff="5.0284636529122817e-01" Support="4.9850000000000000e-01" Sigma="4.9999774999493751e-01" Norm="2.0000090000607504e+00" SSB="6.7903711133400202e-01" SSBNeve="9.9700000000000000e+02" Nvars="3">
+      <Cut Selector="0" Min="0.0000000000000000e+00" Max="1.9136791229248047e+00" DoMin="F" DoMax="T"/>
+      <Cut Selector="4" Min="0.0000000000000000e+00" Max="7.5812005996704102e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="5" Min="0.0000000000000000e+00" Max="4.1038021445274353e-01" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="3.9031853248008536e-01" Ref="8.1209304204335242e-01" Coeff="1.1884114291773593e+00" Support="1.2300000000000000e-01" Sigma="3.2843720861071757e-01" Norm="3.0447220162111925e+00" SSB="7.1138211382113825e-01" SSBNeve="2.4600000000000000e+02" Nvars="1">
+      <Cut Selector="1" Min="8.8076066970825195e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="1.3838577242145580e-01" Ref="8.1209304204335242e-01" Coeff="5.5934677613796480e-01" Support="6.5500000000000003e-02" Sigma="2.4740604277179651e-01" Norm="4.0419384619573924e+00" SSB="5.7251908396946560e-01" SSBNeve="1.3100000000000000e+02" Nvars="2">
+      <Cut Selector="1" Min="8.8076066970825195e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="6" Min="7.6878987252712250e-02" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="2.4012908157503829e-02" Ref="8.1209304204335242e-01" Coeff="1.8312998336314179e-01" Support="1.7500000000000002e-02" Sigma="1.3112494041943357e-01" Norm="7.6263142374079855e+00" SSB="3.1428571428571428e-01" SSBNeve="3.5000000000000000e+01" Nvars="3">
+      <Cut Selector="1" Min="8.8076066970825195e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="5" Min="6.0487765073776245e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="6" Min="7.6878987252712250e-02" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="2.3162437463911445e-02" Ref="8.1209304204335242e-01" Coeff="1.7917732153591898e-01" Support="1.7000000000000001e-02" Sigma="1.2927103310486848e-01" Norm="7.7356850640218093e+00" SSB="2.9411764705882354e-01" SSBNeve="3.4000000000000000e+01" Nvars="4">
+      <Cut Selector="0" Min="1.4212170839309692e+00" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="1" Min="8.8076066970825195e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="5" Min="6.0487765073776245e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="6" Min="7.6878987252712250e-02" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="8.0422444496391798e-02" Ref="8.1209304204335242e-01" Coeff="3.7621679277482312e-01" Support="4.8000000000000001e-02" Sigma="2.1376622745419821e-01" Norm="4.6780074285319984e+00" SSB="6.6666666666666663e-01" SSBNeve="9.6000000000000000e+01" Nvars="3">
+      <Cut Selector="1" Min="8.8076066970825195e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="5" Min="0.0000000000000000e+00" Max="6.0487765073776245e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="6" Min="7.6878987252712250e-02" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="3.8010073793830583e-03" Ref="8.1209304204335242e-01" Coeff="-6.0219763818438458e-02" Support="4.0000000000000001e-03" Sigma="6.3118935352238004e-02" Norm="1.5843106263111947e+01" SSB="0.0000000000000000e+00" SSBNeve="8.0000000000000000e+00" Nvars="4">
+      <Cut Selector="0" Min="2.0765318870544434e+00" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="1" Min="8.8076066970825195e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="5" Min="0.0000000000000000e+00" Max="6.0487765073776245e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="6" Min="7.6878987252712250e-02" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="8.9510999171325004e-02" Ref="8.1209304204335242e-01" Coeff="4.3643655659326341e-01" Support="4.3999999999999997e-02" Sigma="2.0509509989270830e-01" Norm="4.8757868936075583e+00" SSB="7.2727272727272729e-01" SSBNeve="8.8000000000000000e+01" Nvars="4">
+      <Cut Selector="0" Min="0.0000000000000000e+00" Max="2.0765318870544434e+00" DoMin="F" DoMax="T"/>
+      <Cut Selector="1" Min="8.8076066970825195e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="5" Min="0.0000000000000000e+00" Max="6.0487765073776245e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="6" Min="7.6878987252712250e-02" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="1.4644342743504293e-01" Ref="8.1209304204335242e-01" Coeff="6.2906465303938908e-01" Support="5.7500000000000002e-02" Sigma="2.3279551112510741e-01" Norm="4.2956154745723882e+00" SSB="8.6956521739130432e-01" SSBNeve="1.1500000000000000e+02" Nvars="2">
+      <Cut Selector="1" Min="8.8076066970825195e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="6" Min="0.0000000000000000e+00" Max="7.6878987252712250e-02" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="8.0417313075547461e-02" Ref="8.1209304204335242e-01" Coeff="4.6398807921906704e-01" Support="3.1000000000000000e-02" Sigma="1.7331762749357033e-01" Norm="5.7697535701444886e+00" SSB="7.9032258064516125e-01" SSBNeve="6.2000000000000000e+01" Nvars="3">
+      <Cut Selector="1" Min="8.8076066970825195e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="5" Min="1.3474890589714050e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="6" Min="0.0000000000000000e+00" Max="7.6878987252712250e-02" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="2.6514067731424073e-02" Ref="8.1209304204335242e-01" Coeff="1.6507657382032054e-01" Support="2.6499999999999999e-02" Sigma="1.6061677994530957e-01" Norm="6.2259995521047218e+00" SSB="9.6226415094339623e-01" SSBNeve="5.3000000000000000e+01" Nvars="3">
+      <Cut Selector="1" Min="8.8076066970825195e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="5" Min="0.0000000000000000e+00" Max="1.3474890589714050e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="6" Min="0.0000000000000000e+00" Max="7.6878987252712250e-02" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="6.7852251747997541e-02" Ref="8.1209304204335242e-01" Coeff="-2.7622470060078091e-01" Support="6.4500000000000002e-02" Sigma="2.4564150707891369e-01" Norm="4.0709732320553806e+00" SSB="7.2093023255813948e-01" SSBNeve="1.2900000000000000e+02" Nvars="4">
+      <Cut Selector="1" Min="1.6802808642387390e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="3" Min="0.0000000000000000e+00" Max="9.9424034357070923e-02" DoMin="F" DoMax="T"/>
+      <Cut Selector="5" Min="0.0000000000000000e+00" Max="1.3474890589714050e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="6" Min="0.0000000000000000e+00" Max="7.6878987252712250e-02" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="5.7519292550654555e-01" Ref="8.1209304204335242e-01" Coeff="1.7513025638587036e+00" Support="8.7700000000000000e-01" Sigma="3.2843720861071757e-01" Norm="3.0447220162111925e+00" SSB="4.7035347776510833e-01" SSBNeve="1.7540000000000000e+03" Nvars="1">
+      <Cut Selector="1" Min="0.0000000000000000e+00" Max="8.8076066970825195e-01" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="5.1056203253996906e-03" Ref="8.1209304204335242e-01" Coeff="8.6452158710583163e-02" Support="3.5000000000000001e-03" Sigma="5.9057175685940148e-02" Norm="1.6932743369203681e+01" SSB="8.5714285714285710e-01" SSBNeve="7.0000000000000000e+00" Nvars="3">
+      <Cut Selector="0" Min="0.0000000000000000e+00" Max="1.5713104009628296e+00" DoMin="F" DoMax="T"/>
+      <Cut Selector="3" Min="4.7251693904399872e-02" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="5" Min="7.4580979347229004e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="8.5207523945573962e-04" Ref="8.1209304204335242e-01" Coeff="1.5580081988299625e-02" Support="3.0000000000000001e-03" Sigma="5.4690035655501269e-02" Norm="1.8284866484620952e+01" SSB="1.0000000000000000e+00" SSBNeve="6.0000000000000000e+00" Nvars="3">
+      <Cut Selector="0" Min="0.0000000000000000e+00" Max="1.5713104009628296e+00" DoMin="F" DoMax="T"/>
+      <Cut Selector="3" Min="0.0000000000000000e+00" Max="4.7251693904399872e-02" DoMin="F" DoMax="T"/>
+      <Cut Selector="5" Min="7.4580979347229004e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="6.2036684370708639e-01" Ref="8.1209304204335242e-01" Coeff="1.3531080592691842e+00" Support="3.0049999999999999e-01" Sigma="4.5847546281126100e-01" Norm="2.1811418082621938e+00" SSB="2.2462562396006655e-01" SSBNeve="6.0100000000000000e+02" Nvars="1">
+      <Cut Selector="6" Min="1.5315799415111542e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="4.4333981504672731e-01" Ref="8.1209304204335242e-01" Coeff="1.0351289382189217e+00" Support="2.4199999999999999e-01" Sigma="4.2829429134649927e-01" Norm="2.3348431678977914e+00" SSB="5.1652892561983466e-01" SSBNeve="4.8400000000000000e+02" Nvars="2">
+      <Cut Selector="5" Min="3.5447525978088379e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="6" Min="0.0000000000000000e+00" Max="1.5315799415111542e-01" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="2.7474058670636653e-01" Ref="8.1209304204335242e-01" Coeff="5.5147699554795881e-01" Support="4.5750000000000002e-01" Sigma="4.9819047562152369e-01" Norm="2.0072643876871346e+00" SSB="6.7213114754098358e-01" SSBNeve="9.1500000000000000e+02" Nvars="2">
+      <Cut Selector="5" Min="0.0000000000000000e+00" Max="3.5447525978088379e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="6" Min="0.0000000000000000e+00" Max="1.5315799415111542e-01" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="5.2108547280860706e-01" Ref="8.1209304204335242e-01" Coeff="-1.0907105620922135e+00" Support="3.5249999999999998e-01" Sigma="4.7774862637165161e-01" Norm="2.0931509685222562e+00" SSB="1.6312056737588654e-01" SSBNeve="7.0500000000000000e+02" Nvars="1">
+      <Cut Selector="0" Min="1.5819448232650757e+00" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="6.2091114119139174e-02" Ref="8.1209304204335242e-01" Coeff="-1.9612295173025593e-01" Support="1.1300000000000000e-01" Sigma="3.1659279840198512e-01" Norm="3.1586315451505538e+00" SSB="4.4690265486725661e-01" SSBNeve="2.2600000000000000e+02" Nvars="2">
+      <Cut Selector="0" Min="1.1209511756896973e+00" Max="1.5819448232650757e+00" DoMin="T" DoMax="T"/>
+      <Cut Selector="1" Min="-2.7156194671988487e-02" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="9.8477653211697408e-02" Ref="8.1209304204335242e-01" Coeff="4.8545334043392807e-01" Support="4.2999999999999997e-02" Sigma="2.0285709255532575e-01" Norm="4.9295786871601122e+00" SSB="2.9069767441860467e-01" SSBNeve="8.6000000000000000e+01" Nvars="2">
+      <Cut Selector="1" Min="5.7505983114242554e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="5" Min="5.7809501886367798e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="7.7693367527977925e-02" Ref="8.1209304204335242e-01" Coeff="3.8955056526630222e-01" Support="4.1500000000000002e-02" Sigma="1.9944360105052256e-01" Norm="5.0139487791673121e+00" SSB="2.6506024096385544e-01" SSBNeve="8.3000000000000000e+01" Nvars="3">
+      <Cut Selector="1" Min="5.7505983114242554e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="2" Min="1.1611998081207275e+00" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="5" Min="5.7809501886367798e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="2.9062636700701717e-03" Ref="8.1209304204335242e-01" Coeff="9.1950113340403539e-02" Support="1.0000000000000000e-03" Sigma="3.1606961258558219e-02" Norm="3.1638599858416629e+01" SSB="1.0000000000000000e+00" SSBNeve="2.0000000000000000e+00" Nvars="3">
+      <Cut Selector="1" Min="5.7505983114242554e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="2" Min="8.5931640863418579e-01" Max="1.1611998081207275e+00" DoMin="T" DoMax="T"/>
+      <Cut Selector="5" Min="5.7809501886367798e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="3.7115117414791400e-03" Ref="8.1209304204335242e-01" Coeff="9.5902775167626353e-02" Support="1.5000000000000000e-03" Sigma="3.8700775186034715e-02" Norm="2.5839275704246173e+01" SSB="1.0000000000000000e+00" SSBNeve="3.0000000000000000e+00" Nvars="3">
+      <Cut Selector="1" Min="5.7505983114242554e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="2" Min="0.0000000000000000e+00" Max="1.1611998081207275e+00" DoMin="F" DoMax="T"/>
+      <Cut Selector="5" Min="5.7809501886367798e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="5.4284410874871070e-01" Ref="8.1209304204335242e-01" Coeff="1.2665663306609349e+00" Support="2.4249999999999999e-01" Sigma="4.2859508863261608e-01" Norm="2.3332045245557675e+00" SSB="2.5773195876288657e-01" SSBNeve="4.8500000000000000e+02" Nvars="2">
+      <Cut Selector="1" Min="0.0000000000000000e+00" Max="5.7505983114242554e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="5" Min="5.7809501886367798e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="7.2741988978286032e-01" Ref="8.1209304204335242e-01" Coeff="1.5866059337668736e+00" Support="6.9950000000000001e-01" Sigma="4.5847546281126100e-01" Norm="2.1811418082621938e+00" SSB="6.1829878484631884e-01" SSBNeve="1.3990000000000000e+03" Nvars="1">
+      <Cut Selector="6" Min="0.0000000000000000e+00" Max="1.5315799415111542e-01" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="8.4510579575782716e-02" Ref="8.1209304204335242e-01" Coeff="-1.9976139311241606e-01" Support="2.3350000000000001e-01" Sigma="4.2305762018902343e-01" Norm="2.3637442094842704e+00" SSB="4.2398286937901497e-01" SSBNeve="4.6700000000000000e+02" Nvars="1">
+      <Cut Selector="6" Min="8.7452456355094910e-02" Max="1.5315799415111542e-01" DoMin="T" DoMax="T"/>
+    </Rule>
+    <Rule Importance="1.0251676305359042e-01" Ref="8.1209304204335242e-01" Coeff="-2.8106728316506308e-01" Support="1.5800000000000000e-01" Sigma="3.6474100400146947e-01" Norm="2.7416714573609364e+00" SSB="3.7974683544303800e-01" SSBNeve="3.1600000000000000e+02" Nvars="2">
+      <Cut Selector="5" Min="2.4266539514064789e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="6" Min="8.7452456355094910e-02" Max="1.5315799415111542e-01" DoMin="T" DoMax="T"/>
+    </Rule>
+    <Rule Importance="2.1480725332128640e-02" Ref="8.1209304204335242e-01" Coeff="8.1305890052649155e-02" Support="7.5499999999999998e-02" Sigma="2.6419642314005692e-01" Norm="3.7850625989356250e+00" SSB="5.1655629139072845e-01" SSBNeve="1.5100000000000000e+02" Nvars="2">
+      <Cut Selector="5" Min="0.0000000000000000e+00" Max="2.4266539514064789e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="6" Min="8.7452456355094910e-02" Max="1.5315799415111542e-01" DoMin="T" DoMax="T"/>
+    </Rule>
+    <Rule Importance="2.8890445504617301e-01" Ref="8.1209304204335242e-01" Coeff="9.8762962219607964e-01" Support="9.4500000000000001e-02" Sigma="2.9252307601281646e-01" Norm="3.4185337226393262e+00" SSB="2.2222222222222221e-01" SSBNeve="1.8900000000000000e+02" Nvars="1">
+      <Cut Selector="5" Min="8.5761970281600952e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="2.5692987852825394e-01" Ref="8.1209304204335242e-01" Coeff="8.9333011311415367e-01" Support="9.0999999999999998e-02" Sigma="2.8760910973055076e-01" Norm="3.4769413282383832e+00" SSB="1.9230769230769232e-01" SSBNeve="1.8200000000000000e+02" Nvars="2">
+      <Cut Selector="0" Min="1.3624362945556641e+00" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="5" Min="8.5761970281600952e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="5.7102972479465541e-01" Ref="8.1209304204335242e-01" Coeff="1.9520843708399829e+00" Support="9.0549999999999997e-01" Sigma="2.9252307601281652e-01" Norm="3.4185337226393253e+00" SSB="5.2898950855880733e-01" SSBNeve="1.8110000000000000e+03" Nvars="1">
+      <Cut Selector="5" Min="0.0000000000000000e+00" Max="8.5761970281600952e-01" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="6.5553911195594905e-01" Ref="8.1209304204335242e-01" Coeff="1.3130657400411940e+00" Support="4.7249999999999998e-01" Sigma="4.9924317721927858e-01" Norm="2.0030318803150675e+00" SSB="2.8571428571428570e-01" SSBNeve="9.4500000000000000e+02" Nvars="1">
+      <Cut Selector="3" Min="6.6955842077732086e-02" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="8.1209304204335242e-01" Ref="8.1209304204335242e-01" Coeff="1.6266482529948794e+00" Support="5.2749999999999997e-01" Sigma="4.9924317721927858e-01" Norm="2.0030318803150675e+00" SSB="6.9194312796208535e-01" SSBNeve="1.0550000000000000e+03" Nvars="1">
+      <Cut Selector="3" Min="0.0000000000000000e+00" Max="6.6955842077732086e-02" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="1.3967343467078170e-02" Ref="8.1209304204335242e-01" Coeff="-3.2045391836037121e-02" Support="2.5500000000000000e-01" Sigma="4.3586121644395021e-01" Norm="2.2943082850056595e+00" SSB="6.5882352941176470e-01" SSBNeve="5.1000000000000000e+02" Nvars="2">
+      <Cut Selector="3" Min="0.0000000000000000e+00" Max="6.6955842077732086e-02" DoMin="F" DoMax="T"/>
+      <Cut Selector="5" Min="2.3384454846382141e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="5.5181909185305222e-01" Ref="8.1209304204335242e-01" Coeff="1.3547948251618309e+00" Support="7.9000000000000004e-01" Sigma="4.0730823708832603e-01" Norm="2.4551430807011814e+00" SSB="6.0822784810126584e-01" SSBNeve="1.5800000000000000e+03" Nvars="1">
+      <Cut Selector="0" Min="0.0000000000000000e+00" Max="2.0209617614746094e+00" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="2.4874725350048602e-01" Ref="8.1209304204335242e-01" Coeff="7.0952656465534725e-01" Support="1.4349999999999999e-01" Sigma="3.5058201608182926e-01" Norm="2.8523995930429877e+00" SSB="5.6445993031358888e-01" SSBNeve="2.8700000000000000e+02" Nvars="2">
+      <Cut Selector="0" Min="0.0000000000000000e+00" Max="2.0209617614746094e+00" DoMin="F" DoMax="T"/>
+      <Cut Selector="5" Min="4.9939283728599548e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="3.8486293857177688e-02" Ref="8.1209304204335242e-01" Coeff="-8.4267806977752435e-02" Support="2.9649999999999999e-01" Sigma="4.5671407904727440e-01" Norm="2.1895536964528088e+00" SSB="4.0809443507588533e-01" SSBNeve="5.9300000000000000e+02" Nvars="2">
+      <Cut Selector="0" Min="1.1481935977935791e+00" Max="2.0209617614746094e+00" DoMin="T" DoMax="T"/>
+      <Cut Selector="5" Min="2.4778233468532562e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="3.0847450585418584e-01" Ref="8.1209304204335242e-01" Coeff="6.4526826050649222e-01" Support="6.4649999999999996e-01" Sigma="4.7805622054314911e-01" Norm="2.0918041791482986e+00" SSB="6.1794276875483367e-01" SSBNeve="1.2930000000000000e+03" Nvars="2">
+      <Cut Selector="0" Min="0.0000000000000000e+00" Max="2.0209617614746094e+00" DoMin="F" DoMax="T"/>
+      <Cut Selector="5" Min="0.0000000000000000e+00" Max="4.9939283728599548e-01" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="2.3773281815795935e-01" Ref="8.1209304204335242e-01" Coeff="9.9715589050733910e-01" Support="6.0499999999999998e-02" Sigma="2.3841088481862568e-01" Norm="4.1944393636253796e+00" SSB="9.9173553719008267e-02" SSBNeve="1.2100000000000000e+02" Nvars="2">
+      <Cut Selector="3" Min="3.4829929471015930e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="5" Min="8.2750505208969116e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="7.0799116288644853e-02" Ref="8.1209304204335242e-01" Coeff="2.5386792130755775e-01" Support="8.5000000000000006e-02" Sigma="2.7888169534768681e-01" Norm="3.5857498598223954e+00" SSB="6.4705882352941183e-02" SSBNeve="1.7000000000000000e+02" Nvars="2">
+      <Cut Selector="3" Min="3.4829929471015930e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="5" Min="0.0000000000000000e+00" Max="8.2750505208969116e-01" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="4.7099060270625576e-02" Ref="8.1209304204335242e-01" Coeff="9.4285327656810275e-02" Support="4.7849999999999998e-01" Sigma="4.9953753612716634e-01" Norm="2.0018515680580045e+00" SSB="6.3531870428422155e-01" SSBNeve="9.5700000000000000e+02" Nvars="2">
+      <Cut Selector="3" Min="-8.1917323172092438e-02" Max="3.4829929471015930e-01" DoMin="T" DoMax="T"/>
+      <Cut Selector="4" Min="-2.2212398052215576e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="1.0123139382914609e-01" Ref="8.1209304204335242e-01" Coeff="2.4853755610936432e-01" Support="2.0999999999999999e-01" Sigma="4.0730823708832603e-01" Norm="2.4551430807011814e+00" SSB="5.2380952380952384e-01" SSBNeve="4.2000000000000000e+02" Nvars="3">
+      <Cut Selector="3" Min="-8.1917323172092438e-02" Max="3.4829929471015930e-01" DoMin="T" DoMax="T"/>
+      <Cut Selector="4" Min="-2.2212398052215576e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="5" Min="3.4586402773857117e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="6.8361369925865473e-02" Ref="8.1209304204335242e-01" Coeff="-1.5425222845255665e-01" Support="2.6850000000000002e-01" Sigma="4.4317913985204677e-01" Norm="2.2564238929067040e+00" SSB="7.2253258845437618e-01" SSBNeve="5.3700000000000000e+02" Nvars="3">
+      <Cut Selector="3" Min="-8.1917323172092438e-02" Max="3.4829929471015930e-01" DoMin="T" DoMax="T"/>
+      <Cut Selector="4" Min="-2.2212398052215576e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="5" Min="0.0000000000000000e+00" Max="3.4586402773857117e-01" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="5.0320349233335893e-01" Ref="8.1209304204335242e-01" Coeff="1.0300442345562386e+00" Support="6.0650000000000004e-01" Sigma="4.8852609960983662e-01" Norm="2.0469735410219720e+00" SSB="6.3643858202802972e-01" SSBNeve="1.2130000000000000e+03" Nvars="2">
+      <Cut Selector="3" Min="0.0000000000000000e+00" Max="3.4829929471015930e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="4" Min="-2.2212398052215576e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="2.8443745504488799e-01" Ref="8.1209304204335242e-01" Coeff="6.5864594666493592e-01" Support="2.4800000000000000e-01" Sigma="4.3185182644050496e-01" Norm="2.3156090556392894e+00" SSB="4.1330645161290325e-01" SSBNeve="4.9600000000000000e+02" Nvars="2">
+      <Cut Selector="3" Min="0.0000000000000000e+00" Max="3.4829929471015930e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="4" Min="0.0000000000000000e+00" Max="-2.2212398052215576e-01" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="8.6478571409657201e-02" Ref="8.1209304204335242e-01" Coeff="2.0549403792323084e-01" Support="2.3000000000000001e-01" Sigma="4.2083250825001628e-01" Norm="2.3762422826087874e+00" SSB="3.8043478260869568e-01" SSBNeve="4.6000000000000000e+02" Nvars="3">
+      <Cut Selector="2" Min="6.9921457767486572e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="3" Min="0.0000000000000000e+00" Max="3.4829929471015930e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="4" Min="0.0000000000000000e+00" Max="-2.2212398052215576e-01" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="6.0247053270313634e-02" Ref="8.1209304204335242e-01" Coeff="4.5315190874169786e-01" Support="1.7999999999999999e-02" Sigma="1.3295111883696201e-01" Norm="7.5215613734420712e+00" SSB="8.3333333333333337e-01" SSBNeve="3.6000000000000000e+01" Nvars="3">
+      <Cut Selector="2" Min="0.0000000000000000e+00" Max="6.9921457767486572e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="3" Min="0.0000000000000000e+00" Max="3.4829929471015930e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="4" Min="0.0000000000000000e+00" Max="-2.2212398052215576e-01" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="2.8294175444617108e-02" Ref="8.1209304204335242e-01" Coeff="2.7758404068929821e-01" Support="1.0500000000000001e-02" Sigma="1.0193012312363800e-01" Norm="9.8106425201412915e+00" SSB="9.0476190476190477e-01" SSBNeve="2.1000000000000000e+01" Nvars="4">
+      <Cut Selector="2" Min="0.0000000000000000e+00" Max="6.9921457767486572e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="3" Min="0.0000000000000000e+00" Max="3.4829929471015930e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="4" Min="0.0000000000000000e+00" Max="-2.2212398052215576e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="5" Min="1.3085551559925079e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="1.5147498734181574e-02" Ref="8.1209304204335242e-01" Coeff="1.7556786805239866e-01" Support="7.4999999999999997e-03" Sigma="8.6277169633686993e-02" Norm="1.1590551755994893e+01" SSB="7.3333333333333328e-01" SSBNeve="1.5000000000000000e+01" Nvars="4">
+      <Cut Selector="2" Min="0.0000000000000000e+00" Max="6.9921457767486572e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="3" Min="0.0000000000000000e+00" Max="3.4829929471015930e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="4" Min="0.0000000000000000e+00" Max="-2.2212398052215576e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="5" Min="0.0000000000000000e+00" Max="1.3085551559925079e-01" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="1.5147498734181574e-02" Ref="8.1209304204335242e-01" Coeff="1.7556786805239866e-01" Support="7.4999999999999997e-03" Sigma="8.6277169633686993e-02" Norm="1.1590551755994893e+01" SSB="7.3333333333333328e-01" SSBNeve="1.5000000000000000e+01" Nvars="5">
+      <Cut Selector="0" Min="0.0000000000000000e+00" Max="1.5389652252197266e+00" DoMin="F" DoMax="T"/>
+      <Cut Selector="2" Min="0.0000000000000000e+00" Max="6.9921457767486572e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="3" Min="0.0000000000000000e+00" Max="3.4829929471015930e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="4" Min="0.0000000000000000e+00" Max="-2.2212398052215576e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="5" Min="0.0000000000000000e+00" Max="1.3085551559925079e-01" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="8.5614370527849586e-03" Ref="8.1209304204335242e-01" Coeff="1.1576117583288222e-01" Support="5.4999999999999997e-03" Sigma="7.3957758213726299e-02" Norm="1.3521231905247278e+01" SSB="9.0909090909090906e-01" SSBNeve="1.1000000000000000e+01" Nvars="6">
+      <Cut Selector="0" Min="0.0000000000000000e+00" Max="1.5389652252197266e+00" DoMin="F" DoMax="T"/>
+      <Cut Selector="1" Min="-2.7156194671988487e-02" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="2" Min="0.0000000000000000e+00" Max="6.9921457767486572e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="3" Min="0.0000000000000000e+00" Max="3.4829929471015930e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="4" Min="0.0000000000000000e+00" Max="-2.2212398052215576e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="5" Min="0.0000000000000000e+00" Max="3.5111320018768311e-01" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="1.4108656161295531e-02" Ref="8.1209304204335242e-01" Coeff="1.7556786805239866e-01" Support="6.4999999999999997e-03" Sigma="8.0360126928720063e-02" Norm="1.2443982335754724e+01" SSB="6.9230769230769229e-01" SSBNeve="1.3000000000000000e+01" Nvars="6">
+      <Cut Selector="0" Min="0.0000000000000000e+00" Max="1.5389652252197266e+00" DoMin="F" DoMax="T"/>
+      <Cut Selector="1" Min="0.0000000000000000e+00" Max="5.7930809259414673e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="2" Min="0.0000000000000000e+00" Max="6.9921457767486572e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="3" Min="0.0000000000000000e+00" Max="3.4829929471015930e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="4" Min="0.0000000000000000e+00" Max="-2.2212398052215576e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="5" Min="0.0000000000000000e+00" Max="1.3085551559925079e-01" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="4.3568344828754035e-01" Ref="8.1209304204335242e-01" Coeff="8.9946619142694362e-01" Support="3.7600000000000000e-01" Sigma="4.8438001610305931e-01" Norm="2.0644947494845343e+00" SSB="6.4095744680851063e-01" SSBNeve="7.5200000000000000e+02" Nvars="2">
+      <Cut Selector="0" Min="0.0000000000000000e+00" Max="1.8014533519744873e+00" DoMin="F" DoMax="T"/>
+      <Cut Selector="1" Min="-2.7156194671988487e-02" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="9.2260291473593117e-02" Ref="8.1209304204335242e-01" Coeff="3.6279745453236478e-01" Support="6.9500000000000006e-02" Sigma="2.5430247737684353e-01" Norm="3.9323250418757376e+00" SSB="3.8129496402877699e-01" SSBNeve="1.3900000000000000e+02" Nvars="3">
+      <Cut Selector="0" Min="0.0000000000000000e+00" Max="1.8014533519744873e+00" DoMin="F" DoMax="T"/>
+      <Cut Selector="1" Min="-2.7156194671988487e-02" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="3" Min="8.2257971167564392e-02" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="2.4742567786407083e-01" Ref="8.1209304204335242e-01" Coeff="5.3666873689457950e-01" Support="3.0649999999999999e-01" Sigma="4.6103985727917274e-01" Norm="2.1690098680437333e+00" SSB="6.9983686786296906e-01" SSBNeve="6.1300000000000000e+02" Nvars="3">
+      <Cut Selector="0" Min="0.0000000000000000e+00" Max="1.8014533519744873e+00" DoMin="F" DoMax="T"/>
+      <Cut Selector="1" Min="-2.7156194671988487e-02" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="3" Min="0.0000000000000000e+00" Max="8.2257971167564392e-02" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="7.3066626464593620e-01" Ref="8.1209304204335242e-01" Coeff="1.5349623523424920e+00" Support="3.4699999999999998e-01" Sigma="4.7601575604175117e-01" Norm="2.1007707986714004e+00" SSB="6.4985590778097979e-01" SSBNeve="6.9400000000000000e+02" Nvars="2">
+      <Cut Selector="0" Min="0.0000000000000000e+00" Max="1.8014533519744873e+00" DoMin="F" DoMax="T"/>
+      <Cut Selector="1" Min="0.0000000000000000e+00" Max="-2.7156194671988487e-02" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="2.6042270545843788e-01" Ref="8.1209304204335242e-01" Coeff="-7.1126206082459342e-01" Support="1.5950000000000000e-01" Sigma="3.6614170753958092e-01" Norm="2.7311829802724596e+00" SSB="4.5454545454545453e-01" SSBNeve="3.1900000000000000e+02" Nvars="2">
+      <Cut Selector="0" Min="1.0487442016601562e+00" Max="1.8014533519744873e+00" DoMin="T" DoMax="T"/>
+      <Cut Selector="1" Min="0.0000000000000000e+00" Max="-2.7156194671988487e-02" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="7.2826947115764129e-01" Ref="8.1209304204335242e-01" Coeff="1.6944760653858839e+00" Support="7.5549999999999995e-01" Sigma="4.2979035587132480e-01" Norm="2.3267157727927024e+00" SSB="5.7511581733951023e-01" SSBNeve="1.5110000000000000e+03" Nvars="1">
+      <Cut Selector="4" Min="-3.5596957802772522e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="5.3519125206923823e-01" Ref="8.1209304204335242e-01" Coeff="1.2452379276501715e+00" Support="2.4450000000000000e-01" Sigma="4.2979035587132480e-01" Norm="2.3267157727927024e+00" SSB="2.6789366053169733e-01" SSBNeve="4.8900000000000000e+02" Nvars="1">
+      <Cut Selector="4" Min="0.0000000000000000e+00" Max="-3.5596957802772522e-01" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="1.3381165824748267e-01" Ref="8.1209304204335242e-01" Coeff="4.2348059109497782e-01" Support="1.1250000000000000e-01" Sigma="3.1598061649411346e-01" Norm="3.1647510885169421e+00" SSB="1.6444444444444445e-01" SSBNeve="2.2500000000000000e+02" Nvars="2">
+      <Cut Selector="4" Min="0.0000000000000000e+00" Max="-3.5596957802772522e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="6" Min="1.5315799415111542e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="8.8970604240655740e-02" Ref="8.1209304204335242e-01" Coeff="1.7830675542056937e-01" Support="5.3200000000000003e-01" Sigma="4.9897494927100300e-01" Norm="2.0041086260161740e+00" SSB="6.7199248120300747e-01" SSBNeve="1.0640000000000000e+03" Nvars="2">
+      <Cut Selector="4" Min="0.0000000000000000e+00" Max="3.0455628037452698e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="6" Min="0.0000000000000000e+00" Max="1.5315799415111542e-01" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="2.7508342007675972e-03" Ref="8.1209304204335242e-01" Coeff="6.3318136607540933e-03" Support="2.5250000000000000e-01" Sigma="4.3444648692330340e-01" Norm="2.3017794598406747e+00" SSB="8.0198019801980203e-01" SSBNeve="5.0500000000000000e+02" Nvars="2">
+      <Cut Selector="4" Min="-7.2527207434177399e-02" Max="3.0455628037452698e-01" DoMin="T" DoMax="T"/>
+      <Cut Selector="6" Min="0.0000000000000000e+00" Max="1.5315799415111542e-01" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="2.9700430015984460e-02" Ref="8.1209304204335242e-01" Coeff="1.1718265981520475e-01" Support="6.9000000000000006e-02" Sigma="2.5345413786324344e-01" Norm="3.9454869761864817e+00" SSB="1.5217391304347827e-01" SSBNeve="1.3800000000000000e+02" Nvars="2">
+      <Cut Selector="4" Min="5.6054443120956421e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="5" Min="5.7809501886367798e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="1.1443528255812121e-02" Ref="8.1209304204335242e-01" Coeff="4.6755427789051611e-02" Support="6.4000000000000001e-02" Sigma="2.4475293665245368e-01" Norm="4.0857528153788341e+00" SSB="1.0156250000000000e-01" SSBNeve="1.2800000000000000e+02" Nvars="3">
+      <Cut Selector="0" Min="1.3868253231048584e+00" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="4" Min="5.6054443120956421e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="5" Min="5.7809501886367798e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="6.9805052632820233e-02" Ref="8.1209304204335242e-01" Coeff="6.6925614963888813e-01" Support="1.0999999999999999e-02" Sigma="1.0430244484191155e-01" Norm="9.5875029728754058e+00" SSB="6.3636363636363635e-01" SSBNeve="2.2000000000000000e+01" Nvars="3">
+      <Cut Selector="0" Min="9.1973543167114258e-01" Max="1.3868253231048584e+00" DoMin="T" DoMax="T"/>
+      <Cut Selector="4" Min="5.6054443120956421e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="5" Min="3.1055691838264465e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="2.5095313070251094e-02" Ref="8.1209304204335242e-01" Coeff="-1.6741000837067896e-01" Support="2.3000000000000000e-02" Sigma="1.4990330216509573e-01" Norm="6.6709671205151428e+00" SSB="5.6521739130434778e-01" SSBNeve="4.6000000000000000e+01" Nvars="3">
+      <Cut Selector="0" Min="0.0000000000000000e+00" Max="1.3868253231048584e+00" DoMin="F" DoMax="T"/>
+      <Cut Selector="4" Min="5.6054443120956421e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="5" Min="3.1055691838264465e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+    </Rule>
+    <Rule Importance="3.3708597184268344e-02" Ref="8.1209304204335242e-01" Coeff="1.0506896149825731e-01" Support="1.1650000000000001e-01" Sigma="3.2082354963437454e-01" Norm="3.1169781680292692e+00" SSB="3.4763948497854075e-01" SSBNeve="2.3300000000000000e+02" Nvars="2">
+      <Cut Selector="4" Min="5.6054443120956421e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="5" Min="0.0000000000000000e+00" Max="5.7809501886367798e-01" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="3.3645699890499051e-02" Ref="8.1209304204335242e-01" Coeff="1.0506896149825731e-01" Support="1.1600000000000001e-01" Sigma="3.2022492095400695e-01" Norm="3.1228050490911898e+00" SSB="3.4913793103448276e-01" SSBNeve="2.3200000000000000e+02" Nvars="3">
+      <Cut Selector="0" Min="0.0000000000000000e+00" Max="2.3567476272583008e+00" DoMin="F" DoMax="T"/>
+      <Cut Selector="4" Min="5.6054443120956421e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="5" Min="0.0000000000000000e+00" Max="5.7809501886367798e-01" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="5.3143277682839475e-03" Ref="8.1209304204335242e-01" Coeff="-5.0951133277256665e-02" Support="1.0999999999999999e-02" Sigma="1.0430244484191155e-01" Norm="9.5875029728754058e+00" SSB="4.5454545454545456e-02" SSBNeve="2.2000000000000000e+01" Nvars="4">
+      <Cut Selector="0" Min="0.0000000000000000e+00" Max="2.3567476272583008e+00" DoMin="F" DoMax="T"/>
+      <Cut Selector="2" Min="1.7281485795974731e+00" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="4" Min="5.6054443120956421e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="5" Min="0.0000000000000000e+00" Max="5.7809501886367798e-01" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="4.7828493816804679e-02" Ref="8.1209304204335242e-01" Coeff="1.5602009477551373e-01" Support="1.0500000000000000e-01" Sigma="3.0655342111938666e-01" Norm="3.2620741805734141e+00" SSB="3.8095238095238093e-01" SSBNeve="2.1000000000000000e+02" Nvars="4">
+      <Cut Selector="0" Min="0.0000000000000000e+00" Max="2.3567476272583008e+00" DoMin="F" DoMax="T"/>
+      <Cut Selector="2" Min="0.0000000000000000e+00" Max="1.7281485795974731e+00" DoMin="F" DoMax="T"/>
+      <Cut Selector="4" Min="5.6054443120956421e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="5" Min="0.0000000000000000e+00" Max="5.7809501886367798e-01" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="2.4940185678289434e-01" Ref="8.1209304204335242e-01" Coeff="1.0189943385114193e+00" Support="6.4000000000000001e-02" Sigma="2.4475293665245368e-01" Norm="4.0857528153788341e+00" SSB="3.2812500000000000e-01" SSBNeve="1.2800000000000000e+02" Nvars="3">
+      <Cut Selector="0" Min="1.8014533519744873e+00" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="5" Min="8.0171477794647217e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="6" Min="0.0000000000000000e+00" Max="2.6757648587226868e-01" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="3.0730109056163026e-03" Ref="8.1209304204335242e-01" Coeff="5.2034505035565053e-02" Support="3.5000000000000001e-03" Sigma="5.9057175685940148e-02" Norm="1.6932743369203681e+01" SSB="1.0000000000000000e+00" SSBNeve="7.0000000000000000e+00" Nvars="3">
+      <Cut Selector="0" Min="0.0000000000000000e+00" Max="1.8014533519744873e+00" DoMin="F" DoMax="T"/>
+      <Cut Selector="5" Min="8.0171477794647217e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="6" Min="0.0000000000000000e+00" Max="2.6757648587226868e-01" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="3.4074197334551082e-02" Ref="8.1209304204335242e-01" Coeff="1.5277643553920842e-01" Support="5.2499999999999998e-02" Sigma="2.2303306929690941e-01" Norm="4.4836400411490773e+00" SSB="6.1904761904761907e-01" SSBNeve="1.0500000000000000e+02" Nvars="4">
+      <Cut Selector="0" Min="8.8005948066711426e-01" Max="1.8014533519744873e+00" DoMin="T" DoMax="T"/>
+      <Cut Selector="1" Min="-6.4184844493865967e-02" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="5" Min="3.8858199119567871e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="6" Min="0.0000000000000000e+00" Max="2.6757648587226868e-01" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="3.5577764014944870e-02" Ref="8.1209304204335242e-01" Coeff="1.5672909736643117e-01" Support="5.4500000000000000e-02" Sigma="2.2700165197636779e-01" Norm="4.4052542846873459e+00" SSB="6.1467889908256879e-01" SSBNeve="1.0900000000000000e+02" Nvars="4">
+      <Cut Selector="0" Min="0.0000000000000000e+00" Max="1.8014533519744873e+00" DoMin="F" DoMax="T"/>
+      <Cut Selector="1" Min="-6.4184844493865967e-02" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="5" Min="3.8858199119567871e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="6" Min="0.0000000000000000e+00" Max="2.6757648587226868e-01" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="3.0730109056163026e-03" Ref="8.1209304204335242e-01" Coeff="5.2034505035565053e-02" Support="3.5000000000000001e-03" Sigma="5.9057175685940148e-02" Norm="1.6932743369203681e+01" SSB="1.0000000000000000e+00" SSBNeve="7.0000000000000000e+00" Nvars="4">
+      <Cut Selector="0" Min="0.0000000000000000e+00" Max="1.8014533519744873e+00" DoMin="F" DoMax="T"/>
+      <Cut Selector="1" Min="0.0000000000000000e+00" Max="-6.4184844493865967e-02" DoMin="F" DoMax="T"/>
+      <Cut Selector="5" Min="8.0171477794647217e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="6" Min="0.0000000000000000e+00" Max="2.6757648587226868e-01" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Rule Importance="1.5353076876863395e-01" Ref="8.1209304204335242e-01" Coeff="3.7498876550304239e-01" Support="2.1299999999999999e-01" Sigma="4.0942764928617120e-01" Norm="2.4424339727506914e+00" SSB="7.3004694835680750e-01" SSBNeve="4.2600000000000000e+02" Nvars="5">
+      <Cut Selector="0" Min="0.0000000000000000e+00" Max="1.8014533519744873e+00" DoMin="F" DoMax="T"/>
+      <Cut Selector="1" Min="0.0000000000000000e+00" Max="-6.4184844493865967e-02" DoMin="F" DoMax="T"/>
+      <Cut Selector="4" Min="0.0000000000000000e+00" Max="3.7455859780311584e-01" DoMin="F" DoMax="T"/>
+      <Cut Selector="5" Min="1.7521251738071442e-01" Max="0.0000000000000000e+00" DoMin="T" DoMax="F"/>
+      <Cut Selector="6" Min="0.0000000000000000e+00" Max="2.6757648587226868e-01" DoMin="F" DoMax="T"/>
+    </Rule>
+    <Linear OK="1" Coeff="-8.2670748394188343e-01" Norm="6.1849768021505558e-01" DM="3.2512226700782776e-01" DP="2.7728276252746582e+00" Importance="2.8624423736167393e-01"/>
+    <Linear OK="1" Coeff="1.0335711916409227e+00" Norm="4.8783142501027527e-01" DM="-2.2862417697906494e+00" DP="1.8730808496475220e+00" Importance="3.5786998818441884e-01"/>
+    <Linear OK="1" Coeff="-1.1647431233645678e+00" Norm="7.8894479008452634e-01" DM="4.8578083515167236e-01" DP="2.4466907978057861e+00" Importance="4.0328775721254084e-01"/>
+    <Linear OK="1" Coeff="2.4676741282629064e-01" Norm="1.7625713612100189e+00" DM="-3.6240860819816589e-01" DP="6.6710835695266724e-01" Importance="8.5442252867207052e-02"/>
+    <Linear OK="1" Coeff="2.1561033380302849e-01" Norm="4.5526981256616683e-01" DM="-2.3467628955841064e+00" DP="2.2186868190765381e+00" Importance="7.4654235948688322e-02"/>
+    <Linear OK="1" Coeff="2.3039054034367101e+00" Norm="1.5010505623572190e+00" DM="6.4393416047096252e-02" DP="9.7405201196670532e-01" Importance="7.9771824734870966e-01"/>
+    <Linear OK="1" Coeff="2.3222659923927236e-01" Norm="3.9965009478579883e+00" DM="1.1632009409368038e-02" DP="4.0147295594215393e-01" Importance="8.0407552956196060e-02"/>
+  </Weights>
+</MethodSetup>
