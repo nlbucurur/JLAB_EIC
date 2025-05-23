@@ -1,0 +1,30 @@
+TH1F* BDT::Acc_correction(TCut cut_rec, TString Data, double BDT_cut, int Nphi){
+  gStyle->SetOptStat(0);
+  gStyle->SetOptFit(0);
+
+  TString String_cut = cut_rec.GetTitle();
+  String_cut.ReplaceAll("strip_Q2", "strip_Q2_MC");
+  String_cut.ReplaceAll("strip_Xbj", "strip_Xbj_MC");
+  String_cut.ReplaceAll("t_Ph", "t_Ph_MC");
+  TCut cut_gen = TCut(String_cut);
+
+  TChain *Data_Tree= new TChain("pDVCS");
+  Data_Tree->Add(Folder + Data);
+  
+  TH1F *Phi_rec = new TH1F("Phi_rec","",Nphi,0,360);
+  TH1F *Phi_gen = new TH1F("Phi_gen","",Nphi,0,360);
+  TH1F *Phi = new TH1F("F_Acc","F_Acc",Nphi,0,360);
+
+  Data_Tree->Project("Phi_rec", "Phi_Ph", (cut_rec + cut_gen + TCut(Form("_strip_Nuc_BDT > %f",BDT_cut))));
+  Data_Tree->Project("Phi_gen", "Phi_Ph_MC", (cut_rec + cut_gen + TCut(Form("_strip_Nuc_BDT > %f",BDT_cut))));
+
+  Phi->Divide(Phi_rec, Phi_gen,1,1);
+  for(int k=1; k<=Nphi; k++)
+  	Phi->SetBinError(k,0.0);
+  
+  delete Phi_rec;
+  delete Phi_gen;
+  delete Data_Tree;
+
+  return Phi;
+}

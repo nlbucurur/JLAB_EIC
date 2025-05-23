@@ -1,0 +1,51 @@
+import gepard as g
+from gepard.fits import th_KM15
+import math as m
+import random
+import sys
+import warnings
+
+def main(args):
+X=[]
+Y=[]
+N=args[4]
+
+for i in range(0,N):
+  phi_rad=(i+0.5)*2*m.pi/N - m.pi
+  pt = g.DataPoint(xB=args[0], t=args[1], Q2=args[2], phi=args[3], process="ep2epgamma", exptype='fixed target', in1energy=11, in1charge=-1,in1polarization=+1,in2polarization='U',frame='Trento')
+  #print(360.*(i+0.5)/N, th_KM15.XUU(pt))
+  X.append(phi_rad*180./m.pi)
+  Y.append(th_KM15.XUU(pt))
+
+
+phi=[]
+t =[]
+Q2=[]
+xB=[]
+xsec=[]
+
+f = open("means_most.txt", "r")
+next(f)
+for line in f:
+    values = line.strip().split()  # Split the line into a list of values
+    if len(values) == 8:
+        mean_phi, phi_error, mean_t, t_error, mean_Q2, Q2_error, mean_xB, xB_error = values
+        phi.append(float(mean_phi))
+        t.append(float(mean_t))
+        Q2.append(float(mean_Q2))
+        xB.append(float(mean_xB))
+        pt = g.DataPoint(xB=float(mean_xB), t=float(mean_t), Q2=float(mean_Q2), phi=float(mean_phi), process="ep2epgamma", exptype='fixed target', in1energy=11, in1charge=-1,in1polarization=+1,in2polarization='U',frame='Trento')
+        xsec.append(th_KM15.XUU(pt)) 
+    else:
+        print("Skipping line with unexpected number of values:", line) 
+f.close()  # Close the file after reading
+
+
+
+    return xsec_mean/xsec_point
+
+if __name__ == "__main__":
+    warnings.filterwarnings("ignore")
+    args = [float(x) for x in sys.argv[1:]]     
+    x =main(args)
+    print(x)

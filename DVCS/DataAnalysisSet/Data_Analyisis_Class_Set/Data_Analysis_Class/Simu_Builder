@@ -1,0 +1,4 @@
+#(echo .L BDT.h && echo BDT l && echo l.config\(\) && echo l.Training_on_bins\(l.Data, 0, ${1}, false, true\) && echo .q) | clas12root -b -l
+(echo .L BDT.h && echo BDT l && echo l.config\(\) && echo l.Training_on_bins\(l.Data, 0, ${1}, false\) && echo .q) | clas12root -b -l
+#(echo .L BDT.h && echo BDT l && echo l.config\(\) && echo l.Compute_Systematics\(l.Data, 0, ${1},true\) && echo .q) | clas12root -b -l
+rm submit_${1}

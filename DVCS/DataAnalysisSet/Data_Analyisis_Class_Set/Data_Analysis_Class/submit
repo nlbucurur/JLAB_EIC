@@ -1,0 +1,28 @@
+#!/bin/bash
+
+for i in {1..64}
+#for i in 1 2 3 13 14 15 25 26 27 37 38 39 49 50 51 56 57
+#for i in 56
+#for i in 26
+do
+    filename=/work/clas12/jsalvg/pass2_RGA-Analysis/inb/P/submit_${i}
+    echo $i
+    echo "#!/bin/bash" >> ${filename}
+    echo "#SBATCH --account=clas12" >> ${filename}
+    echo "#SBATCH --partition=production" >> ${filename}
+    echo "#SBATCH --job-name=P_Max_$i" >> ${filename}
+    echo "#SBATCH --mail-user=jsalvg@jlab.org" >> ${filename}
+    echo "#SBATCH --output=/work/clas12/jsalvg/pass2_RGA-Analysis/inb/P/Logs/log_$i.txt" >> ${filename}
+    echo "#SBATCH --error=/work/clas12/jsalvg/pass2_RGA-Analysis/inb/P/Errors/err_$i.txt" >> ${filename}
+    echo "#SBATCH --time=23:00:00" >> ${filename}
+    echo "#SBATCH --gres=disk:5000" >> ${filename}
+    echo "#SBATCH --ntasks=1" >> ${filename}
+    echo "#SBATCH --mem-per-cpu=4000" >> ${filename}
+    echo "/work/clas12/jsalvg/pass2_RGA-Analysis/inb/P/Simu_Builder $i" >> ${filename}
+    sbatch ${filename} 
+    
+done 
+
+
+
+

@@ -1,0 +1,138 @@
+The following is a c++ class used to extract BSA and cross-section measurements from DVCS data.
+
+It receives as input several .root files corresponding to 
+-DVCS and Pi0 training datasets
+-Experimental data
+-1gamma dn 2gamma Pi0 datasets used for background estimation via Hall B method.
+-Experimental DVPi0P data used for background estimation via Hall A and Hall B methods
+-DVCS datasets (with RC effects) used for Bin Migration and Aceptance corrections.
+-DVetaP datasets (simulated and experimental) for eta background estimation via Hall B method.
+
+** It asummes the ROOT tree names 'pDVCS', 'eppi0' and 'epeta'** 
+
+
+** HOW TO USE **
+1. Open root and load the class
+root -l -b 
+.L BDT.h
+BDT l
+
+#Here we have named the class element 'l'.
+ 
+2. Load the configuration file 
+l.config()
+
+# The configuration file config.C has to be modified according to your needs. It contains the directory of the required .root files and some boolean options.
+# The config.C file is self explanatory.
+# config.C must be configured before launching ROOT.
+
+3. Run methods as you need. A list of some methods if found at the end.
+
+
+** EXAMPLES **
+* SINGLE EVALUATION OF A BDT TRAINING *
+* used to obtain a global training (insted of a bin-by-bin  dedicated analysis) *
+* In the following I perform a BDT classificaiton, add the BDT score into the experimental and training datasets *
+* Explore the exclusivity variables over the BDT score. * 
+* Filter the experimental dataset for events with BDT-Score > 0.0 *
+* Make a single BSA using the filtered file and with 20 bins on phi *
+.L BDT.h
+BDT l
+l.config()
+l.TrainingCategory(l.cut, l.DVCS, l.Pi0, l.Vars);
+l.Training_vars(l.Data, l.DVCS, l.Pi0, l.cut);
+gSystem->Exec("mv Analysis/Training_vars.pdf Analysis/Training_vars_All.pdf");
+l.Training_vars(l.Data, l.DVCS, l.Pi0, l.cut + TCut("strip_Ph_Theta < 5"));
+gSystem->Exec("mv Analysis/Training_vars.pdf Analysis/Training_vars_FT.pdf");
+l.Training_vars(l.Data, l.DVCS, l.Pi0, l.cut + TCut("strip_Ph_Theta > 5"));
+gSystem->Exec("mv Analysis/Training_vars.pdf Analysis/Training_vars_FD.pdf");
+l.Add_BDT_var(l.cut, l.Data, l.TData, l.Vars);
+l.Add_BDT_var(l.cut, l.DVCS, l.TDVCS, l.Vars);
+l.Explore(l.TData, l.TDVCS, l.cut)
+l.Filter(l.TData, l.cut + TCut("_strip_Nuc_BDT > 0.0"), TString("Data_NP_Theta_g_5.root"));
+l.Single_BSA(TString("Data_NP_Theta_g_5.root"), 20)
+
+
+* PARALLEL EVALUATION OVER BINS ON THE FARM*
+1. Configure the submit file according to your working directory, JLab user name, and directories for Log and Error files
+2. Adapt Simu_Builder according to your needs.
+- 1st line: obtain eta contamination
+- 2nd line: Perform observable extraction on the bin
+- 3rd line: evaluate systematics.
+
+3. Simply run './submit'
+It will launch one job per bin
+
+
+** HOW TO EVALUATE CONTAMINATION **
+If you have evaluated the contamination before, and the BDT has not changed. You can save time by setting all the following variables to false.
+* HALL A METHOD * 
+This method can be time-consuming in the first 2 stages. I recommend to use a bin-by-bin evaluation and merge if needed.
+
+You need to run the 'Training_on_bins' or the 'Maxime' method three times with the following configuration.
+1. Set generate=true;  recast=false; add_BDT_Max=false; # It will read the eppi0 file and generate the toy MC decay of pi0s. Output directory is the 'Maxime_bkg' variable
+2. Set generate=false; recast=true;  add_BDT_Max=false; # Re-arrange the contamination files into dedicated .root files for each bin. Output directory is the 'Maxime_bkg' variable
+3. Set generate=false; recast=false; add_BDT_Max=true;  # Add the BDT score to the contamination files. 
+
+* HALL B METHOD * 
+In config.C set 'generate_most=true'
+
+** LIST OF METHODS **
+# **To perform BDT training observable extraction on bins.**
+void BDT::Training_on_bins(TString Data, int NBinsPhi=0, int bin=0, bool build=true, bool eta=false)//, TCut cut, TString DVCS, TString Pi0, vector<TString> vars)
+Data -> Experimental dataset
+NPhiBins -> Number of bins in phi. Default 0 (read Nphibins array on config.C)
+bin -> Kinematic bin (from Mbins array)
+build (boolean) -> perform BDT training?
+eta (boolean) -> Estimate eta contamination?
+
+
+# To evaluate systematic errors over bins
+# It evaluates systematics from cuts, BDT cut, and PID refinement cuts
+void Compute_Systematics(TString Data, int NBinsPhi=0, int bin=0, bool build=true);
+Data -> Experimental dataset
+NPhiBins -> Number of bins in phi. Default 0 (read Nphibins array on config.C)
+bin -> Kinematic bin (from Mbins array)
+build (boolean) -> perform BDT training?
+
+
+#For a single training
+l.Training(l.cut, l.DVCS, l.Pi0, l.Vars);
+
+# For a training with categories. 
+# Currently the categories separate FT and FD photon detection topologies.
+# If other categories are needed, modify the 'include/Training_Category.C' file.
+l.TrainingCategory(l.cut, l.DVCS, l.Pi0, l.Vars);
+
+# To display histograms of the training variables
+# This is a simple histogram plotting macro.
+# It is not automatized (yet)
+# It needs to be modified accordingly to the training variables of your choice.
+l.Training_vars(l.Data, l.DVCS, l.Pi0, l.cut);
+
+# To create a new .root file including the BDT score of an existing training.
+l.Add_BDT_var(l.cut, l.Data, l.TData, l.Vars);
+l.Add_BDT_var(l.cut, l.DVCS, l.TDVCS, l.Vars);
+
+# To make a comparison of two datasets running over the BDT score in steps of 0.04
+l.Explore(l.TData, l.TDVCS, l.cut)
+
+# To filter a .root file
+l.Filter(l.TData, l.cut + TCut("_strip_Nuc_BDT > 0.08"), TString("Data_NP_Theta_g_5.root"));
+
+# To merge .root files of all bins in a single file.
+l.Merge_Bins(l.TData,"Merged_Data.root");
+
+# Compute Bin Migration matrix
+# It requires a merged BM file beforehand.
+l.Compute_BM_Matrix();
+
+# Get BSA from a .root file
+Single_BSA(dataset,NBinsPhi)
+
+# Get background-subtracted BSA measurements via Hall A method.
+l.Maxime(l.cut, l.BDT_value, bin_number, NBinsPhi);
+
+# To extract background-subtracted BSA measurements via Hall B method.
+l.Get_Contamination_Mostafa(l.cut, l.BDT_value, NBinsPhi, eta); 
+

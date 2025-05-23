@@ -1,0 +1,225 @@
+std::vector<vector<double>> BDT::ReadMeansFile(TString file) {
+  // Variables to store the column values
+  double col1, col2, col3, col4, col5, col6, col7, col8;
+  std::vector<vector<double>> means;
+  std::vector<double> line;
+  means.clear();
+
+  // Open the input file
+  std::ifstream inputFile(file);
+  if (!inputFile.is_open()) {
+    std::cerr << "Error: Unable to open " << file<< std::endl;
+    return means;
+  }
+
+    
+  // Read and discard the first line (header)
+  std::string header;
+  std::getline(inputFile, header);
+
+  // Read and process the remaining lines
+  while (inputFile >> col1 >> col2 >> col3 >> col4 >> col5 >> col6 >> col7 >> col8) 
+    {
+      line.clear();
+      line.push_back(col1);
+      line.push_back(col2);
+      line.push_back(col3);
+      line.push_back(col4);
+      line.push_back(col5);
+      line.push_back(col6);
+      line.push_back(col7);
+      line.push_back(col8);
+      means.push_back(line);
+    }
+
+  // Close the input file
+  inputFile.close();
+
+  return means;
+
+}
+
+
+TH1F* BDT::F_bin_KM_model(TCut cut, int bin) {
+
+  int Nphi=Nphibins[bin-1];
+  std::vector<vector<double>> means;
+  char command[200];
+  int n;
+  TH1F *ratio_bin = new TH1F("ratio_bin","F_bin",Nphi,0,360);
+  
+  for(int m=0; m<Nphi; m++)
+  {
+
+  means = ReadMeansFile(Folder + TString("means_most.txt"));
+  double pm=means.at(m).at(0);
+  double tm=means.at(m).at(2);
+  double Qm=means.at(m).at(4);
+  double xm=means.at(m).at(6);
+    
+  n=sprintf (command, "python3 /work/clas12/jsalvg/RGA-Analysis/inb/xsec/include/xsec/KM15.py %f %f %f %f %f %f %f %f %f %f %f %f",bins[bin-1][0],bins[bin-1][1],bins[bin-1][2],bins[bin-1][3],bins[bin-1][4],bins[bin-1][5], (360./Nphi)*m, (360./Nphi)*(m+1), xm, tm, Qm, pm);
+
+   //printf ("[%s] is a string %d chars long\n",command,n);
+  // Open a pipe and execute the command
+  FILE* pipe = popen(command, "r");
+  if (!pipe) {
+    fprintf(stderr, "Error executing Python script.\n");
+    return ratio_bin;
+  }
+
+  // Read the output from the pipe
+  float F_bin;
+  int readCount = fscanf(pipe, "%f", &F_bin);
+
+  if (readCount != 8) {
+    fprintf(stderr, "Error reading numbers from Python script.\n");
+  }
+  // Close the pipe
+  pclose(pipe);
+  
+  
+  ratio_bin->SetBinContent(m+1,F_bin);
+  }
+  
+  
+  return ratio_bin;
+}
+
+
+
+TH1F* BDT::Fbin(int bin, TCut cut, TString Data_rad, double BDT_cut, double xmean, double Qmean, double tmean){
+  int Nphi=Nphibins[bin-1];
+
+  TChain *Data_Tree= new TChain("pDVCS");
+  Data_Tree->Add(Folder + Data_rad);
+  
+  TH1F *xborn = new TH1F("xborn","",Nphi,0,360);
+  TH1F *nbin  = new TH1F("nbin","",Nphi,0,360);
+  TH1F *VGG = new TH1F("VGG","",Nphi,0,360);
+  TH1F *ratio_bin = new TH1F("ratio_bin","F_bin",Nphi,0,360);
+  
+  Data_Tree->Project("xborn", "Phi_Ph", (cut + TCut(Form("_strip_Nuc_BDT > %f",BDT_cut))) * TCut("1.0/(xsec_born*0.001)") ); // divided by 1000 as it returns in pb
+  Data_Tree->Project("nbin ", "Phi_Ph", cut + TCut(Form("_strip_Nuc_BDT > %f",BDT_cut)) ); 
+
+  gSystem->Exec(TString("rm ")+ Folder + TString("phi.dat"));  
+  for(int m=0; m<Nphi; m++)
+  	gSystem->Exec(Form("./include/xsec/dvcsgen_RC --beam 10.604 --x %f %f --q2 %f %f --t %f %f  --y 0 1 --gpd 101 --phi %f --vv2cut 0.3 --delta 0.1 --printrad | tail -1 >> ",xmean, xmean,Qmean,Qmean,-1.0*tmean,-1.0*tmean,2*TMath::Pi()*(m+0.5)/Nphi) + Folder + TString("phi.dat"));
+
+
+
+//  gSystem->Exec(TString("cd ") + Folder + Form(" && ( \
+echo 3 && \
+echo 4 && \
+echo 3 && \
+echo 1 && \
+echo 35 && \
+echo 1 && \
+echo 5 && \
+echo 8 && \
+echo 1.098 && \
+echo 2 && \
+echo 2 && \
+echo 2 && \
+echo 0.3 && \
+echo 0.3 && \
+echo 1 && \
+echo 1 && \
+echo 1 && \
+echo 3 && \
+echo 1 && \
+echo 10.6 && \
+echo 3 && \
+echo %f && \
+echo %f && \
+echo 0 && \
+echo %f && \
+echo 0 && \
+echo %f && \
+echo 360) | ./../../include/xsec/dvcs >> /dev/null && \
+mv dvcs_z* phi.dat && \
+rm scan_xip.dat && rm dvcs.out && cd -",Qmean, xmean, -1.0*tmean, 360./Nphi));
+
+  vector <double> data;
+  data.clear();
+
+  std::ifstream f(Folder + "phi.dat");
+  std::string line;
+
+  //double angle, pp, pm, mp, mm, sigma;
+  double born, eborn, rad, erad;
+  string text1, text2;
+  
+  int k=1;
+  while (std::getline(f, line)) 
+    {
+      std::istringstream ss(line);
+      //ss >> angle >> pp >> pm >> mp >> mm >> sigma;
+      ss >> text1 >> born >> eborn >> rad >> text2;
+      VGG->SetBinContent(k,born);
+      std::cout<<born<<endl;
+      k++;
+    }
+  f.close();
+
+  //Sum of xsec divided by number of events
+  xborn->Divide(nbin,xborn,1,1);
+  //Ratio
+  ratio_bin->Divide(xborn,VGG,1,1);
+  for(int k=1; k<=Nphi; k++)
+    ratio_bin->SetBinError(k,0.0);
+
+  delete xborn;
+  delete VGG;
+  delete Data_Tree;
+  delete nbin;
+  
+  return ratio_bin;
+
+}
+
+
+TH1F* BDT::Frad(TCut cut, TString Data_rad, double BDT_cut, int Nphi){
+
+  TChain *Data_Tree= new TChain("pDVCS");
+  Data_Tree->Add(Folder + Data_rad);
+  
+  TH1F *xborn = new TH1F("xborn","",Nphi,0,360);
+  TH1F *xrad  = new TH1F("xrad","",Nphi,0,360);
+  TH1F *ratio_rad = new TH1F("ratio_rad","F_rad",Nphi,0,360);
+
+  Data_Tree->Project("xborn", "Phi_Ph", (cut + TCut(Form("_strip_Nuc_BDT > %f",BDT_cut))) * TCut("1.0/xsec_born") );
+  Data_Tree->Project("xrad", "Phi_Ph", (cut+ TCut(Form("_strip_Nuc_BDT > %f",BDT_cut)))*TCut("1.0/xsec_rad") );
+  //Here I do not divide by the number of events on each bin as it cancels in the ratio.
+  
+  ratio_rad->Divide(xborn, xrad,1,1);
+  for(int k=1; k<=Nphi; k++)
+    ratio_rad->SetBinError(k,0.0);
+
+  delete xborn;
+  delete xrad;
+  delete Data_Tree;
+
+  return ratio_rad;
+
+
+}
+
+TH1F* BDT::RC_correction(TCut cut, TString Data_rad, double BDT_cut, int bin, double xmean, double Qmean, double tmean){
+  int Nphi=Nphibins[bin-1];
+  
+  //TH1F* F_bin = Fbin(bin, cut, Data_rad, BDT_cut, xmean, Qmean, tmean);
+  TH1F* F_bin = F_bin_KM_model(cut,bin);
+  TH1F* F_rad = Frad(cut, Data_rad, BDT_cut, Nphi);
+  TH1F* Fmc = new TH1F("F_rc","F_rc",Nphi,0,360);
+
+  Fmc->Multiply(F_bin, F_rad,1,1);
+  for(int k=1; k<=Nphi; k++)
+    Fmc->SetBinError(k,0.0);
+  
+  delete F_bin;
+  delete F_rad;  
+
+  return Fmc;
+
+
+}
