@@ -223,7 +223,7 @@ void analysis_data()
       {"_Pmiss_mag", {-0.1, 1.5}},
       {"_Pmiss_perp", {-0.1, 0.8}},
       {"_Pmiss_Nuc_mag", {-0.1, 1.5}},
-      {"_miss_mom_eNg", {0, 1.0}},
+      // {"_miss_mom_eNg", {0, 1.0}},
       {"_Pmiss_Nuc_perp", {-0.1, 0.8}},
       {"_mm2_eg", {-2, 5.5}},
       {"_mm2_eNg", {-1.5, 5}},
@@ -250,7 +250,7 @@ void analysis_data()
       {"_Pmiss_mag", "|P_{miss}| (GeV)"},
       {"_Pmiss_perp", "|P_{miss}^{Perp}| (GeV)"},
       {"_Pmiss_Nuc_mag", "|P_{miss} (Nuc)| (GeV)"},
-      {"_miss_mom_eNg", "|P_{miss} (Nuc Mostafa)| (GeV)"},
+      // {"_miss_mom_eNg", "|P_{miss} (Nuc Mostafa)| (GeV)"},
       {"_Pmiss_Nuc_perp", "|P_{miss}^{Perp} (Nuc)| (GeV)"},
       {"_mm2_eg", "MM^{2}_{P} e P#rightarrow e'#gamma(P_{miss}) (GeV^{2})"},
       {"_mm2_eNg", "MM^{2}_{P} e D#rightarrow e'P'#gamma(N_{miss}) (GeV^{2})"},
@@ -283,7 +283,7 @@ void analysis_data()
     }
     else
     {
-      h_base_data = new TH1D(base_hist_name_data, Form("DVCS%s_data", var.Data()), 100, min, max);
+      h_base_data = new TH1D(base_hist_name_data, Form("DVCS%s_data", var.Data()), 200, min, max);
     }
 
     if (var == "_Pmiss_mag" || var == "_Pmiss_Nuc_mag" || var == "_Pmiss_perp" || var == "_Pmiss_Nuc_perp")
@@ -374,7 +374,7 @@ void analysis_data()
       }
       else
       {
-        h_cut_data = new TH1D(cut_hist_name_data, Form("DVCS%s", var.Data()), 100, min, max);
+        h_cut_data = new TH1D(cut_hist_name_data, Form("DVCS%s", var.Data()), 200, min, max);
       }
 
       if (is_missing_momentum_var)

@@ -1,6 +1,13 @@
 #ifndef BSA_data_fit_h
 #define BSA_data_fit_h
 
+#include <string>
+#include <TLine.h>
+#include <TF1.h>
+#include <TLatex.h>
+// #include "TWeighter1D.C"
+
+
 // #include "rooLib.C"
 // #include "getTreeMC.C"
 #include <TMath.h>
@@ -8,7 +15,7 @@
 #include "RooMultiVarGaussian.h"
 #include "RooUnblindUniform.h"
 #include "RooAddition.h"
-#include "RooMinuit.h"
+// #include "RooMinuit.h"
 
 #include <time.h>
 #include <fstream>
@@ -82,11 +89,11 @@
 #include "RooStats/MCMCIntervalPlot.h"
 #include "RooStats/LikelihoodIntervalPlot.h"
 
-#include "chain_pDVCS.C"
+//#include "chain_pDVCS.C"
 // #include "chain_nDVCS.C"
 // #include "chain_eppi0_data.C"
 // #include "chain_eppi0_MC.C"
-#include "chain_eppi01gamma_MC.C"
+//#include "chain_eppi01gamma_MC.C"
 // #include "chain_enpi0_data.C"
 // #include "chain_enpi0_MC.C"
 // #include "chain_enpi01gamma_MC.C"
@@ -883,8 +890,36 @@ TCut BSA_data_fit::ALL_cuts(int selFlag)
     if (selFlag == 1)
         // c = " _strip_Ph_P > 2 && _strip_Q2 > 1.0 && _strip_W > 2 && _strip_Nuc_P > 0.3 && _strip_El_P > 1.0 && TMath::Abs(_Phi_Nuc - _Phi_Ph) < 2 &&  TMath::Abs(_mm2_eNg_N) < 1 && _theta_gamma_X < 3  && _strip_El_vz < 10 && _strip_El_vz > -12 && TMath::Sqrt(_Xbal * _Xbal + _Ybal * _Ybal + _Zbal * _Zbal) < 0.75";;
 
-        c = "_Exclusive_4DChi2 < 8 && _strip_Ph_P > 2 && _strip_Q2 > 1.0 && _strip_W > 2 && _strip_Nuc_P > 0.3 && _strip_El_P > 1.0 && TMath::Abs(_Phi_Nuc - _Phi_Ph) < 2 && TMath::Abs(_t_Nuc - _t_Ph) < 0.25 && TMath::Abs(_mm2_eNg_N) < 1 && _theta_gamma_X < 3  && _strip_El_vz < 2 && _strip_El_vz > -8 && TMath::Sqrt(_Xbal * _Xbal + _Ybal * _Ybal + _Zbal * _Zbal) < 0.75 && _t_Nuc > -1.9 && (_strip_El_vz-_strip_Nuc_vz) < 4.445 && (_strip_El_vz-_strip_Nuc_vz) > -4.055";
+        // c = "_Exclusive_4DChi2 < 8 && _strip_Ph_P > 2 && _strip_Q2 > 1.0 && _strip_W > 2 && _strip_Nuc_P > 0.3 && _strip_El_P > 1.0 && TMath::Abs(_Phi_Nuc - _Phi_Ph) < 2 && TMath::Abs(_t_Nuc - _t_Ph) < 0.25 && TMath::Abs(_mm2_eNg_N) < 1 && _theta_gamma_X < 3  && _strip_El_vz < 2 && _strip_El_vz > -8 && TMath::Sqrt(_Xbal * _Xbal + _Ybal * _Ybal + _Zbal * _Zbal) < 0.75 && _t_Nuc > -1.9 && (_strip_El_vz-_strip_Nuc_vz) < 4.445 && (_strip_El_vz-_strip_Nuc_vz) > -4.055";
 
+        c = "_bestCandidateFlag==1"
+		  " && _theta_gamma_e > 6"
+		  " && _strip_Xbj < 0.6"
+		  " && _strip_Xbj > 0"
+		  " && _t_Ph < 0"
+		  " && _strip_Q2 > 1.0"
+		  " && _strip_W > 2"
+		  " && _strip_El_P > 1.0"
+		  " && _strip_Ph_P > 2"
+		  " && _strip_El_vz < 10"
+		  " && _strip_El_vz > -12"
+		  " && _theta_gamma_e > 5"
+		  " && TMath::Sqrt(_Xbal * _Xbal + _Ybal * _Ybal + _Zbal * _Zbal) < 1"
+		  " && _strip_El_chi2pid >= -4.56920"
+		  " && _strip_El_chi2pid <= 3.61976"
+		  " && _strip_Nuc_chi2pid >= -195.04711"
+		  " && _strip_Nuc_chi2pid <= 201.30658"
+		  " && _delta_t >= -0.46292"
+		  " && _delta_t <= 0.47175"
+		  " && abs(fmod(_delta_Phi, 180)) <= 1.5"
+		  " && _mm2_eNg >= -0.37894"
+		  " && _mm2_eNg <= 2.42267"
+		  " && _mm2_eNg_N >= -0.19478"
+		  " && _mm2_eNg_N <= 0.15635"
+		  " && _mm2_eNX_N >= -3.95236"
+		  " && _mm2_eNX_N <= 3.74568"
+		  " && _mm2_eg >= -0.12854"
+		  " && _mm2_eg <= 2.21362";
     //_Exclusive_4DChi2 < 8 && _strip_Ph_P > 2 && _strip_Q2 > 1.0 && _strip_W > 2 && _strip_Nuc_P > 0.3 && _strip_El_P > 1.0 && TMath::Abs(_Phi_Nuc - _Phi_Ph) < 2 && TMath::Abs(_t_Nuc - _t_Ph) < 0.25 && TMath::Abs(_mm2_eNg_N) < 1 && _theta_gamma_X < 3 && _theta_gamma_e > 5 && _strip_El_vz < 10 && _strip_El_vz > -12 && TMath::Sqrt(_Xbal * _Xbal + _Ybal * _Ybal + _Zbal * _Zbal) < 0.75)
 
     if (selFlag == 2)

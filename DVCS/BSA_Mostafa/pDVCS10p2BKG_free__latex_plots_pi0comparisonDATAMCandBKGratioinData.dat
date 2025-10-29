@@ -1,0 +1,48 @@
+\begin{figure}[htb]
+\begin{center}
+\includegraphics[width=0.6\textwidth]{new_plots/BSA_related_plots/pDVCS/BKG_ratios/test_Pi0_MCDATA_pDVCS_all__Pmissbin_0.000000_0.050000_10p2.pdf}
+\includegraphics[width=0.6\textwidth]{new_plots/BSA_related_plots/pDVCS/BKG_ratios/test_hp_BKGRatioInData_pDVCS_all__Pmissbin_0.000000_0.050000_10p2.pdf}
+\caption {Channel: pDVCS Bin: . Top: data (blue) versus MC (red) comparison between the number of $\pi^0$ events in each kinematical bin. Bottom: the fraction of $\pi^0$ contamination in data per each kinematics bin.}
+\label{_Pmissbin_0.000000_0.050000_10p2}
+\end{center}
+\end{figure}
+\begin{figure}[htb]
+\begin{center}
+\includegraphics[width=0.6\textwidth]{new_plots/BSA_related_plots/pDVCS/BKG_ratios/test_Pi0_MCDATA_pDVCS_all__Pmissbin_0.050000_0.100000_10p2.pdf}
+\includegraphics[width=0.6\textwidth]{new_plots/BSA_related_plots/pDVCS/BKG_ratios/test_hp_BKGRatioInData_pDVCS_all__Pmissbin_0.050000_0.100000_10p2.pdf}
+\caption {Channel: pDVCS Bin: . Top: data (blue) versus MC (red) comparison between the number of $\pi^0$ events in each kinematical bin. Bottom: the fraction of $\pi^0$ contamination in data per each kinematics bin.}
+\label{_Pmissbin_0.050000_0.100000_10p2}
+\end{center}
+\end{figure}
+\begin{figure}[htb]
+\begin{center}
+\includegraphics[width=0.6\textwidth]{new_plots/BSA_related_plots/pDVCS/BKG_ratios/test_Pi0_MCDATA_pDVCS_all__Pmissbin_0.100000_0.170000_10p2.pdf}
+\includegraphics[width=0.6\textwidth]{new_plots/BSA_related_plots/pDVCS/BKG_ratios/test_hp_BKGRatioInData_pDVCS_all__Pmissbin_0.100000_0.170000_10p2.pdf}
+\caption {Channel: pDVCS Bin: . Top: data (blue) versus MC (red) comparison between the number of $\pi^0$ events in each kinematical bin. Bottom: the fraction of $\pi^0$ contamination in data per each kinematics bin.}
+\label{_Pmissbin_0.100000_0.170000_10p2}
+\end{center}
+\end{figure}
+\begin{figure}[htb]
+\begin{center}
+\includegraphics[width=0.6\textwidth]{new_plots/BSA_related_plots/pDVCS/BKG_ratios/test_Pi0_MCDATA_pDVCS_all__Pmissbin_0.170000_0.300000_10p2.pdf}
+\includegraphics[width=0.6\textwidth]{new_plots/BSA_related_plots/pDVCS/BKG_ratios/test_hp_BKGRatioInData_pDVCS_all__Pmissbin_0.170000_0.300000_10p2.pdf}
+\caption {Channel: pDVCS Bin: . Top: data (blue) versus MC (red) comparison between the number of $\pi^0$ events in each kinematical bin. Bottom: the fraction of $\pi^0$ contamination in data per each kinematics bin.}
+\label{_Pmissbin_0.170000_0.300000_10p2}
+\end{center}
+\end{figure}
+\begin{figure}[htb]
+\begin{center}
+\includegraphics[width=0.6\textwidth]{new_plots/BSA_related_plots/pDVCS/BKG_ratios/test_Pi0_MCDATA_pDVCS_all__Pmissbin_0.300000_0.600000_10p2.pdf}
+\includegraphics[width=0.6\textwidth]{new_plots/BSA_related_plots/pDVCS/BKG_ratios/test_hp_BKGRatioInData_pDVCS_all__Pmissbin_0.300000_0.600000_10p2.pdf}
+\caption {Channel: pDVCS Bin: . Top: data (blue) versus MC (red) comparison between the number of $\pi^0$ events in each kinematical bin. Bottom: the fraction of $\pi^0$ contamination in data per each kinematics bin.}
+\label{_Pmissbin_0.300000_0.600000_10p2}
+\end{center}
+\end{figure}
+\begin{figure}[htb]
+\begin{center}
+\includegraphics[width=0.6\textwidth]{new_plots/BSA_related_plots/pDVCS/BKG_ratios/test_Pi0_MCDATA_pDVCS_all__Pmissbin_0.600000_0.850000_10p2.pdf}
+\includegraphics[width=0.6\textwidth]{new_plots/BSA_related_plots/pDVCS/BKG_ratios/test_hp_BKGRatioInData_pDVCS_all__Pmissbin_0.600000_0.850000_10p2.pdf}
+\caption {Channel: pDVCS Bin: . Top: data (blue) versus MC (red) comparison between the number of $\pi^0$ events in each kinematical bin. Bottom: the fraction of $\pi^0$ contamination in data per each kinematics bin.}
+\label{_Pmissbin_0.600000_0.850000_10p2}
+\end{center}
+\end{figure}

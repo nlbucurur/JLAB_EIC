@@ -1,17 +1,20 @@
-void declare(std::string lib){
+void declare(std::string lib)
+{
     gSystem->Load(lib.c_str());
     gSystem->AddLinkedLibs(lib.c_str());
 };
 
-void libCompile(){
-    //compile
+void libCompile()
+{
+    // compile
     gROOT->ProcessLine(".L TWeighter1D.C+");
     gROOT->ProcessLine(".L RooMyPdf.cxx+");
     gROOT->ProcessLine(".L RooMyPdftemp.cxx+");
     gROOT->ProcessLine(".L RooApollonios.cxx+");
 }
 
-void libLoad(){
+void libLoad()
+{
 
     // Load necessary libraries
     gSystem->Load("libRooFit");
@@ -24,13 +27,24 @@ void libLoad(){
     declare("RooApollonios_cxx.so");
     // -----
     using namespace RooFit;
-    gSystem->Load("libMinuit") ;
+    gSystem->Load("libMinuit");
 }
 
 void libLoader()
 {
     libCompile();
     libLoad();
-    
+
+    gROOT->ProcessLine(".L chain_pDVCS.C");
+    gROOT->ProcessLine(".L chain_pDVCS_MC.C");
+    gROOT->ProcessLine(".L chain_eppi0_data.C");
+    gROOT->ProcessLine(".L chain_enpi0_data.C");
+    gROOT->ProcessLine(".L chain_eppi0_MC.C");
+    gROOT->ProcessLine(".L chain_enpi0_MC.C");
+    gROOT->ProcessLine(".L chain_eppi01gamma_MC.C");
+    gROOT->ProcessLine(".L chain_enpi01gamma_MC.C");
+    gROOT->ProcessLine(".L chain_nDVCS.C");
+    gROOT->ProcessLine(".L chain_nDVCS_MC.C");
+
     return;
 }

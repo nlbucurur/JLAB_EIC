@@ -1,6 +1,7 @@
 #define BSA_data_fit_cxx
 #include "BSA_data_fit.h"
 
+
 void superimposehist(TH1F *h1, TH1F *h2)
 {
 
@@ -14,14 +15,14 @@ void superimposehist(TH1F *h1, TH1F *h2)
     if (h1->GetMaximum() > h2->GetMaximum())
     {
         h1->Draw();
-        tex.DrawLatex((h1->GetBinLowEdge(0) + h1->GetBinLowEdge(h1->GetNbinsX() / 2)) / 2 - tex.GetXsize(), h1->GetMaximum() / 2, "CLAS12 Preliminary");
+        // tex.DrawLatex((h1->GetBinLowEdge(0) + h1->GetBinLowEdge(h1->GetNbinsX() / 2)) / 2 - tex.GetXsize(), h1->GetMaximum() / 2, "CLAS12 Preliminary");
         h1->Draw("same");
         h2->Draw("hsame");
     }
     else
     {
         h2->Draw();
-        tex.DrawLatex((h2->GetBinLowEdge(0) + h2->GetBinLowEdge(h2->GetNbinsX() / 2)) / 2 - tex.GetXsize(), h2->GetMaximum() / 2, "CLAS12 Preliminary");
+        // tex.DrawLatex((h2->GetBinLowEdge(0) + h2->GetBinLowEdge(h2->GetNbinsX() / 2)) / 2 - tex.GetXsize(), h2->GetMaximum() / 2, "CLAS12 Preliminary");
         h2->Draw("hsame");
         h1->Draw("same");
     }
@@ -149,8 +150,10 @@ void BSA_data_fit::DoTheJob(int mask = 1, string period = "fall2019", string ene
 
     TChain *chain1 = (mask & 1) ? linked_pDVCS("pDVCS_stripped", period) : (TChain *)NULL; // RooTreeDataStore_dataS1_pDVCS_stripped", period) : (TChain *)NULL;
     TChain *chain2 = (mask & 2) ? linked_nDVCS("nDVCS_stripped", period) : (TChain *)NULL; // RooTreeDataStore_dataS1_pDVCS_stripped", period) : (TChain *)NULL;
-    TChain *chain3 = (mask & 1) ? linked_DATA_eppi0("eppi0_stripped", period) : linked_DATA_enpi0("enpi0_stripped", period);
-    TChain *chain4 = (mask & 1) ? linked_MC_eppi0("eppi0_stripped", energy, period) : linked_MC_enpi0("enpi0_stripped", energy);
+    TChain *chain3 = (mask & 1) ? linked_DATA_eppi0("pDVCS_stripped", period) : linked_DATA_enpi0("pDVCS_stripped", period);
+    // TChain *chain3 = (mask & 1) ? linked_DATA_eppi0("eppi0_stripped", period) : linked_DATA_enpi0("enpi0_stripped", period);
+    TChain *chain4 = (mask & 1) ? linked_MC_eppi0("pDVCS_stripped", energy, period) : linked_MC_enpi0("pDVCS_stripped", energy);
+    // TChain *chain4 = (mask & 1) ? linked_MC_eppi0("eppi0_stripped", energy, period) : linked_MC_enpi0("enpi0_stripped", energy);
     TChain *chain5 = (mask & 1) ? linked_MC_eppi01g("pDVCS_stripped", energy, period) : linked_MC_enpi01g("nDVCS_stripped", energy);
 
     tree1 = (mask & 1) ? (TTree *)chain1 : (TTree *)NULL; // pDVCS
@@ -982,18 +985,18 @@ void BSA_data_fit::DoTheJob(int mask = 1, string period = "fall2019", string ene
                     // MC_Pi0_all_phi_cuts_hp->Draw();
                     // DATA_Pi0_all_phi_cuts_hp->Draw("same");
                     superimposehist(MC_Pi0_all_phi_cuts_hp, DATA_Pi0_all_phi_cuts_hp);
-                    c1->Print(("BKG_ratio_plots/singleplots/" + period + "_Pi0_MCDATA_" + channel_ALL + "_all_" + photonTP + D4bins + pref + ".pdf").c_str());
+                    c1->Print(("BKG_ratio_plots/singleplots/" + period + "_Pi0_MCDATA_" + channel_ALL + "_all_" + photonTP + D4bins + pref + ".png").c_str());
                     c1->SetLogy(false);
                     c1->cd();
                     all_phi_cuts_hp_BKGRatio->Draw();
-                    c1->Print(("BKG_ratio_plots/singleplots/" + period + "_hp_BKGRatioInData_" + channel_ALL + "_all_" + photonTP + D4bins + pref + ".pdf").c_str());
+                    c1->Print(("BKG_ratio_plots/singleplots/" + period + "_hp_BKGRatioInData_" + channel_ALL + "_all_" + photonTP + D4bins + pref + ".png").c_str());
 
                     // produce latex format of plots to include in analysis note
 
                     latex << "\\begin{figure}[htb]" << endl;
                     latex << "\\begin{center}" << endl;
-                    latex << "\\includegraphics[width=0.6\\textwidth]{new_plots/BSA_related_plots/" << channel_ALL << "/BKG_ratios/" << period << "_Pi0_MCDATA_" << channel_ALL << "_all_" << photonTP << D4bins << pref << ".pdf}" << endl;
-                    latex << "\\includegraphics[width=0.6\\textwidth]{new_plots/BSA_related_plots/" << channel_ALL << "/BKG_ratios/" << period << "_hp_BKGRatioInData_" << channel_ALL << "_all_" << photonTP << D4bins << pref << ".pdf}" << endl;
+                    latex << "\\includegraphics[width=0.6\\textwidth]{new_plots/BSA_related_plots/" << channel_ALL << "/BKG_ratios/" << period << "_Pi0_MCDATA_" << channel_ALL << "_all_" << photonTP << D4bins << pref << ".png}" << endl;
+                    latex << "\\includegraphics[width=0.6\\textwidth]{new_plots/BSA_related_plots/" << channel_ALL << "/BKG_ratios/" << period << "_hp_BKGRatioInData_" << channel_ALL << "_all_" << photonTP << D4bins << pref << ".png}" << endl;
                     latex << "\\caption {Channel: " << channel_ALL << " Bin: " << _D4bins << ". Top: data (blue) versus MC (red) comparison between the number of $\\pi^0$ events in each kinematical bin. Bottom: the fraction of $\\pi^0$ contamination in data per each kinematics bin.}" << endl;
                     latex << "\\label{" << D4bins << "}" << endl;
                     latex << "\\end{center}" << endl;
@@ -1001,89 +1004,89 @@ void BSA_data_fit::DoTheJob(int mask = 1, string period = "fall2019", string ene
 
                     c1->cd();
                     MC_Pi01g_all_phi_cuts_hp->Draw();
-                    c1->Print(("BKG_ratio_plots/" + period + "_1g_BKG_" + channel_ALL + "_all_" + photonTP + D4bins + pref + ".pdf").c_str());
+                    c1->Print(("BKG_ratio_plots/" + period + "_1g_BKG_" + channel_ALL + "_all_" + photonTP + D4bins + pref + ".png").c_str());
                     c1_cd->cd();
                     MC_Pi01g_cd_phi_cuts_hp->Draw();
-                    c1_cd->Print(("BKG_ratio_plots/" + period + "_1g_BKG_" + channel_ALL + "_cd_" + photonTP + D4bins + pref + ".pdf").c_str());
+                    c1_cd->Print(("BKG_ratio_plots/" + period + "_1g_BKG_" + channel_ALL + "_cd_" + photonTP + D4bins + pref + ".png").c_str());
                     c1_fd->cd();
                     MC_Pi01g_fd_phi_cuts_hp->Draw();
-                    c1_fd->Print(("BKG_ratio_plots/" + period + "_1g_BKG_" + channel_ALL + "_fd_" + photonTP + D4bins + pref + ".pdf").c_str());
+                    c1_fd->Print(("BKG_ratio_plots/" + period + "_1g_BKG_" + channel_ALL + "_fd_" + photonTP + D4bins + pref + ".png").c_str());
 
                     c1->cd();
                     MC_Pi0_all_phi_cuts_hp->Draw();
-                    c1->Print(("BKG_ratio_plots/" + period + "_Pi0_BKG_" + channel_ALL + "_all_" + photonTP + D4bins + pref + ".pdf").c_str());
+                    c1->Print(("BKG_ratio_plots/" + period + "_Pi0_BKG_" + channel_ALL + "_all_" + photonTP + D4bins + pref + ".png").c_str());
                     c1_cd->cd();
                     MC_Pi0_cd_phi_cuts_hp->Draw();
-                    c1_cd->Print(("BKG_ratio_plots/" + period + "_Pi0_BKG_" + channel_ALL + "_cd_" + photonTP + D4bins + pref + ".pdf").c_str());
+                    c1_cd->Print(("BKG_ratio_plots/" + period + "_Pi0_BKG_" + channel_ALL + "_cd_" + photonTP + D4bins + pref + ".png").c_str());
                     c1_fd->cd();
                     MC_Pi0_fd_phi_cuts_hp->Draw();
-                    c1_fd->Print(("BKG_ratio_plots/" + period + "_Pi0_BKG_" + channel_ALL + "_fd_" + photonTP + D4bins + pref + ".pdf").c_str());
+                    c1_fd->Print(("BKG_ratio_plots/" + period + "_Pi0_BKG_" + channel_ALL + "_fd_" + photonTP + D4bins + pref + ".png").c_str());
 
                     c1->cd();
                     MC_Pi01g_Pi0_all_phi_cuts_hp_ratio->Draw();
-                    c1->Print(("BKG_ratio_plots/" + period + "_R_BKG_" + channel_ALL + "_all_" + photonTP + D4bins + pref + ".pdf").c_str());
+                    c1->Print(("BKG_ratio_plots/" + period + "_R_BKG_" + channel_ALL + "_all_" + photonTP + D4bins + pref + ".png").c_str());
                     c1_cd->cd();
                     MC_Pi01g_Pi0_cd_phi_cuts_hp_ratio->Draw();
-                    c1_cd->Print(("BKG_ratio_plots/" + period + "_R_BKG_" + channel_ALL + "_cd_" + photonTP + D4bins + pref + ".pdf").c_str());
+                    c1_cd->Print(("BKG_ratio_plots/" + period + "_R_BKG_" + channel_ALL + "_cd_" + photonTP + D4bins + pref + ".png").c_str());
                     c1_fd->cd();
                     MC_Pi01g_Pi0_fd_phi_cuts_hp_ratio->Draw();
-                    c1_fd->Print(("BKG_ratio_plots/" + period + "_R_BKG_" + channel_ALL + "_fd_" + photonTP + D4bins + pref + ".pdf").c_str());
+                    c1_fd->Print(("BKG_ratio_plots/" + period + "_R_BKG_" + channel_ALL + "_fd_" + photonTP + D4bins + pref + ".png").c_str());
 
                     c1->cd();
                     DATA_Pi0_all_phi_cuts_hp->Draw();
-                    c1->Print(("BKG_ratio_plots/" + period + "_dataPi0HP_BKG_" + channel_ALL + "_all_" + photonTP + D4bins + pref + ".pdf").c_str());
+                    c1->Print(("BKG_ratio_plots/" + period + "_dataPi0HP_BKG_" + channel_ALL + "_all_" + photonTP + D4bins + pref + ".png").c_str());
                     c1_cd->cd();
                     DATA_Pi0_cd_phi_cuts_hp->Draw();
-                    c1_cd->Print(("BKG_ratio_plots/" + period + "_dataPi0HP_BKG_" + channel_ALL + "_cd_" + photonTP + D4bins + pref + ".pdf").c_str());
+                    c1_cd->Print(("BKG_ratio_plots/" + period + "_dataPi0HP_BKG_" + channel_ALL + "_cd_" + photonTP + D4bins + pref + ".png").c_str());
                     c1_fd->cd();
                     DATA_Pi0_fd_phi_cuts_hp->Draw();
-                    c1_fd->Print(("BKG_ratio_plots/" + period + "_dataPi0HP_BKG_" + channel_ALL + "_fd_" + photonTP + D4bins + pref + ".pdf").c_str());
+                    c1_fd->Print(("BKG_ratio_plots/" + period + "_dataPi0HP_BKG_" + channel_ALL + "_fd_" + photonTP + D4bins + pref + ".png").c_str());
 
                     c1->cd();
                     DATA_Pi0_all_phi_cuts_hn->Draw();
-                    c1->Print(("BKG_ratio_plots/" + period + "_dataPi0HN_BKG_" + channel_ALL + "_all_" + photonTP + D4bins + pref + ".pdf").c_str());
+                    c1->Print(("BKG_ratio_plots/" + period + "_dataPi0HN_BKG_" + channel_ALL + "_all_" + photonTP + D4bins + pref + ".png").c_str());
                     c1_cd->cd();
                     DATA_Pi0_cd_phi_cuts_hn->Draw();
-                    c1_cd->Print(("BKG_ratio_plots/" + period + "_dataPi0HN_BKG_" + channel_ALL + "_cd_" + photonTP + D4bins + pref + ".pdf").c_str());
+                    c1_cd->Print(("BKG_ratio_plots/" + period + "_dataPi0HN_BKG_" + channel_ALL + "_cd_" + photonTP + D4bins + pref + ".png").c_str());
                     c1_fd->cd();
                     DATA_Pi0_fd_phi_cuts_hn->Draw();
-                    c1_fd->Print(("BKG_ratio_plots/" + period + "_dataPi0HN_BKG_" + channel_ALL + "_fd_" + photonTP + D4bins + pref + ".pdf").c_str());
+                    c1_fd->Print(("BKG_ratio_plots/" + period + "_dataPi0HN_BKG_" + channel_ALL + "_fd_" + photonTP + D4bins + pref + ".png").c_str());
 
                     c1->cd();
                     DATA_Pi01g_all_phi_cuts_hp->Draw();
-                    c1->Print(("BKG_ratio_plots/" + period + "_dataPi01g_hp_BKG_" + channel_ALL + "_all_" + photonTP + D4bins + pref + ".pdf").c_str());
+                    c1->Print(("BKG_ratio_plots/" + period + "_dataPi01g_hp_BKG_" + channel_ALL + "_all_" + photonTP + D4bins + pref + ".png").c_str());
                     c1_cd->cd();
                     DATA_Pi01g_cd_phi_cuts_hp->Draw();
-                    c1_cd->Print(("BKG_ratio_plots/" + period + "_dataPi01g_hp_BKG_" + channel_ALL + "_cd_" + photonTP + D4bins + pref + ".pdf").c_str());
+                    c1_cd->Print(("BKG_ratio_plots/" + period + "_dataPi01g_hp_BKG_" + channel_ALL + "_cd_" + photonTP + D4bins + pref + ".png").c_str());
                     c1_fd->cd();
                     DATA_Pi01g_fd_phi_cuts_hp->Draw();
-                    c1_fd->Print(("BKG_ratio_plots/" + period + "_dataPi01g_hp_BKG_" + channel_ALL + "_fd_" + photonTP + D4bins + pref + ".pdf").c_str());
+                    c1_fd->Print(("BKG_ratio_plots/" + period + "_dataPi01g_hp_BKG_" + channel_ALL + "_fd_" + photonTP + D4bins + pref + ".png").c_str());
 
                     c1->cd();
                     DATA_Pi01g_all_phi_cuts_hn->Draw();
-                    c1->Print(("BKG_ratio_plots/" + period + "_dataPi01g_hn_BKG_" + channel_ALL + "_all_" + photonTP + D4bins + pref + ".pdf").c_str());
+                    c1->Print(("BKG_ratio_plots/" + period + "_dataPi01g_hn_BKG_" + channel_ALL + "_all_" + photonTP + D4bins + pref + ".png").c_str());
                     c1_cd->cd();
                     DATA_Pi01g_cd_phi_cuts_hn->Draw();
-                    c1_cd->Print(("BKG_ratio_plots/" + period + "_dataPi01g_hn_BKG_" + channel_ALL + "_cd_" + photonTP + D4bins + pref + ".pdf").c_str());
+                    c1_cd->Print(("BKG_ratio_plots/" + period + "_dataPi01g_hn_BKG_" + channel_ALL + "_cd_" + photonTP + D4bins + pref + ".png").c_str());
                     c1_fd->cd();
                     DATA_Pi01g_fd_phi_cuts_hn->Draw();
-                    c1_fd->Print(("BKG_ratio_plots/" + period + "_dataPi01g_hn_BKG_" + channel_ALL + "_fd_" + photonTP + D4bins + pref + ".pdf").c_str());
+                    c1_fd->Print(("BKG_ratio_plots/" + period + "_dataPi01g_hn_BKG_" + channel_ALL + "_fd_" + photonTP + D4bins + pref + ".png").c_str());
 
                     c1->cd();
                     all_phi_cuts_hp_BKGRatio->Draw();
-                    c1->Print(("BKG_ratio_plots/" + period + "_hp_BKGRatio_" + channel_ALL + "_all_" + photonTP + D4bins + pref + ".pdf").c_str());
+                    c1->Print(("BKG_ratio_plots/" + period + "_hp_BKGRatio_" + channel_ALL + "_all_" + photonTP + D4bins + pref + ".png").c_str());
                     cd_phi_cuts_hp_BKGRatio->Draw();
-                    c1->Print(("BKG_ratio_plots/" + period + "_hp_BKGRatio_" + channel_ALL + "_cd_" + photonTP + D4bins + pref + ".pdf").c_str());
+                    c1->Print(("BKG_ratio_plots/" + period + "_hp_BKGRatio_" + channel_ALL + "_cd_" + photonTP + D4bins + pref + ".png").c_str());
                     fd_phi_cuts_hp_BKGRatio->Draw();
-                    c1->Print(("BKG_ratio_plots/" + period + "_hp_BKGRatio_" + channel_ALL + "_fd_" + photonTP + D4bins + pref + ".pdf").c_str());
+                    c1->Print(("BKG_ratio_plots/" + period + "_hp_BKGRatio_" + channel_ALL + "_fd_" + photonTP + D4bins + pref + ".png").c_str());
 
                     c1->cd();
                     all_phi_cuts_hn_BKGRatio->Draw();
-                    c1->Print(("BKG_ratio_plots/" + period + "_hn_BKGRatio_" + channel_ALL + "_all_" + photonTP + D4bins + pref + ".pdf").c_str());
+                    c1->Print(("BKG_ratio_plots/" + period + "_hn_BKGRatio_" + channel_ALL + "_all_" + photonTP + D4bins + pref + ".png").c_str());
                     cd_phi_cuts_hn_BKGRatio->Draw();
-                    c1->Print(("BKG_ratio_plots/" + period + "_hn_BKGRatio_" + channel_ALL + "_cd_" + photonTP + D4bins + pref + ".pdf").c_str());
+                    c1->Print(("BKG_ratio_plots/" + period + "_hn_BKGRatio_" + channel_ALL + "_cd_" + photonTP + D4bins + pref + ".png").c_str());
                     fd_phi_cuts_hn_BKGRatio->Draw();
-                    c1->Print(("BKG_ratio_plots/" + period + "_hn_BKGRatio_" + channel_ALL + "_fd_" + photonTP + D4bins + pref + ".pdf").c_str());
+                    c1->Print(("BKG_ratio_plots/" + period + "_hn_BKGRatio_" + channel_ALL + "_fd_" + photonTP + D4bins + pref + ".png").c_str());
 
                     ratio->SetMinimum(-0.4);
                     ratio->SetMaximum(0.4);
@@ -1152,7 +1155,7 @@ void BSA_data_fit::DoTheJob(int mask = 1, string period = "fall2019", string ene
                         ratio->Draw("same");
                         if (superimpose)
                             ratio_bkgf->Draw("same");
-                        tex.DrawLatex(5, -0.1, "CLAS12 Preliminary");
+                        // tex.DrawLatex(5, -0.1, "CLAS12 Preliminary");
                         c11_cd->cd(plotIndenter);
                         // cd_ratio->Fit("fitFcn", "e");
                         cd_ratio->Draw();
@@ -1195,8 +1198,8 @@ void BSA_data_fit::DoTheJob(int mask = 1, string period = "fall2019", string ene
                         // ratio_bkgf->Fit("fitFcn");
                         ratio_bkgf->Draw("same");
                     }
-                    tex.DrawLatex(5, -0.1, "CLAS12 Preliminary");
-                    c1->Print((period + "_" + purity + "BSA_" + channel_ALL + "_all_" + photonTP + D4bins + pref + ".pdf").c_str());
+                    // tex.DrawLatex(5, -0.1, "CLAS12 Preliminary");
+                    c1->Print((period + "_" + purity + "BSA_" + channel_ALL + "_all_" + photonTP + D4bins + pref + ".png").c_str());
                     c1_cd->cd();
                     cd_ratio->Fit("fitFcn", "e");
                     cd_ratio->Draw();
@@ -1207,7 +1210,7 @@ void BSA_data_fit::DoTheJob(int mask = 1, string period = "fall2019", string ene
                         ratio_bkgf->Fit("fitFcn");
                         cd_ratio_bkgf->Draw("same");
                     }
-                    c1_cd->Print((period + "_" + purity + "BSA_" + channel_ALL + "_cd_" + photonTP + D4bins + pref + ".pdf").c_str());
+                    c1_cd->Print((period + "_" + purity + "BSA_" + channel_ALL + "_cd_" + photonTP + D4bins + pref + ".png").c_str());
                     c1_fd->cd();
                     fd_ratio->Fit("fitFcn", "e");
                     fd_ratio->Draw();
@@ -1217,7 +1220,7 @@ void BSA_data_fit::DoTheJob(int mask = 1, string period = "fall2019", string ene
                         ratio_bkgf->Fit("fitFcn");
                         fd_ratio_bkgf->Draw("same");
                     }
-                    c1_fd->Print((period + "_" + purity + "BSA_" + channel_ALL + "_fd_" + photonTP + D4bins + pref + ".pdf").c_str());
+                    c1_fd->Print((period + "_" + purity + "BSA_" + channel_ALL + "_fd_" + photonTP + D4bins + pref + ".png").c_str());
 
                     flux_sinPhi_ampl << "t min " << tmin << " t max " << tmax << " Q2 min " << Q2min << " Q2 max " << Q2max << " xb min " << xbmin << " xb max " << xbmax << " sin phi ampl " << sinPhi_ampl << " " << sinPhi_ampl_err << endl;
 
@@ -1324,20 +1327,20 @@ void BSA_data_fit::DoTheJob(int mask = 1, string period = "fall2019", string ene
         if (Q2binnedBSA == true && tbinnedBSA == true && xbbinnedBSA == true)
         {
 
-            c11->Print((period + "_" + purity + "BSA_" + channel_ALL + "_all_" + photonTP + "_binned_" + bins_ + tbins + pref + energy + ".pdf").c_str());
-            cbkgR->Print((period + "_" + purity + "R_BKG_" + channel_ALL + "_all_" + photonTP + "_binned_" + bins_ + tbins + pref + energy + ".pdf").c_str());
+            c11->Print((period + "_" + purity + "BSA_" + channel_ALL + "_all_" + photonTP + "_binned_" + bins_ + tbins + pref + energy + ".png").c_str());
+            cbkgR->Print((period + "_" + purity + "R_BKG_" + channel_ALL + "_all_" + photonTP + "_binned_" + bins_ + tbins + pref + energy + ".png").c_str());
 
-            c11_cd->Print((period + "_" + purity + "BSA_" + channel_ALL + "_cd_" + photonTP + "_binned_" + bins_ + tbins + pref + energy + ".pdf").c_str());
-            c11_fd->Print((period + "_" + purity + "BSA_" + channel_ALL + "_fd_" + photonTP + "_binned_" + bins_ + tbins + pref + energy + ".pdf").c_str());
+            c11_cd->Print((period + "_" + purity + "BSA_" + channel_ALL + "_cd_" + photonTP + "_binned_" + bins_ + tbins + pref + energy + ".png").c_str());
+            c11_fd->Print((period + "_" + purity + "BSA_" + channel_ALL + "_fd_" + photonTP + "_binned_" + bins_ + tbins + pref + energy + ".png").c_str());
         }
     }
     if (Q2binnedBSA == true || tbinnedBSA == true || xbbinnedBSA == true || PmissbinnedBSA == true)
     {
 
-        c11->Print((period + "_" + purity + "BSA_" + channel_ALL + "_all_" + photonTP + "_binned_" + bins_ + pref + energy + ".pdf").c_str());
-        cbkgR->Print((period + "_" + purity + "R_BKG_" + channel_ALL + "_all_" + photonTP + "_binned_" + bins_ + pref + energy + ".pdf").c_str());
-        c11_cd->Print((period + "_" + purity + "BSA_" + channel_ALL + "_cd_" + photonTP + "_binned_" + bins_ + pref + energy + ".pdf").c_str());
-        c11_fd->Print((period + "_" + purity + "BSA_" + channel_ALL + "_fd_" + photonTP + "_binned_" + bins_ + pref + energy + ".pdf").c_str());
+        c11->Print((period + "_" + purity + "BSA_" + channel_ALL + "_all_" + photonTP + "_binned_" + bins_ + pref + energy + ".png").c_str());
+        cbkgR->Print((period + "_" + purity + "R_BKG_" + channel_ALL + "_all_" + photonTP + "_binned_" + bins_ + pref + energy + ".png").c_str());
+        c11_cd->Print((period + "_" + purity + "BSA_" + channel_ALL + "_cd_" + photonTP + "_binned_" + bins_ + pref + energy + ".png").c_str());
+        c11_fd->Print((period + "_" + purity + "BSA_" + channel_ALL + "_fd_" + photonTP + "_binned_" + bins_ + pref + energy + ".png").c_str());
     }
     return;
 }

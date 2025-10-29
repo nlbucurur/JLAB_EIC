@@ -18,7 +18,8 @@ TChain *linked_MC_eppi0(std::string name, std::string energy = "", std::string p
         // chain->AddFile(std::string(path + "eppi0_10p2_octobreVersion.root").c_str());
         //chain->AddFile(std::string(path + "10p2_eppi0_simu_new_genpi.root").c_str());
         //chain->AddFile(std::string(path + "0eppi0_10p4_march2023.root").c_str());
-        chain->AddFile(std::string(path + "0eppi0_10p2_bkgMerging.root").c_str());
+        // chain->AddFile(std::string(path + "0eppi0_10p2_bkgMerging.root").c_str());
+        chain->AddFile(std::string(path + "0pDVCS_Pi0dataAsDVCS_10p2.root").c_str());
     }
 
     if (energy == "flat10p2")

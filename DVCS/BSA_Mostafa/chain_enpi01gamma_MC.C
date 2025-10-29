@@ -4,7 +4,7 @@
 // TChain* chain = linked(tupleName);
 //------------
 
-TChain *linked_MC_enpi01g(std::string name, std::string energy = "", std::string path = "/projet/PRAE/hoballah/theData/Data/Jlab_analysis/new_recon_files/")
+TChain *linked_MC_enpi01g(std::string name, std::string energy = "", std::string path = "/home/lorena/Documents/Thesis/JLAB_EIC/DVCS/data/")
 {
     cout << " =============================================================================" << endl;
     cout << " === path  = " << path << endl;
