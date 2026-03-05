@@ -1,3 +1,5 @@
+// To run: root -l -b -q 'analysis_data.C'
+
 #include <iostream>
 #include <TFile.h>
 #include <TTree.h>
@@ -12,11 +14,20 @@
 #include <vector>
 #include <utility>
 
+#include <map>
+#include <algorithm>
+#include <cmath>
+
+#include <TLorentzVector.h>
+#include <THStack.h>
+#include <TPaveStats.h>
+#include <TMath.h>
+
 bool should_set_logy(const TString &branch_name)
 {
   std::vector<TString> logy_branches = {
-      "_t_Nuc",
-      "_t_Ph"};
+      "t_Nuc",
+      "t_Ph"};
 
   return std::find(logy_branches.begin(), logy_branches.end(), branch_name) != logy_branches.end();
 }
@@ -25,14 +36,21 @@ std::vector<std::pair<TString, TCut>> generate_cuts(const std::map<TString, TH1D
 {
 
   std::vector<std::pair<TString, TString>> cuts_definitions = {
-      {"_theta_gamma_e", "_theta_gamma_e > 6"},
-      {"_chi2pid", "_strip_El_chi2pid >= -4.56920 && _strip_El_chi2pid <= 3.61976 && _strip_Nuc_chi2pid >= -195.04711 && _strip_Nuc_chi2pid <= 201.30658"},
-      {"_delta_t", "_delta_t >= -0.46292 && _delta_t <= 0.47175"},
-      {"_delta_phi", "abs(fmod(_delta_Phi, 180)) <= 1.5"},
-      {"_mm2_eNg_neutron_expected", "_mm2_eNg >= -0.37894 && _mm2_eNg <= 2.42267"},
-      {"_mm2_eNg_N_nothing_expected", "_mm2_eNg_N >= -0.19478 && _mm2_eNg_N <= 0.15635"},
-      {"_mm2_eNX_N_photon_expected", "_mm2_eNX_N >= -3.95236 && _mm2_eNX_N <= 3.74568"},
-      {"_mm2_eg_proton_expected", "_mm2_eg >= -0.12854 && _mm2_eg <= 2.21362"}};
+      {"bestCand", "bestCandidateFlag==1"},
+      {"theta_gamma_e", "theta_gamma_e > 6"},
+      // {"chi2pid", "strip_El_chi2pid >= -4.56920 && strip_El_chi2pid <= 3.61976 && strip_Nuc_chi2pid >= -195.04711 && strip_Nuc_chi2pid <= 201.30658"},
+      {"chi2pid", "strip_El_chi2pid >= -4.37898 && strip_El_chi2pid <= 3.77798 && strip_Nuc_chi2pid >= -5.57697 && strip_Nuc_chi2pid <= 6.33990"},
+      // {"delta_t", "delta_t >= -0.46292 && delta_t <= 0.47175"},delta_t >= -1.03182 && delta_t <= 1.27318
+      {"delta_t", "delta_t >= -1.03182 && delta_t <= 1.27318"},
+      {"delta_phi", "abs(fmod(delta_Phi, 180)) <= 1.5"},
+      // {"mm2_eNg_neutron_expected", "mm2_eNg >= -0.37894 && mm2_eNg <= 2.42267"},
+      {"mm2_eNg_neutron_expected", "mm2_eNg >= -1.22968 && mm2_eNg <= 3.67237"},
+      // {"mm2_eNg_N_nothing_expected", "mm2_eNg_N >= -0.19478 && mm2_eNg_N <= 0.15635"},
+      {"mm2_eNg_N_nothing_expected", "mm2_eNg_N >= -0.55184 && mm2_eNg_N <= 0.47227"},
+      // {"mm2_eNX_N_photon_expected", "mm2_eNX_N >= -3.95236 && mm2_eNX_N <= 3.74568"},
+      {"mm2_eNX_N_photon_expected", "mm2_eNX_N >= -4.09789 && mm2_eNX_N <= 4.17903"},
+      // {"mm2_eg_proton_expected", "mm2_eg >= -0.12854 && mm2_eg <= 2.21362"}};
+      {"mm2_eg_proton_expected", "mm2_eg >= -1.35581 && mm2_eg <= 3.93882"}};
 
   std::vector<std::pair<TString, TCut>> cuts;
 
@@ -107,21 +125,28 @@ void stats_legend(TH1D *htemp, TH1D *htemp_cut, const TString &branch_name, cons
 
   // gPad->Update();
 
-  TPaveStats *stats1 = (TPaveStats *)htemp->FindObject("stats");
-  TPaveStats *stats2 = (TPaveStats *)htemp_cut->FindObject("stats");
+  auto stats1 = (TPaveStats *)htemp->FindObject("stats");
+  auto stats2 = (TPaveStats *)htemp_cut->FindObject("stats");
 
-  stats1->SetX1NDC(0.15);
-  stats1->SetX2NDC(0.33);
-  stats1->SetY1NDC(0.78);
-  stats1->SetY2NDC(0.88);
+  if (stats1)
+  {
+    stats1->SetX1NDC(0.15);
+    stats1->SetX2NDC(0.33);
+    stats1->SetY1NDC(0.78);
+    stats1->SetY2NDC(0.88);
 
-  stats2->SetX1NDC(0.15);
-  stats2->SetX2NDC(0.33);
-  stats2->SetY1NDC(0.66);
-  stats2->SetY2NDC(0.76);
+    stats1->SetTextColor(kBlack);
+  }
 
-  stats1->SetTextColor(kBlack);
-  stats2->SetTextColor(kRed);
+  if (stats2)
+  {
+    stats2->SetX1NDC(0.15);
+    stats2->SetX2NDC(0.33);
+    stats2->SetY1NDC(0.66);
+    stats2->SetY2NDC(0.76);
+
+    stats2->SetTextColor(kRed);
+  }
 
   TLegend *legend = new TLegend(0.36, 0.78, 0.46, 0.88);
 
@@ -135,25 +160,28 @@ void stats_legend(TH1D *htemp, TH1D *htemp_cut, const TString &branch_name, cons
 void analysis_data()
 {
 
-  TFile *file = TFile::Open("./data/0pDVCS_inbending_FTPhotonsCorrected_test.root");
-  TFile *output_file = new TFile("./output_root_hists/analysis_data.root", "RECREATE");
+  // TFile *file = TFile::Open("/w/hallb-scshelf2102/clas12/nlbucuru/PhD_DVCS/stripped_data_spring2019_pDVCS_1.root");
+  TFile *file = TFile::Open("/work/clas12/nlbucuru/PhD_DVCS/outputs/stripped_data_spring2019_pDVCS_merged.root");
+  TFile *output_file = new TFile("/w/hallb-scshelf2102/clas12/nlbucuru/JLAB_EIC/DVCS/output_root_hists/analysis_data.root", "RECREATE");
 
-  TTree *tree = (TTree *)file->Get("pDVCS_stripped");
+  TTree *tree = (TTree *)file->Get("pDVCS");
 
   //   tree->Print();
 
   double Pmass = 0.938272;
   double Nmass = 0.9395654;
   double Dmass = 1.8756;
-  double RunNumber;
-  tree->SetBranchAddress("_RunNumber", &RunNumber);
-  double Ebeam = 10.2;
+  int RunNumber = 0;
+  tree->SetBranchAddress("RunNumber", &RunNumber);
 
-  if (RunNumber >= 6420)
-    Ebeam = 10.2;
+  tree->GetEntry(0);
+  double Ebeam = (RunNumber > 10000) ? 10.4 : 10.2;
 
-  if (RunNumber > 10000)
-    Ebeam = 10.4;
+  // if (RunNumber >= 6420)
+  //   Ebeam = 10.2;
+
+  // if (RunNumber > 10000)
+  //   Ebeam = 10.4;
 
   TLorentzVector ElectronBeam;
   TLorentzVector NucTarget_Vec;
@@ -166,80 +194,100 @@ void analysis_data()
   Target_Vec.SetXYZT(0, 0, 0, Dmass);
   NucTarget_Vec.SetXYZT(0, 0, 0, Pmass);
 
-  double _strip_El_px, _strip_El_py, _strip_El_pz, _strip_El_E;
-  double _strip_Nuc_px, _strip_Nuc_py, _strip_Nuc_pz, _strip_Nuc_E;
-  double _strip_Ph_px, _strip_Ph_py, _strip_Ph_pz, _strip_Ph_E;
+  std::vector<double> *strip_El_px = nullptr;
+  std::vector<double> *strip_El_py = nullptr;
+  std::vector<double> *strip_El_pz = nullptr;
+  std::vector<double> *strip_El_E = nullptr;
 
-  tree->SetBranchAddress("_strip_El_px", &_strip_El_px);
-  tree->SetBranchAddress("_strip_El_py", &_strip_El_py);
-  tree->SetBranchAddress("_strip_El_pz", &_strip_El_pz);
-  tree->SetBranchAddress("_strip_El_E", &_strip_El_E);
-  tree->SetBranchAddress("_strip_Nuc_px", &_strip_Nuc_px);
-  tree->SetBranchAddress("_strip_Nuc_py", &_strip_Nuc_py);
-  tree->SetBranchAddress("_strip_Nuc_pz", &_strip_Nuc_pz);
-  tree->SetBranchAddress("_strip_Nuc_E", &_strip_Nuc_E);
-  tree->SetBranchAddress("_strip_Ph_px", &_strip_Ph_px);
-  tree->SetBranchAddress("_strip_Ph_py", &_strip_Ph_py);
-  tree->SetBranchAddress("_strip_Ph_pz", &_strip_Ph_pz);
-  tree->SetBranchAddress("_strip_Ph_E", &_strip_Ph_E);
+  std::vector<double> *strip_Nuc_px = nullptr;
+  std::vector<double> *strip_Nuc_py = nullptr;
+  std::vector<double> *strip_Nuc_pz = nullptr;
+  std::vector<double> *strip_Nuc_E = nullptr;
+
+  std::vector<double> *strip_Ph_px = nullptr;
+  std::vector<double> *strip_Ph_py = nullptr;
+  std::vector<double> *strip_Ph_pz = nullptr;
+  std::vector<double> *strip_Ph_E = nullptr;
+
+  tree->SetBranchAddress("strip_El_px", &strip_El_px);
+  tree->SetBranchAddress("strip_El_py", &strip_El_py);
+  tree->SetBranchAddress("strip_El_pz", &strip_El_pz);
+  tree->SetBranchAddress("strip_El_E", &strip_El_E);
+
+  tree->SetBranchAddress("strip_Nuc_px", &strip_Nuc_px);
+  tree->SetBranchAddress("strip_Nuc_py", &strip_Nuc_py);
+  tree->SetBranchAddress("strip_Nuc_pz", &strip_Nuc_pz);
+  tree->SetBranchAddress("strip_Nuc_E", &strip_Nuc_E);
+
+  tree->SetBranchAddress("strip_Ph_px", &strip_Ph_px);
+  tree->SetBranchAddress("strip_Ph_py", &strip_Ph_py);
+  tree->SetBranchAddress("strip_Ph_pz", &strip_Ph_pz);
+  tree->SetBranchAddress("strip_Ph_E", &strip_Ph_E);
 
   std::map<TString, TH1D *> hs_base_MCsignal;
 
   TLorentzVector Pmiss;
   TLorentzVector Pmiss_Nuc;
 
-  double Pmiss_mag;
-  double Pmiss_Nuc_mag;
-  double Pmiss_perpendicular;
-  double Pmiss_Nuc_perpendicular;
+  std::vector<double> Pmiss_mag_v, Pmiss_perp_v, Pmiss_Nuc_mag_v, Pmiss_Nuc_perp_v;
 
   TTree *newtree = tree->CloneTree(0);
-  TBranch *branch_Pmiss_mag = newtree->Branch("_Pmiss_mag", &Pmiss_mag, "Pmiss_mag/D");
-  TBranch *branch_Pmiss_Nuc_mag = newtree->Branch("_Pmiss_Nuc_mag", &Pmiss_Nuc_mag, "Pmiss_Nuc_mag/D");
-  TBranch *branch_Pmiss_perp = newtree->Branch("_Pmiss_perp", &Pmiss_perpendicular, "Pmiss_perp/D");
-  TBranch *branch_Pmiss_Nuc_perp = newtree->Branch("_Pmiss_Nuc_perp", &Pmiss_Nuc_perpendicular, "Pmiss_Nuc_perp/D");
+  newtree->Branch("Pmiss_mag", &Pmiss_mag_v);
+  newtree->Branch("Pmiss_perp", &Pmiss_perp_v);
+  newtree->Branch("Pmiss_Nuc_mag", &Pmiss_Nuc_mag_v);
+  newtree->Branch("Pmiss_Nuc_perp", &Pmiss_Nuc_perp_v);
 
-  for (int i = 0; i < tree->GetEntries(); i++)
+  for (Long64_t i = 0; i < tree->GetEntries(); i++)
   {
     tree->GetEntry(i);
 
-    Ph_Vec.SetPxPyPzE(_strip_Ph_px, _strip_Ph_py, _strip_Ph_pz, _strip_Ph_E);
-    Nuc_Vec.SetPxPyPzE(_strip_Nuc_px, _strip_Nuc_py, _strip_Nuc_pz, _strip_Nuc_E);
-    El_Vec.SetPxPyPzE(_strip_El_px, _strip_El_py, _strip_El_pz, _strip_El_E);
+    Pmiss_mag_v.clear();
+    Pmiss_perp_v.clear();
+    Pmiss_Nuc_mag_v.clear();
+    Pmiss_Nuc_perp_v.clear();
 
-    Pmiss = ElectronBeam + Target_Vec - El_Vec - Ph_Vec - Nuc_Vec;
-    Pmiss_Nuc = ElectronBeam + NucTarget_Vec - El_Vec - Ph_Vec - Nuc_Vec;
+    size_t n = std::min({strip_El_px->size(), strip_El_py->size(), strip_El_pz->size(), strip_El_E->size(),
+                         strip_Ph_px->size(), strip_Ph_py->size(), strip_Ph_pz->size(), strip_Ph_E->size(),
+                         strip_Nuc_px->size(), strip_Nuc_py->size(), strip_Nuc_pz->size(), strip_Nuc_E->size()});
+    for (size_t j = 0; j < n; j++)
+    {
+      Ph_Vec.SetPxPyPzE(strip_Ph_px->at(j), strip_Ph_py->at(j), strip_Ph_pz->at(j), strip_Ph_E->at(j));
+      Nuc_Vec.SetPxPyPzE(strip_Nuc_px->at(j), strip_Nuc_py->at(j), strip_Nuc_pz->at(j), strip_Nuc_E->at(j));
+      El_Vec.SetPxPyPzE(strip_El_px->at(j), strip_El_py->at(j), strip_El_pz->at(j), strip_El_E->at(j));
 
-    Pmiss_mag = Pmiss.P();
-    Pmiss_Nuc_mag = Pmiss_Nuc.P();
+      Pmiss = ElectronBeam + Target_Vec - El_Vec - Ph_Vec - Nuc_Vec;
+      Pmiss_Nuc = ElectronBeam + NucTarget_Vec - El_Vec - Ph_Vec - Nuc_Vec;
 
-    Pmiss_perpendicular = Pmiss.Perp();
-    Pmiss_Nuc_perpendicular = Pmiss_Nuc.Perp();
+      Pmiss_mag_v.push_back(Pmiss.P());
+      Pmiss_Nuc_mag_v.push_back(Pmiss_Nuc.P());
 
+      Pmiss_perp_v.push_back(Pmiss.Perp());
+      Pmiss_Nuc_perp_v.push_back(Pmiss_Nuc.Perp());
+    }
     newtree->Fill();
   }
 
   std::vector<std::pair<TString, std::pair<double, double>>> branch_names = {
-      {"_Pmiss_mag", {-0.1, 1.5}},
-      {"_Pmiss_perp", {-0.1, 0.8}},
-      {"_Pmiss_Nuc_mag", {-0.1, 1.5}},
+      {"Pmiss_mag", {-0.1, 1.5}},
+      {"Pmiss_perp", {-0.1, 0.8}},
+      {"Pmiss_Nuc_mag", {-0.1, 1.5}},
       // {"_miss_mom_eNg", {0, 1.0}},
-      {"_Pmiss_Nuc_perp", {-0.1, 0.8}},
-      {"_mm2_eg", {-2, 5.5}},
-      {"_mm2_eNg", {-1.5, 5}},
-      {"_mm2_eNg_N", {-1, 1}},
-      {"_mm2_eNX_N", {-5, 10}},
-      {"_strip_Q2", {1, 8}},
-      {"_strip_Xbj", {0, 0.7}},
-      {"_t_Nuc", {-14, 1}},
-      {"_t_Ph", {-12, 1}},
-      {"_delta_t", {-2, 2}},
-      {"_Phi_Nuc", {0, 360}},
-      {"_Phi_Ph", {0, 360}},
-      {"_delta_Phi", {-4, 3}},
-      {"_strip_El_chi2pid", {-5.5, 5.5}},
-      {"_strip_Ph_chi2pid", {-0.2, 10100}},
-      {"_strip_Nuc_chi2pid", {-6, 6}}};
+      {"Pmiss_Nuc_perp", {-0.1, 0.8}},
+      {"mm2_eg", {-2, 5.5}},
+      {"mm2_eNg", {-1.5, 5}},
+      {"mm2_eNg_N", {-1, 1}},
+      {"mm2_eNX_N", {-5, 10}},
+      {"strip_Q2", {1, 8}},
+      {"strip_Xbj", {0, 0.7}},
+      {"t_Nuc", {-14, 1}},
+      {"t_Ph", {-12, 1}},
+      {"delta_t", {-2, 2}},
+      {"Phi_Nuc", {0, 360}},
+      {"Phi_Ph", {0, 360}},
+      {"delta_Phi", {-4, 3}},
+      {"strip_El_chi2pid", {-5.5, 5.5}},
+      {"strip_Ph_chi2pid", {-0.2, 10100}},
+      {"strip_Nuc_chi2pid", {-6, 6}}};
 
   // printf("Number of branches: %lu\n", branch_names.size());
   // for (const auto& branch_name : branch_names) {
@@ -247,26 +295,26 @@ void analysis_data()
   // }
 
   std::map<TString, TString> latex_labels = {
-      {"_Pmiss_mag", "|P_{miss}| (GeV)"},
-      {"_Pmiss_perp", "|P_{miss}^{Perp}| (GeV)"},
-      {"_Pmiss_Nuc_mag", "|P_{miss} (Nuc)| (GeV)"},
+      {"Pmiss_mag", "|P_{miss}| (GeV)"},
+      {"Pmiss_perp", "|P_{miss}^{Perp}| (GeV)"},
+      {"Pmiss_Nuc_mag", "|P_{miss} (Nuc)| (GeV)"},
       // {"_miss_mom_eNg", "|P_{miss} (Nuc Mostafa)| (GeV)"},
-      {"_Pmiss_Nuc_perp", "|P_{miss}^{Perp} (Nuc)| (GeV)"},
-      {"_mm2_eg", "MM^{2}_{P} e P#rightarrow e'#gamma(P_{miss}) (GeV^{2})"},
-      {"_mm2_eNg", "MM^{2}_{P} e D#rightarrow e'P'#gamma(N_{miss}) (GeV^{2})"},
-      {"_mm2_eNg_N", "MM^{2}_{X} e P#rightarrow e'P'#gamma (GeV^{2})"},
-      {"_mm2_eNX_N", "MM^{2}_{#gamma} e P#rightarrow e'P'(#gamma_{miss}) (GeV^{2})"},
-      {"_strip_Q2", "Q^{2}"},
-      {"_strip_Xbj", "x_{B}"},
-      {"_t_Nuc", "t_{Nuc}"},
-      {"_t_Ph", "t_{Ph}"},
-      {"_delta_t", "#Delta t"},
-      {"_Phi_Nuc", "#Phi_{Nuc}"},
-      {"_Phi_Ph", "#Phi_{Ph}"},
-      {"_delta_Phi", "#Delta#Phi"},
-      {"_strip_El_chi2pid", "#chi^{2}_{pid}^{e}"},
-      {"_strip_Ph_chi2pid", "#chi^{2}_{pid}^{#gamma}"},
-      {"_strip_Nuc_chi2pid", "#chi^{2}_{pid}^{N}"}};
+      {"Pmiss_Nuc_perp", "|P_{miss}^{Perp} (Nuc)| (GeV)"},
+      {"mm2_eg", "MM^{2}_{P} e P#rightarrow e'#gamma(P_{miss}) (GeV^{2})"},
+      {"mm2_eNg", "MM^{2}_{P} e D#rightarrow e'P'#gamma(N_{miss}) (GeV^{2})"},
+      {"mm2_eNg_N", "MM^{2}_{X} e P#rightarrow e'P'#gamma (GeV^{2})"},
+      {"mm2_eNX_N", "MM^{2}_{#gamma} e P#rightarrow e'P'(#gamma_{miss}) (GeV^{2})"},
+      {"strip_Q2", "Q^{2}"},
+      {"strip_Xbj", "x_{B}"},
+      {"t_Nuc", "t_{Nuc}"},
+      {"t_Ph", "t_{Ph}"},
+      {"delta_t", "#Delta t"},
+      {"Phi_Nuc", "#Phi_{Nuc}"},
+      {"Phi_Ph", "#Phi_{Ph}"},
+      {"delta_Phi", "#Delta#Phi"},
+      {"strip_El_chi2pid", "#chi^{2}_{pid}^{e}"},
+      {"strip_Ph_chi2pid", "#chi^{2}_{pid}^{#gamma}"},
+      {"strip_Nuc_chi2pid", "#chi^{2}_{pid}^{N}"}};
 
   std::map<TString, TH1D *> hs_base_data;
 
@@ -277,7 +325,7 @@ void analysis_data()
     TString base_hist_name_data = Form("h%s_base_data", var.Data());
     TH1D *h_base_data = nullptr;
 
-    if (var == "_t_Nuc" || var == "_t_Ph")
+    if (var == "t_Nuc" || var == "t_Ph")
     {
       h_base_data = new TH1D(base_hist_name_data, Form("DVCS%s_data", var.Data()), 200, min, max);
     }
@@ -286,7 +334,7 @@ void analysis_data()
       h_base_data = new TH1D(base_hist_name_data, Form("DVCS%s_data", var.Data()), 200, min, max);
     }
 
-    if (var == "_Pmiss_mag" || var == "_Pmiss_Nuc_mag" || var == "_Pmiss_perp" || var == "_Pmiss_Nuc_perp")
+    if (var == "Pmiss_mag" || var == "Pmiss_Nuc_mag" || var == "Pmiss_perp" || var == "Pmiss_Nuc_perp")
     {
       newtree->Project(base_hist_name_data, var, "");
     }
@@ -334,12 +382,12 @@ void analysis_data()
       const auto &[var, range] = branch_names[i];
       const auto &[min, max] = range;
 
-      bool is_missing_momentum_var = var.Contains("_Pmiss");
+      bool is_missing_momentum_var = var.Contains("Pmiss");
 
-      bool is_last_cut = (label_cut.Contains("_mm2_eNX_N_photon_expected") ||
-                          label_cut.Contains("_mm2_eg_proton_expected"));
+      bool is_last_cut = (label_cut.Contains("mm2_eNX_N_photon_expected") ||
+                          label_cut.Contains("mm2_eg_proton_expected"));
 
-      if ((is_missing_momentum_var && !is_last_cut) || var.Contains("_chi2pid"))
+      if ((is_missing_momentum_var && !is_last_cut) || var.Contains("chi2pid"))
         continue;
 
       if (plot_index % plots_per_canvas == 0)
@@ -368,7 +416,7 @@ void analysis_data()
 
       TH1D *h_cut_data = nullptr;
 
-      if (var == "_t_Nuc" || var == "_t_Ph" || var == "_mp_eg" || var == "_mp_eNg" || var == "_mp_eNg_N" || var == "_mp_eNX_N")
+      if (var == "t_Nuc" || var == "t_Ph" || var == "mp_eg" || var == "mp_eNg" || var == "mp_eNg_N" || var == "mp_eNX_N")
       {
         h_cut_data = new TH1D(cut_hist_name_data, Form("DVCS%s", var.Data()), 200, min, max);
       }
