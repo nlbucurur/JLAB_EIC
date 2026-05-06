@@ -1,4 +1,4 @@
-// To run: root -l -b -q 'analysis_background.C'
+// To run: clas12root -l -b -q 'analysis_background.C'
 #include <iostream>
 #include <TFile.h>
 #include <TTree.h>

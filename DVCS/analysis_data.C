@@ -36,17 +36,17 @@ struct branch_cut_2D
 };
 
 std::map<TString, TString> axis_labels_2D = {
-    {"strip_El_Phi", "#phi_{e^{#prime}}"},
-    {"strip_El_P", "P_{e^{#prime}}"},
-    {"strip_El_Theta", "#theta_{e^{#prime}}"},
+    {"strip_El_Phi", "#phi_{e'}"},
+    {"strip_El_P", "P_{e'}"},
+    {"strip_El_Theta", "#theta_{e'}"},
 
     {"strip_Ph_Phi", "#phi_{#gamma}"},
     {"strip_Ph_P", "P_{#gamma}"},
     {"strip_Ph_Theta", "#theta_{#gamma}"},
 
-    {"strip_Nuc_Phi", "#phi_{p^{#prime}}"},
-    {"strip_Nuc_P", "P_{p^{#prime}}"},
-    {"strip_Nuc_Theta", "#theta_{p^{#prime}}"},
+    {"strip_Nuc_Phi", "#phi_{p'}"},
+    {"strip_Nuc_P", "P_{p'}"},
+    {"strip_Nuc_Theta", "#theta_{p'}"},
 
     {"Pmiss_mag", "|P_{miss}| (GeV)"},
 
@@ -56,20 +56,21 @@ std::map<TString, TString> axis_labels_2D = {
     {"t_Ph", "t_{Ph}"}};
 
 std::map<TString, TString> plot_titles_2D = {
-    {"Electron_P_vs_Phi", "P_{e^{#prime}} vs #phi_{e^{#prime}}"},
-    {"Electron_Theta_vs_Phi", "#theta_{e^{#prime}} vs #phi_{e^{#prime}}"},
+    {"Electron_P_vs_Phi", "P_{e'} vs #phi_{e'}"},
+    {"Electron_Theta_vs_Phi", "#theta_{e'} vs #phi_{e'}"},
 
     {"Photon_P_vs_Phi", "P_{#gamma} vs #phi_{#gamma}"},
     {"Photon_Theta_vs_Phi", "#theta_{#gamma} vs #phi_{#gamma}"},
 
-    {"Nucleon_P_vs_Phi", "P_{p^{#prime}} vs #phi_{p^{#prime}}"},
-    {"Nucleon_Theta_vs_Phi", "#theta_{p^{#prime}} vs #phi_{p^{#prime}}"},
+    {"Nucleon_P_vs_Phi", "P_{p'} vs #phi_{p'}"},
+    {"Nucleon_Theta_vs_Phi", "#theta_{p'} vs #phi_{p'}"},
+
+    {"Pmiss_vs_Bj", "Pmiss vs x_{B}"},
 
     {"tNuc_vs_xB", "t_{Nuc} vs x_{B}"},
     {"tPh_vs_xB", "t_{Ph} vs x_{B}"},
-    {"Q2_vs_xB", "Q^{2} vs x_{B}"},
-
-    {"Pmiss_vs_Bj", "Pmiss vs x_{B}"}};
+    {"Q2_vs_xB", "Q^{2} vs x_{B}"}
+    };
 
 bool should_set_logy(const TString &branch_name)
 {
@@ -209,8 +210,9 @@ void analysis_data()
 {
 
     // TFile *file = TFile::Open("/w/hallb-scshelf2102/clas12/nlbucuru/PhD_DVCS/stripped_data_spring2019_pDVCS_1.root");
-    TFile *file = TFile::Open("/work/clas12/nlbucuru/PhD_DVCS/outputs/stripped_data_spring2019_pDVCS_merged.root");
-    TFile *output_file = new TFile("/w/hallb-scshelf2102/clas12/nlbucuru/JLAB_EIC/DVCS/output_root_hists/analysis_data.root", "RECREATE");
+    // TFile *file = TFile::Open("/work/clas12/nlbucuru/PhD_DVCS/outputs/stripped_data_spring2019_pDVCS_merged.root");
+    TFile *file = TFile::Open("/work/clas12/nlbucuru/PhD_DVCS/stripped_fall2019_pDVCS_sidisdvcs_011093.root");
+    TFile *output_file = new TFile("/w/hallb-scshelf2102/clas12/nlbucuru/JLAB_EIC/DVCS/output_root_hists/analysis_data_hipo.root", "RECREATE");
 
     TTree *tree = (TTree *)file->Get("pDVCS");
 
@@ -326,7 +328,7 @@ void analysis_data()
         {"mm2_eNg_N", {-1, 1}},
         {"mm2_eNX_N", {-5, 10}},
         {"strip_Q2", {1, 8}},
-        {"strip_Xbj", {0, 0.7}},
+        {"strip_Xbj", {0, 1.5}},
         {"t_Nuc", {-14, 1}},
         {"t_Ph", {-12, 1}},
         {"delta_t", {-2, 2}},
@@ -540,11 +542,11 @@ void analysis_data()
         {"Nucleon_Theta_vs_Phi", "strip_Nuc_Phi", "strip_Nuc_Theta", -180, 180, 0, 100, false},
 
         // Example if later you want a Pmiss one from newtree:
-        {"Pmiss_vs_Bj", "strip_Xbj", "Pmiss_mag", 0, 0.7, 0, 1.5, true},
+        {"Pmiss_vs_Bj", "strip_Xbj", "Pmiss_mag", 0, 1.5, 0, 1.5, true},
 
-        {"tNuc_vs_xB", "strip_Xbj", "t_Nuc", 0, 0.7, -8, 1, false},
-        {"tPh_vs_xB", "strip_Xbj", "t_Ph", 0, 0.7, -8, 1, false},
-        {"Q2_vs_xB", "strip_Xbj", "strip_Q2", 0, 0.7, 1, 8, false}};
+        {"tNuc_vs_xB", "strip_Xbj", "t_Nuc", 0, 1.5, -8, 1, false},
+        {"tPh_vs_xB", "strip_Xbj", "t_Ph", 0, 1.5, -8, 1, false},
+        {"Q2_vs_xB", "strip_Xbj", "strip_Q2", 0, 1.5, 1, 8, false}};
 
     gStyle->SetOptStat(0);
 
@@ -584,10 +586,10 @@ void analysis_data()
         }
 
         h2->SetDirectory(nullptr);
-        // h2->SetTitle(Form("DVCS %s data", plot_titles_2D[h2def.name].Data()));
+        h2->SetTitle(Form("DVCS %s data", plot_titles_2D[h2def.name].Data()));
         h2->GetXaxis()->SetTitle(axis_labels_2D[h2def.x_branch].Data());
         h2->GetYaxis()->SetTitle(axis_labels_2D[h2def.y_branch].Data());
-        h2->SetTitle(plot_titles_2D[h2def.name].Data());
+        // h2->SetTitle(plot_titles_2D[h2def.name].Data());
 
         // Write to analysis_data.root
         output_file->cd();

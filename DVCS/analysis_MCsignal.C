@@ -1,4 +1,4 @@
-// To run: root -l -b -q analysis_MCsignal.C
+// To run: clas12root -l -b -q analysis_MCsignal.C
 
 #include <iostream>
 #include <TFile.h>
@@ -216,7 +216,8 @@ void stats_legend(TH1D *htemp, TH1D *htemp_cut, const TString &branch_name, cons
 void analysis_MCsignal()
 {
     // TFile *file = TFile::Open("./data/1pDVCS_simulation.root");
-    TFile *file = TFile::Open("/work/clas12/nlbucuru/PhD_DVCS/outputs/stripped_data_spring2019_mc_pDVCS.root");
+    // TFile *file = TFile::Open("/work/clas12/nlbucuru/PhD_DVCS/outputs/stripped_data_spring2019_mc_pDVCS.root");
+    TFile *file = TFile::Open("/work/clas12/nlbucuru/PhD_DVCS/outputs/stripped_data_spring2019_mc_10_6_pDVCS.root");
     TFile *output_file = new TFile("./output_root_hists/analysis_MCsignal.root", "RECREATE");
 
     // TTree *tree = (TTree *)file->Get("pDVCS_stripped");
