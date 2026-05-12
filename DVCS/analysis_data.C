@@ -13,6 +13,7 @@
 #include <TROOT.h>
 #include <vector>
 #include <utility>
+#include <TSystem.h>
 
 #include <map>
 #include <algorithm>
@@ -44,16 +45,16 @@ std::map<TString, TString> axis_labels_2D = {
     {"strip_Ph_P", "P_{#gamma}"},
     {"strip_Ph_Theta", "#theta_{#gamma}"},
 
-    {"strip_Nuc_Phi", "#phi_{p'}"},
-    {"strip_Nuc_P", "P_{p'}"},
-    {"strip_Nuc_Theta", "#theta_{p'}"},
+    {"strip_Nuc_Phi", "#phi_{n'}"},
+    {"strip_Nuc_P", "P_{n'}"},
+    {"strip_Nuc_Theta", "#theta_{n'}"},
+
+    {"strip_Spec_Phi", "#phi_{p_{s}}"},
+    {"strip_Spec_P", "P_{p_{s}}"},
+    {"strip_Spec_Theta", "#theta_{p_{s}}"},
 
     {"Pmiss_mag", "|P_{miss}| (GeV)"},
-
-    {"strip_Xbj", "x_{B}"},
-    {"strip_Q2", "Q^{2}"},
-    {"t_Nuc", "t_{Nuc}"},
-    {"t_Ph", "t_{Ph}"}};
+};
 
 std::map<TString, TString> plot_titles_2D = {
     {"Electron_P_vs_Phi", "P_{e'} vs #phi_{e'}"},
@@ -62,15 +63,19 @@ std::map<TString, TString> plot_titles_2D = {
     {"Photon_P_vs_Phi", "P_{#gamma} vs #phi_{#gamma}"},
     {"Photon_Theta_vs_Phi", "#theta_{#gamma} vs #phi_{#gamma}"},
 
-    {"Nucleon_P_vs_Phi", "P_{p'} vs #phi_{p'}"},
-    {"Nucleon_Theta_vs_Phi", "#theta_{p'} vs #phi_{p'}"},
+    {"Nucleon_P_vs_Phi", "P_{n'} vs #phi_{n'}"},
+    {"Nucleon_Theta_vs_Phi", "#theta_{n'} vs #phi_{n'}"},
+
+    {"Spectator_P_vs_Phi", "P_{p_{s}} vs #phi_{p_{s}}"},
+    {"Spectator_Theta_vs_Phi", "#theta_{p_{s}} vs #phi_{p_{s}}"},
+    {"Spectator_P_vs_Theta", "P_{p_{s}} vs #theta_{p_{s}}"},
 
     {"Pmiss_vs_Bj", "Pmiss vs x_{B}"},
 
     {"tNuc_vs_xB", "t_{Nuc} vs x_{B}"},
     {"tPh_vs_xB", "t_{Ph} vs x_{B}"},
     {"Q2_vs_xB", "Q^{2} vs x_{B}"}
-    };
+};
 
 bool should_set_logy(const TString &branch_name)
 {
@@ -88,18 +93,19 @@ std::vector<std::pair<TString, TCut>> generate_cuts(const std::map<TString, TH1D
         {"bestCand", "bestCandidateFlag==1"},
         {"theta_gamma_e", "theta_gamma_e > 6"},
         // {"chi2pid", "strip_El_chi2pid >= -4.56920 && strip_El_chi2pid <= 3.61976 && strip_Nuc_chi2pid >= -195.04711 && strip_Nuc_chi2pid <= 201.30658"},
-        {"chi2pid", "strip_El_chi2pid >= -4.37898 && strip_El_chi2pid <= 3.77798 && strip_Nuc_chi2pid >= -5.57697 && strip_Nuc_chi2pid <= 6.33990"},
-        // {"delta_t", "delta_t >= -0.46292 && delta_t <= 0.47175"},delta_t >= -1.03182 && delta_t <= 1.27318
-        {"delta_t", "delta_t >= -1.03182 && delta_t <= 1.27318"},
-        {"delta_phi", "abs(fmod(delta_Phi, 180)) <= 1.5"},
-        // {"mm2_eNg_neutron_expected", "mm2_eNg >= -0.37894 && mm2_eNg <= 2.42267"},
-        {"mm2_eNg_neutron_expected", "mm2_eNg >= -1.22968 && mm2_eNg <= 3.67237"},
-        // {"mm2_eNg_N_nothing_expected", "mm2_eNg_N >= -0.19478 && mm2_eNg_N <= 0.15635"},
-        {"mm2_eNg_N_nothing_expected", "mm2_eNg_N >= -0.55184 && mm2_eNg_N <= 0.47227"},
-        // {"mm2_eNX_N_photon_expected", "mm2_eNX_N >= -3.95236 && mm2_eNX_N <= 3.74568"},
-        {"mm2_eNX_N_photon_expected", "mm2_eNX_N >= -4.09789 && mm2_eNX_N <= 4.17903"},
-        // {"mm2_eg_proton_expected", "mm2_eg >= -0.12854 && mm2_eg <= 2.21362"}};
-        {"mm2_eg_proton_expected", "mm2_eg >= -1.35581 && mm2_eg <= 3.93882"}};
+        // {"chi2pid", "strip_El_chi2pid >= -4.37898 && strip_El_chi2pid <= 3.77798 && strip_Nuc_chi2pid >= -5.57697 && strip_Nuc_chi2pid <= 6.33990"},
+        // // {"delta_t", "delta_t >= -0.46292 && delta_t <= 0.47175"},delta_t >= -1.03182 && delta_t <= 1.27318
+        // {"delta_t", "delta_t >= -1.03182 && delta_t <= 1.27318"},
+        // {"delta_phi", "abs(fmod(delta_Phi, 180)) <= 1.5"},
+        // // {"mm2_eNg_neutron_expected", "mm2_eNg >= -0.37894 && mm2_eNg <= 2.42267"},
+        // {"mm2_eNg_neutron_expected", "mm2_eNg >= -1.22968 && mm2_eNg <= 3.67237"},
+        // // {"mm2_eNg_N_nothing_expected", "mm2_eNg_N >= -0.19478 && mm2_eNg_N <= 0.15635"},
+        // {"mm2_eNg_N_nothing_expected", "mm2_eNg_N >= -0.55184 && mm2_eNg_N <= 0.47227"},
+        // // {"mm2_eNX_N_photon_expected", "mm2_eNX_N >= -3.95236 && mm2_eNX_N <= 3.74568"},
+        // {"mm2_eNX_N_photon_expected", "mm2_eNX_N >= -4.09789 && mm2_eNX_N <= 4.17903"},
+        // // {"mm2_eg_proton_expected", "mm2_eg >= -0.12854 && mm2_eg <= 2.21362"}};
+        // {"mm2_eg_proton_expected", "mm2_eg >= -1.35581 && mm2_eg <= 3.93882"}
+    };
 
     std::vector<std::pair<TString, TCut>> cuts;
 
@@ -211,10 +217,37 @@ void analysis_data()
 
     // TFile *file = TFile::Open("/w/hallb-scshelf2102/clas12/nlbucuru/PhD_DVCS/stripped_data_spring2019_pDVCS_1.root");
     // TFile *file = TFile::Open("/work/clas12/nlbucuru/PhD_DVCS/outputs/stripped_data_spring2019_pDVCS_merged.root");
-    TFile *file = TFile::Open("/work/clas12/nlbucuru/PhD_DVCS/stripped_fall2019_pDVCS_sidisdvcs_011093.root");
-    TFile *output_file = new TFile("/w/hallb-scshelf2102/clas12/nlbucuru/JLAB_EIC/DVCS/output_root_hists/analysis_data_hipo.root", "RECREATE");
+    TFile *file = TFile::Open("/work/clas12/nlbucuru/PhD_DVCS/outputs_from_hipo/merged_fall2019_nDVCS.root");
 
-    TTree *tree = (TTree *)file->Get("pDVCS");
+    TString plotDir = "./cuts_data";
+
+    if (gSystem->AccessPathName(plotDir))
+    {
+        if (gSystem->mkdir(plotDir, true) != 0)
+        {
+            std::cerr << "Error: could not create plot directory " << plotDir << std::endl;
+            return;
+        }
+    }
+
+    TString outputDir = "/w/hallb-scshelf2102/clas12/nlbucuru/JLAB_EIC/DVCS/output_root_hists";
+
+    if (gSystem->AccessPathName(outputDir))
+    {
+        gSystem->mkdir(outputDir, true);
+    }
+
+    TString outputName = outputDir + "/analysis_data_hipo.root";
+
+    TFile *output_file = new TFile(outputName, "RECREATE");
+
+    if (!output_file || output_file->IsZombie())
+    {
+        std::cerr << "Error: could not create output file " << outputName << std::endl;
+        return;
+    }
+
+    TTree *tree = (TTree *)file->Get("nDVCS");
 
     //   tree->Print();
 
@@ -242,7 +275,7 @@ void analysis_data()
 
     ElectronBeam.SetXYZT(0, 0, Ebeam, Ebeam);
     Target_Vec.SetXYZT(0, 0, 0, Dmass);
-    NucTarget_Vec.SetXYZT(0, 0, 0, Pmass);
+    NucTarget_Vec.SetXYZT(0, 0, 0, Nmass);
 
     std::vector<double> *strip_El_px = nullptr;
     std::vector<double> *strip_El_py = nullptr;
@@ -318,23 +351,29 @@ void analysis_data()
     }
 
     std::vector<std::pair<TString, std::pair<double, double>>> branch_names = {
-        {"Pmiss_mag", {-0.1, 1.5}},
-        {"Pmiss_perp", {-0.1, 0.8}},
-        {"Pmiss_Nuc_mag", {-0.1, 1.5}},
+        {"Pmiss_mag", {-0.1, 30}},
+        {"Pmiss_perp", {-0.1, 10}},
+        {"Pmiss_Nuc_mag", {-0.1, 30}},
         // {"_miss_mom_eNg", {0, 1.0}},
-        {"Pmiss_Nuc_perp", {-0.1, 0.8}},
-        {"mm2_eg", {-2, 5.5}},
-        {"mm2_eNg", {-1.5, 5}},
-        {"mm2_eNg_N", {-1, 1}},
-        {"mm2_eNX_N", {-5, 10}},
+        {"Pmiss_Nuc_perp", {-0.1, 30}},
+        {"mm2_eg", {-15, 15}},
+        {"mm2_eNg", {-100, 75}},
+        {"mm2_eNg_N", {-60, 20}},
+        {"mm2_eNX_N", {-70, 20}},
         {"strip_Q2", {1, 8}},
-        {"strip_Xbj", {0, 1.5}},
-        {"t_Nuc", {-14, 1}},
-        {"t_Ph", {-12, 1}},
-        {"delta_t", {-2, 2}},
+        {"strip_Xbj", {0, 2.0}},
+        {"strip_Xbjd", {0, 2.0}},
+
+        {"strip_Spec_P", {0, 6}},
+        {"strip_Spec_Theta", {0, 180}},
+        {"strip_Spec_Phi", {-180, 180}},
+
+        {"t_Nuc", {-50, 1}},
+        {"t_Ph", {-12, 2}},
+        {"delta_t", {-50, 50}},
         {"Phi_Nuc", {0, 360}},
         {"Phi_Ph", {0, 360}},
-        {"delta_Phi", {-4, 3}},
+        {"delta_Phi", {-400, 400}},
         {"strip_El_chi2pid", {-5.5, 5.5}},
         {"strip_Ph_chi2pid", {-0.2, 10100}},
         {"strip_Nuc_chi2pid", {-6, 6}}};
@@ -350,12 +389,18 @@ void analysis_data()
         {"Pmiss_Nuc_mag", "|P_{miss} (Nuc)| (GeV)"},
         // {"_miss_mom_eNg", "|P_{miss} (Nuc Mostafa)| (GeV)"},
         {"Pmiss_Nuc_perp", "|P_{miss}^{Perp} (Nuc)| (GeV)"},
-        {"mm2_eg", "MM^{2}_{P} e P#rightarrow e'#gamma(P_{miss}) (GeV^{2})"},
-        {"mm2_eNg", "MM^{2}_{P} e D#rightarrow e'P'#gamma(N_{miss}) (GeV^{2})"},
-        {"mm2_eNg_N", "MM^{2}_{X} e P#rightarrow e'P'#gamma (GeV^{2})"},
-        {"mm2_eNX_N", "MM^{2}_{#gamma} e P#rightarrow e'P'(#gamma_{miss}) (GeV^{2})"},
+        {"mm2_eg", "MM^{2}_{P} e n#rightarrow e'#gamma(n_{miss}) (GeV^{2})"},
+        {"mm2_eNg", "MM^{2}_{P} e D#rightarrow e'n'#gamma(p_{miss}) (GeV^{2})"},
+        {"mm2_eNg_N", "MM^{2}_{X} e n#rightarrow e'n'#gamma (GeV^{2})"},
+        {"mm2_eNX_N", "MM^{2}_{#gamma} e n#rightarrow e'n'(#gamma_{miss}) (GeV^{2})"},
         {"strip_Q2", "Q^{2}"},
         {"strip_Xbj", "x_{B}"},
+        {"strip_Xbjd", "x'_{B,d}"},
+
+        {"strip_Spec_P", "P_{p_{s}} (GeV)"},
+        {"strip_Spec_Theta", "#theta_{p_{s}}"},
+        {"strip_Spec_Phi", "#phi_{p_{s}}"},
+
         {"t_Nuc", "t_{Nuc}"},
         {"t_Ph", "t_{Ph}"},
         {"delta_t", "#Delta t"},
@@ -364,7 +409,7 @@ void analysis_data()
         {"delta_Phi", "#Delta#Phi"},
         {"strip_El_chi2pid", "#chi^{2}_{pid}^{e}"},
         {"strip_Ph_chi2pid", "#chi^{2}_{pid}^{#gamma}"},
-        {"strip_Nuc_chi2pid", "#chi^{2}_{pid}^{N}"}};
+        {"strip_Nuc_chi2pid", "#chi^{2}_{pid}^{n}"}};
 
     std::map<TString, TH1D *> hs_base_data;
 
@@ -538,15 +583,20 @@ void analysis_data()
         {"Photon_P_vs_Phi", "strip_Ph_Phi", "strip_Ph_P", -180, 180, 0, 11, false},
         {"Photon_Theta_vs_Phi", "strip_Ph_Phi", "strip_Ph_Theta", -180, 180, 0, 40, false},
 
-        {"Nucleon_P_vs_Phi", "strip_Nuc_Phi", "strip_Nuc_P", -180, 180, 0, 8, false},
+        {"Nucleon_P_vs_Phi", "strip_Nuc_Phi", "strip_Nuc_P", -180, 180, 0, 30, false},
         {"Nucleon_Theta_vs_Phi", "strip_Nuc_Phi", "strip_Nuc_Theta", -180, 180, 0, 100, false},
+        {"Nucleon_P_vs_Theta", "strip_Nuc_Theta", "strip_Nuc_P", 0, 180, 0, 30, false},
+
+        {"Spectator_P_vs_Phi", "strip_Spec_Phi", "strip_Spec_P", -180, 180, 0, 6.0, false},
+        {"Spectator_Theta_vs_Phi", "strip_Spec_Phi", "strip_Spec_Theta", -180, 180, 0, 180, false},
+        {"Spectator_P_vs_Theta", "strip_Spec_Theta", "strip_Spec_P", 0, 180, 0, 6.0, false},
 
         // Example if later you want a Pmiss one from newtree:
-        {"Pmiss_vs_Bj", "strip_Xbj", "Pmiss_mag", 0, 1.5, 0, 1.5, true},
+        {"Pmiss_vs_Bj", "strip_Xbjd", "Pmiss_mag", 0, 1.5, 0, 30, true},
 
-        {"tNuc_vs_xB", "strip_Xbj", "t_Nuc", 0, 1.5, -8, 1, false},
-        {"tPh_vs_xB", "strip_Xbj", "t_Ph", 0, 1.5, -8, 1, false},
-        {"Q2_vs_xB", "strip_Xbj", "strip_Q2", 0, 1.5, 1, 8, false}};
+        {"tNuc_vs_xB", "strip_Xbjd", "t_Nuc", 0, 1.5, -8, 1, false},
+        {"tPh_vs_xB", "strip_Xbjd", "t_Ph", 0, 1.5, -8, 1, false},
+        {"Q2_vs_xB", "strip_Xbjd", "strip_Q2", 0, 1.5, 1, 8, false}};
 
     gStyle->SetOptStat(0);
 
