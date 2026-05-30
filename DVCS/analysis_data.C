@@ -30,6 +30,9 @@
 #include <TMath.h>
 
 #include <TH2D.h>
+#include <TGraphErrors.h>
+#include <TF1.h>
+#include <TLine.h>
 
 struct branch_cut_2D
 {
@@ -340,6 +343,142 @@ std::vector<std::pair<TString, TCut>> generate_cuts(const std::map<TString, TH1D
     }
 
     return cuts;
+}
+
+void plot_BSA_new_conditions(TTree *tree,
+                             const TString &plotDir,
+                             TFile *output_file,
+                             const TString &tag = "spring2019_nDVCS",
+                             double beam_pol = 0.847658,
+                             int n_phi_bins = 12)
+{
+    if (!tree)
+    {
+        std::cerr << "BSA ERROR: null input tree" << std::endl;
+        return;
+    }
+
+    const std::vector<const char *> required_branches = {
+        "Phi_Ph", "Helicity", "RunNumber",
+        "strip_W", "strip_Q2", "strip_Ph_P", "strip_El_P",
+        "best4DChi2Flag", "Exclusive_4DChi2", "theta_gamma_X",
+        "mm2_eSg", "delta_Phi"};
+
+    for (const auto *bname : required_branches)
+    {
+        if (!tree->GetBranch(bname))
+        {
+            std::cerr << "BSA ERROR: required branch not found: " << bname << std::endl;
+            return;
+        }
+    }
+
+    std::map<TString, TH1D *> dummy_hists;
+    auto cuts = generate_cuts(dummy_hists);
+
+    TCut final_cut = kinematic_cut();
+    if (!cuts.empty())
+        final_cut = final_cut && cuts.back().second;
+
+    // Same helicity convention as the old BSA macro
+    // without the old leading underscore.
+    TCut hplus = TCut("(RunNumber < 6700 && RunNumber != 6378 && Helicity < 0) || "
+                      "(RunNumber == 6378 && Helicity > 0) || "
+                      "(RunNumber > 6700 && Helicity > 0)");
+
+    TCut hminus = TCut("(RunNumber < 6700 && RunNumber != 6378 && Helicity > 0) || "
+                       "(RunNumber == 6378 && Helicity < 0) || "
+                       "(RunNumber > 6700 && Helicity < 0)");
+
+    TString safe_tag = tag;
+    safe_tag.ReplaceAll("/", "_");
+    safe_tag.ReplaceAll(" ", "_");
+
+    TString hplus_name = Form("h_BSA_plus_%s", safe_tag.Data());
+    TString hminus_name = Form("h_BSA_minus_%s", safe_tag.Data());
+
+    gROOT->cd();
+    if (gDirectory->Get(hplus_name))
+        gDirectory->Delete(hplus_name + ";*");
+    if (gDirectory->Get(hminus_name))
+        gDirectory->Delete(hminus_name + ";*");
+
+    TH1D *h_plus = new TH1D(hplus_name, ";#Phi_{#gamma} (deg);N^{+}",
+                            n_phi_bins, 0.0, 360.0);
+    TH1D *h_minus = new TH1D(hminus_name, ";#Phi_{#gamma} (deg);N^{-}",
+                             n_phi_bins, 0.0, 360.0);
+    h_plus->Sumw2();
+    h_minus->Sumw2();
+
+    tree->Project(hplus_name, "Phi_Ph", final_cut && hplus);
+    tree->Project(hminus_name, "Phi_Ph", final_cut && hminus);
+
+    std::cout << "BSA selected events: N+ = " << h_plus->Integral()
+              << ", N- = " << h_minus->Integral()
+              << ", beam polarization = " << beam_pol << std::endl;
+
+    TGraphErrors *g_bsa = new TGraphErrors();
+    g_bsa->SetName(Form("g_BSA_%s", safe_tag.Data()));
+    g_bsa->SetTitle(";#Phi_{#gamma} (deg);A_{LU}");
+    g_bsa->SetMarkerStyle(20);
+    g_bsa->SetMarkerSize(1.1);
+
+    int ipoint = 0;
+    for (int ibin = 1; ibin <= n_phi_bins; ++ibin)
+    {
+        const double np = h_plus->GetBinContent(ibin);
+        const double nm = h_minus->GetBinContent(ibin);
+        const double ntot = np + nm;
+
+        if (ntot <= 0.0)
+            continue;
+
+        const double a_raw = (np - nm) / ntot;
+        const double a_lu = a_raw / beam_pol;
+        const double err_raw = std::sqrt(std::max(0.0, 1.0 - a_raw * a_raw) / ntot);
+        const double err_alu = err_raw / beam_pol;
+
+        g_bsa->SetPoint(ipoint, h_plus->GetBinCenter(ibin), a_lu);
+        g_bsa->SetPointError(ipoint, 0.0, err_alu);
+        ++ipoint;
+    }
+
+    TF1 *fit_bsa = new TF1(Form("f_BSA_%s", safe_tag.Data()),
+                           "[0]*sin(x*TMath::Pi()/180.0)/(1.0+[1]*cos(x*TMath::Pi()/180.0))",
+                           0.0, 360.0);
+    fit_bsa->SetParNames("#alpha", "#beta");
+    fit_bsa->SetParameters(0.1, 0.0);
+
+    if (g_bsa->GetN() >= 3)
+        g_bsa->Fit(fit_bsa, "Q");
+
+    TCanvas *c_bsa = new TCanvas(Form("c_BSA_%s", safe_tag.Data()),
+                                 Form("BSA %s", safe_tag.Data()),
+                                 1200, 800);
+    g_bsa->SetMinimum(-1.0);
+    g_bsa->SetMaximum(1.0);
+    g_bsa->Draw("AP");
+
+    TLine *zero = new TLine(0.0, 0.0, 360.0, 0.0);
+    zero->SetLineStyle(2);
+    zero->Draw("same");
+
+    if (g_bsa->GetN() >= 3)
+        fit_bsa->Draw("same");
+
+    c_bsa->SaveAs(Form("%s/BSA_%s.pdf", plotDir.Data(), safe_tag.Data()));
+    c_bsa->SaveAs(Form("%s/BSA_%s.png", plotDir.Data(), safe_tag.Data()));
+
+    if (output_file && !output_file->IsZombie())
+    {
+        output_file->cd();
+        h_plus->Write("h_BSA_plus", TObject::kOverwrite);
+        h_minus->Write("h_BSA_minus", TObject::kOverwrite);
+        g_bsa->Write("g_BSA", TObject::kOverwrite);
+        fit_bsa->Write("f_BSA", TObject::kOverwrite);
+    }
+
+    delete c_bsa;
 }
 
 void AdjustHistogramRange(TH1D *hist)
@@ -866,6 +1005,10 @@ void analysis_data()
         delete h2;
     }
 
+    // BSA with the same final cuts and the same highest-energy entry list used above.
+    // For spring2019, use the spring2019 average beam polarization.
+    plot_BSA_new_conditions(tree, plotDir, output_file, "spring2019_nDVCS", 0.847658, 12);
+
     tree->SetEntryList(nullptr);
     delete highest_energy_entries;
 
@@ -873,3 +1016,10 @@ void analysis_data()
     output_file->Close();
     delete output_file;
 }
+
+// // Convenience wrapper so this patched file can be run directly as:
+// // root -l -b -q 'analysis_data_with_BSA.C'
+// void analysis_data_with_BSA()
+// {
+//     analysis_data();
+// }
