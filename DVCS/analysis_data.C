@@ -15,6 +15,11 @@
 #include <utility>
 #include <TSystem.h>
 
+#include <TTreeFormula.h>
+#include <TEntryList.h>
+#include <TObjArray.h>
+#include <limits>
+
 #include <map>
 #include <algorithm>
 #include <cmath>
@@ -53,7 +58,14 @@ std::map<TString, TString> axis_labels_2D = {
     {"strip_Spec_P", "P_{p_{s}}"},
     {"strip_Spec_Theta", "#theta_{p_{s}}"},
 
-    {"Pmiss_mag", "|P_{miss}| (GeV)"},
+    {"miss_mom_eSg", "|P_{n', miss}| (GeV)"},
+
+    {"strip_Xbjd", "x'_{B,d}"},
+    {"t_Nuc", "t_{Nuc} (GeV^{2})"},
+    {"t_Ph", "t_{Ph} (GeV^{2})"},
+    {"strip_Q2", "Q^{2} (GeV^{2})"},
+
+    {"theta_N_q", "#theta_{n'q} (degrees)"}
 };
 
 std::map<TString, TString> plot_titles_2D = {
@@ -70,41 +82,244 @@ std::map<TString, TString> plot_titles_2D = {
     {"Spectator_Theta_vs_Phi", "#theta_{p_{s}} vs #phi_{p_{s}}"},
     {"Spectator_P_vs_Theta", "P_{p_{s}} vs #theta_{p_{s}}"},
 
-    {"Pmiss_vs_Bj", "Pmiss vs x_{B}"},
+    {"miss_mom_eSg_vs_xBj", "|P_{n', miss}| vs x_{B}"},
 
     {"tNuc_vs_xB", "t_{Nuc} vs x_{B}"},
     {"tPh_vs_xB", "t_{Ph} vs x_{B}"},
-    {"Q2_vs_xB", "Q^{2} vs x_{B}"}
-};
+    {"Q2_vs_xB", "Q^{2} vs x_{B}"},
+
+    {"Nucleon_P_vs_Spectator_P", "P_{n'} vs P_{p_{s}}"},
+    {"Nucleon_Theta_vs_Spectator_Theta", "#theta_{n'} vs #theta_{p_{s}}"},
+    {"theta_N_q_vs_Nucleon_Theta", "#theta_{n'q} vs #theta_{n'}"}};
 
 bool should_set_logy(const TString &branch_name)
 {
     std::vector<TString> logy_branches = {
         "t_Nuc",
-        "t_Ph"};
+        "t_Ph",
+        "mm2_eSg"};
 
     return std::find(logy_branches.begin(), logy_branches.end(), branch_name) != logy_branches.end();
+}
+
+TCut kinematic_cut()
+{
+    // Common DVCS phase-space cuts applied to base and final-cut histograms.
+    return TCut("strip_W*strip_W >= 4.0 && strip_Q2 >= 1.0 && strip_Ph_P >= 2.0 && strip_El_P >= 1.0");
+}
+
+TString find_branch_for_selection(TTree *tree,
+                                  const std::vector<TString> &exact_candidates,
+                                  const std::vector<TString> &contains_tokens)
+{
+    if (!tree)
+        return "";
+
+    for (const auto &candidate : exact_candidates)
+    {
+        if (tree->GetBranch(candidate))
+            return candidate;
+    }
+
+    TObjArray *branches = tree->GetListOfBranches();
+    if (!branches)
+        return "";
+
+    for (int i = 0; i < branches->GetEntries(); ++i)
+    {
+        TObject *obj = branches->At(i);
+        if (!obj)
+            continue;
+
+        TString branch_name = obj->GetName();
+        TString lower_name = branch_name;
+        lower_name.ToLower();
+
+        bool matches = true;
+        for (auto token : contains_tokens)
+        {
+            token.ToLower();
+            if (!lower_name.Contains(token))
+            {
+                matches = false;
+                break;
+            }
+        }
+
+        if (matches)
+            return branch_name;
+    }
+
+    return "";
+}
+
+TEntryList *build_highest_energy_entry_list(TTree *tree,
+                                            const char *list_name,
+                                            const char *proton_p_branch = "strip_Spec_P")
+{
+    if (!tree)
+        return nullptr;
+
+    TString run_branch = find_branch_for_selection(
+        tree,
+        {"RunNumber"},
+        {"run"});
+
+    TString event_branch = find_branch_for_selection(
+        tree,
+        {"EventNumber"},
+        {"event"});
+
+    if (event_branch.IsNull())
+    {
+        std::cerr << "WARNING: could not find an event-number branch. "
+                  << "The highest-energy-per-event preselection will not be applied." << std::endl;
+        return nullptr;
+    }
+
+    const std::vector<TString> needed = {"strip_El_P", "strip_Ph_P", proton_p_branch};
+    for (const auto &bname : needed)
+    {
+        if (!tree->GetBranch(bname))
+        {
+            std::cerr << "WARNING: branch needed for highest-energy preselection was not found: "
+                      << bname << std::endl;
+            return nullptr;
+        }
+    }
+
+    // For electrons and photons, E is effectively P. For the spectator proton,
+    // selecting the highest energy is equivalent to selecting the highest momentum.
+    TTreeFormula fRun("fRun_highest_energy", run_branch.IsNull() ? "0" : run_branch.Data(), tree);
+    TTreeFormula fEvent("fEvent_highest_energy", event_branch.Data(), tree);
+    TTreeFormula fElP("fElP_highest_energy", "strip_El_P", tree);
+    TTreeFormula fPhP("fPhP_highest_energy", "strip_Ph_P", tree);
+    TTreeFormula fPrP("fPrP_highest_energy", proton_p_branch, tree);
+
+    auto eval_formula = [](TTreeFormula &f) -> double
+    {
+        f.GetNdata();
+        return f.EvalInstance(0);
+    };
+
+    auto event_key = [&](double run, double event) -> TString
+    {
+        if (run_branch.IsNull())
+            return Form("%.0f", event);
+        return Form("%.0f:%.0f", run, event);
+    };
+
+    struct BestEntryInfo
+    {
+        Long64_t entry = -1;
+        double score = -std::numeric_limits<double>::infinity();
+        double el_e = -std::numeric_limits<double>::infinity();
+        double ph_e = -std::numeric_limits<double>::infinity();
+        double pr_e = -std::numeric_limits<double>::infinity();
+    };
+
+    const double me = 0.000511;  // GeV
+    const double mp = 0.938272;  // GeV
+    const double eps = 1e-12;
+
+    std::map<TString, BestEntryInfo> best_by_event;
+    Long64_t nentries = tree->GetEntries();
+
+    for (Long64_t ientry = 0; ientry < nentries; ++ientry)
+    {
+        tree->GetEntry(ientry);
+
+        const double run = eval_formula(fRun);
+        const double event = eval_formula(fEvent);
+        const double el_p = eval_formula(fElP);
+        const double ph_p = eval_formula(fPhP);
+        const double pr_p = eval_formula(fPrP);
+
+        if (!std::isfinite(el_p) || !std::isfinite(ph_p) || !std::isfinite(pr_p))
+            continue;
+
+        const double el_e = std::sqrt(el_p * el_p + me * me);
+        const double ph_e = ph_p;
+        const double pr_e = std::sqrt(pr_p * pr_p + mp * mp);
+
+        const double score = el_e + ph_e + pr_e;
+        TString key = event_key(run, event);
+
+        auto &best = best_by_event[key];
+
+        bool replace = false;
+        if (best.entry < 0 || score > best.score + eps)
+        {
+            replace = true;
+        }
+        else if (std::fabs(score - best.score) <= eps)
+        {
+            // Deterministic tie-breaker: electron, then photon, then proton.
+            if (el_e > best.el_e + eps ||
+                (std::fabs(el_e - best.el_e) <= eps && ph_e > best.ph_e + eps) ||
+                (std::fabs(el_e - best.el_e) <= eps && std::fabs(ph_e - best.ph_e) <= eps && pr_e > best.pr_e + eps))
+            {
+                replace = true;
+            }
+        }
+
+        if (replace)
+        {
+            best.entry = ientry;
+            best.score = score;
+            best.el_e = el_e;
+            best.ph_e = ph_e;
+            best.pr_e = pr_e;
+        }
+    }
+
+    TEntryList *selected_entries = new TEntryList(list_name, list_name);
+
+    for (const auto &item : best_by_event)
+    {
+        if (item.second.entry >= 0)
+            selected_entries->Enter(item.second.entry);
+    }
+
+    std::cout << "Highest-energy preselection using event branch '" << event_branch << "'";
+    if (!run_branch.IsNull())
+        std::cout << " and run branch '" << run_branch << "'";
+    std::cout << ": kept " << selected_entries->GetN()
+              << " candidate entries out of " << nentries
+              << " entries, grouped into " << best_by_event.size()
+              << " events." << std::endl;
+    
+    if (selected_entries->GetN() == 0)
+    {
+        std::cerr << "WARNING: highest-energy preselection selected zero entries. "
+                  << "The preselection will not be applied." << std::endl;
+        delete selected_entries;
+        return nullptr;
+    }
+
+    return selected_entries;
 }
 
 std::vector<std::pair<TString, TCut>> generate_cuts(const std::map<TString, TH1D *> &hs_base)
 {
 
     std::vector<std::pair<TString, TString>> cuts_definitions = {
-        {"bestCand", "bestCandidateFlag==1"},
-        {"theta_gamma_e", "theta_gamma_e > 6"},
-        // {"chi2pid", "strip_El_chi2pid >= -4.56920 && strip_El_chi2pid <= 3.61976 && strip_Nuc_chi2pid >= -195.04711 && strip_Nuc_chi2pid <= 201.30658"},
-        // {"chi2pid", "strip_El_chi2pid >= -4.37898 && strip_El_chi2pid <= 3.77798 && strip_Nuc_chi2pid >= -5.57697 && strip_Nuc_chi2pid <= 6.33990"},
-        // // {"delta_t", "delta_t >= -0.46292 && delta_t <= 0.47175"},delta_t >= -1.03182 && delta_t <= 1.27318
+        // {"bestCand", "bestCandidateFlag==1"},
+        // {"theta_gamma_e", "theta_gamma_e > 6"}//,
         // {"delta_t", "delta_t >= -1.03182 && delta_t <= 1.27318"},
-        // {"delta_phi", "abs(fmod(delta_Phi, 180)) <= 1.5"},
-        // // {"mm2_eNg_neutron_expected", "mm2_eNg >= -0.37894 && mm2_eNg <= 2.42267"},
-        // {"mm2_eNg_neutron_expected", "mm2_eNg >= -1.22968 && mm2_eNg <= 3.67237"},
-        // // {"mm2_eNg_N_nothing_expected", "mm2_eNg_N >= -0.19478 && mm2_eNg_N <= 0.15635"},
-        // {"mm2_eNg_N_nothing_expected", "mm2_eNg_N >= -0.55184 && mm2_eNg_N <= 0.47227"},
-        // // {"mm2_eNX_N_photon_expected", "mm2_eNX_N >= -3.95236 && mm2_eNX_N <= 3.74568"},
-        // {"mm2_eNX_N_photon_expected", "mm2_eNX_N >= -4.09789 && mm2_eNX_N <= 4.17903"},
-        // // {"mm2_eg_proton_expected", "mm2_eg >= -0.12854 && mm2_eg <= 2.21362"}};
-        // {"mm2_eg_proton_expected", "mm2_eg >= -1.35581 && mm2_eg <= 3.93882"}
+        {"W2", "strip_W*strip_W >= 4.0"},
+        {"Q2", "strip_Q2 >= 1.0"},
+        {"gammaP", "strip_Ph_P >= 2.0"},
+        {"electronP", "strip_El_P >= 1.0"},
+        {"strip_Ph_P", "strip_Ph_P >= 2.0"},
+        {"best4DChi2Flag", "best4DChi2Flag == 1"},
+        {"Exclusive_4DChi2", "Exclusive_4DChi2 <= 3.0"},
+        {"theta_gamma_X", "theta_gamma_X <= 10"},
+        {"mm2_eSg_neutron_expected", "mm2_eSg >= -5.02876722725 && mm2_eSg <= 4.84389202852"},
+        // {"mm2_eNg_S_nothing_expected", "mm2_eNg_S >= 0 && mm2_eNg_S <= 75"},
+        // {"mm2_eg_N_spectator_expected", "mm2_eg_N >= -1 && mm2_eg_N <= 2"},
+        // {"mm2_eS_N_photon_expected", "mm2_eS_N >= -1 && mm2_eS_N <= 1"}
+        {"delta_phi", "abs(fmod(delta_Phi, 180)) <= 1.5"}
     };
 
     std::vector<std::pair<TString, TCut>> cuts;
@@ -147,7 +362,7 @@ void AdjustHistogramRange(TH1D *hist)
     {
         double xMin = hist->GetXaxis()->GetBinLowEdge(firstBin);
         double xMax = hist->GetXaxis()->GetBinUpEdge(lastBin);
-        hist->GetXaxis()->SetRangeUser(xMin, xMax);
+        hist->GetXaxis()->SetRangeUser(xMin - 0.1 * (xMax - xMin), xMax + 0.1 * (xMax - xMin));
     }
 }
 
@@ -162,7 +377,21 @@ void stats_legend(TH1D *htemp, TH1D *htemp_cut, const TString &branch_name, cons
 
     htemp->SetFillStyle(0);
 
-    htemp->GetXaxis()->SetTitle(Form("DVCS %s", latex_labels.at(branch_name).Data()));
+    TString x_label = branch_name;
+
+    auto label_it = latex_labels.find(branch_name);
+    if (label_it != latex_labels.end())
+    {
+        x_label = label_it->second;
+    }
+    else
+    {
+        std::cerr << "WARNING: no latex label found for "
+                  << branch_name
+                  << ". Using branch name as axis label." << std::endl;
+    }
+
+    htemp->GetXaxis()->SetTitle(Form("DVCS %s", x_label.Data()));
     htemp->GetYaxis()->SetTitle("Events");
     // htemp->SetMinimum(10.0);
 
@@ -215,11 +444,23 @@ void stats_legend(TH1D *htemp, TH1D *htemp_cut, const TString &branch_name, cons
 void analysis_data()
 {
 
-    // TFile *file = TFile::Open("/w/hallb-scshelf2102/clas12/nlbucuru/PhD_DVCS/stripped_data_spring2019_pDVCS_1.root");
-    // TFile *file = TFile::Open("/work/clas12/nlbucuru/PhD_DVCS/outputs/stripped_data_spring2019_pDVCS_merged.root");
-    TFile *file = TFile::Open("/work/clas12/nlbucuru/PhD_DVCS/outputs_from_hipo/merged_fall2019_nDVCS.root");
+    TFile *file = TFile::Open("/work/clas12/nlbucuru/PhD_DVCS/outputs_from_hipo/merged_spring2019_nDVCS.root");
+    // TFile *file = TFile::Open("/work/clas12/nlbucuru/PhD_DVCS/outputs_from_hipo/merged_fall2019_nDVCS.root");
 
-    TString plotDir = "./cuts_data";
+    if (!file || file->IsZombie())
+    {
+        std::cerr << "Error: could not open input file" << std::endl;
+        return;
+    }
+
+    /****************************************************** */
+    /* To modify to change the name of the output directory */
+    /****************************************************** */
+    TString plotDir = "./cuts_data_spring2019_nDVCS";
+    // TString plotDir = "./cuts_data_fall2019_10_4_nDVCS";
+    /****************************************************** */
+    /* To modify to change the name of the output directory */
+    /****************************************************** */
 
     if (gSystem->AccessPathName(plotDir))
     {
@@ -230,14 +471,28 @@ void analysis_data()
         }
     }
 
-    TString outputDir = "/w/hallb-scshelf2102/clas12/nlbucuru/JLAB_EIC/DVCS/output_root_hists";
+    /****************************************************** */
+    /* To modify to change the name of the output directory */
+    /****************************************************** */
+    // TString outputDir = "/w/hallb-scshelf2102/clas12/nlbucuru/JLAB_EIC/DVCS/output_root_hists";
+    TString outputDir = "/w/hallb-scshelf2102/clas12/nlbucuru/JLAB_EIC/DVCS/output_root_hists_spring2019_nDVCS";
+    /****************************************************** */
+    /* To modify to change the name of the output directory */
+    /****************************************************** */
 
     if (gSystem->AccessPathName(outputDir))
     {
         gSystem->mkdir(outputDir, true);
     }
 
-    TString outputName = outputDir + "/analysis_data_hipo.root";
+    /****************************************************** */
+    /* To modify to change the name of the output directory */
+    /****************************************************** */
+    TString outputName = outputDir + "/analysis_data_spring2019_nDVCS.root";
+    // TString outputName = outputDir + "/analysis_data_fall2019_nDVCS.root";
+    /****************************************************** */
+    /* To modify to change the name of the output directory */
+    /****************************************************** */
 
     TFile *output_file = new TFile(outputName, "RECREATE");
 
@@ -249,134 +504,77 @@ void analysis_data()
 
     TTree *tree = (TTree *)file->Get("nDVCS");
 
-    //   tree->Print();
-
-    double Pmass = 0.938272;
-    double Nmass = 0.9395654;
-    double Dmass = 1.8756;
-    int RunNumber = 0;
-    tree->SetBranchAddress("RunNumber", &RunNumber);
-
-    tree->GetEntry(0);
-    double Ebeam = (RunNumber > 10000) ? 10.4 : 10.2;
-
-    // if (RunNumber >= 6420)
-    //   Ebeam = 10.2;
-
-    // if (RunNumber > 10000)
-    //   Ebeam = 10.4;
-
-    TLorentzVector ElectronBeam;
-    TLorentzVector NucTarget_Vec;
-    TLorentzVector Target_Vec;
-    TLorentzVector Ph_Vec;
-    TLorentzVector Nuc_Vec;
-    TLorentzVector El_Vec;
-
-    ElectronBeam.SetXYZT(0, 0, Ebeam, Ebeam);
-    Target_Vec.SetXYZT(0, 0, 0, Dmass);
-    NucTarget_Vec.SetXYZT(0, 0, 0, Nmass);
-
-    std::vector<double> *strip_El_px = nullptr;
-    std::vector<double> *strip_El_py = nullptr;
-    std::vector<double> *strip_El_pz = nullptr;
-    std::vector<double> *strip_El_E = nullptr;
-
-    std::vector<double> *strip_Nuc_px = nullptr;
-    std::vector<double> *strip_Nuc_py = nullptr;
-    std::vector<double> *strip_Nuc_pz = nullptr;
-    std::vector<double> *strip_Nuc_E = nullptr;
-
-    std::vector<double> *strip_Ph_px = nullptr;
-    std::vector<double> *strip_Ph_py = nullptr;
-    std::vector<double> *strip_Ph_pz = nullptr;
-    std::vector<double> *strip_Ph_E = nullptr;
-
-    tree->SetBranchAddress("strip_El_px", &strip_El_px);
-    tree->SetBranchAddress("strip_El_py", &strip_El_py);
-    tree->SetBranchAddress("strip_El_pz", &strip_El_pz);
-    tree->SetBranchAddress("strip_El_E", &strip_El_E);
-
-    tree->SetBranchAddress("strip_Nuc_px", &strip_Nuc_px);
-    tree->SetBranchAddress("strip_Nuc_py", &strip_Nuc_py);
-    tree->SetBranchAddress("strip_Nuc_pz", &strip_Nuc_pz);
-    tree->SetBranchAddress("strip_Nuc_E", &strip_Nuc_E);
-
-    tree->SetBranchAddress("strip_Ph_px", &strip_Ph_px);
-    tree->SetBranchAddress("strip_Ph_py", &strip_Ph_py);
-    tree->SetBranchAddress("strip_Ph_pz", &strip_Ph_pz);
-    tree->SetBranchAddress("strip_Ph_E", &strip_Ph_E);
-
-    // std::map<TString, TH1D *> hs_base_MCsignal;
-
-    TLorentzVector Pmiss;
-    TLorentzVector Pmiss_Nuc;
-
-    std::vector<double> Pmiss_mag_v, Pmiss_perp_v, Pmiss_Nuc_mag_v, Pmiss_Nuc_perp_v;
-
-    TTree *newtree = tree->CloneTree(0);
-    newtree->Branch("Pmiss_mag", &Pmiss_mag_v);
-    newtree->Branch("Pmiss_perp", &Pmiss_perp_v);
-    newtree->Branch("Pmiss_Nuc_mag", &Pmiss_Nuc_mag_v);
-    newtree->Branch("Pmiss_Nuc_perp", &Pmiss_Nuc_perp_v);
-
-    for (Long64_t i = 0; i < tree->GetEntries(); i++)
+    if (!tree)
     {
-        tree->GetEntry(i);
-
-        Pmiss_mag_v.clear();
-        Pmiss_perp_v.clear();
-        Pmiss_Nuc_mag_v.clear();
-        Pmiss_Nuc_perp_v.clear();
-
-        size_t n = std::min({strip_El_px->size(), strip_El_py->size(), strip_El_pz->size(), strip_El_E->size(),
-                             strip_Ph_px->size(), strip_Ph_py->size(), strip_Ph_pz->size(), strip_Ph_E->size(),
-                             strip_Nuc_px->size(), strip_Nuc_py->size(), strip_Nuc_pz->size(), strip_Nuc_E->size()});
-        for (size_t j = 0; j < n; j++)
-        {
-            Ph_Vec.SetPxPyPzE(strip_Ph_px->at(j), strip_Ph_py->at(j), strip_Ph_pz->at(j), strip_Ph_E->at(j));
-            Nuc_Vec.SetPxPyPzE(strip_Nuc_px->at(j), strip_Nuc_py->at(j), strip_Nuc_pz->at(j), strip_Nuc_E->at(j));
-            El_Vec.SetPxPyPzE(strip_El_px->at(j), strip_El_py->at(j), strip_El_pz->at(j), strip_El_E->at(j));
-
-            Pmiss = ElectronBeam + Target_Vec - El_Vec - Ph_Vec - Nuc_Vec;
-            Pmiss_Nuc = ElectronBeam + NucTarget_Vec - El_Vec - Ph_Vec - Nuc_Vec;
-
-            Pmiss_mag_v.push_back(Pmiss.P());
-            Pmiss_Nuc_mag_v.push_back(Pmiss_Nuc.P());
-
-            Pmiss_perp_v.push_back(Pmiss.Perp());
-            Pmiss_Nuc_perp_v.push_back(Pmiss_Nuc.Perp());
-        }
-        newtree->Fill();
+        std::cerr << "Error: tree nDVCS was not found in the input file" << std::endl;
+        file->ls();
+        return;
     }
 
+    auto require_branch = [&](const char *bname) -> bool
+    {
+        if (!tree->GetBranch(bname))
+        {
+            std::cerr << "Error: required branch not found in nDVCS tree: " << bname << std::endl;
+            return false;
+        }
+        return true;
+    };
+
+    if (!require_branch("mm2_eSg") ||
+        !require_branch("mm2_eNg_S") ||
+        !require_branch("mm2_eg_N") ||
+        !require_branch("mm2_eS_N") ||
+        !require_branch("mm2_eS_N") ||
+        !require_branch("strip_W") ||
+        !require_branch("strip_Q2") ||
+        !require_branch("strip_Ph_P") ||
+        !require_branch("strip_El_P"))
+    {
+        tree->GetListOfBranches()->Print();
+        return;
+    }
+
+    //   tree->Print();
+
+    gROOT->cd();
+    TEntryList *highest_energy_entries = build_highest_energy_entry_list(tree,
+                                                                      Form("highest_energy_entries_%s", tree->GetName()),
+                                                                      "strip_Spec_P");
+    if (highest_energy_entries)
+        tree->SetEntryList(highest_energy_entries);
+
     std::vector<std::pair<TString, std::pair<double, double>>> branch_names = {
-        {"Pmiss_mag", {-0.1, 30}},
-        {"Pmiss_perp", {-0.1, 10}},
-        {"Pmiss_Nuc_mag", {-0.1, 30}},
-        // {"_miss_mom_eNg", {0, 1.0}},
-        {"Pmiss_Nuc_perp", {-0.1, 30}},
-        {"mm2_eg", {-15, 15}},
-        {"mm2_eNg", {-100, 75}},
-        {"mm2_eNg_N", {-60, 20}},
-        {"mm2_eNX_N", {-70, 20}},
-        {"strip_Q2", {1, 8}},
-        {"strip_Xbj", {0, 2.0}},
-        {"strip_Xbjd", {0, 2.0}},
+        {"miss_mom_eSg", {-0.1, 10}}, // |P_{n', miss}| (GeV)
+        {"strip_Spec_P", {0, 6}},     // |P_{p_{s}}| (GeV)
+        // {"strip_Nuc_P", {0, 10}},     // |P_{n'}| (GeV)
+        {"strip_El_P", {0, 10}}, // |P_{e'}| (GeV)
+        {"strip_Ph_P", {0, 10}}, // |P_{#gamma}| (GeV)
+        // {"p_perp", {-0.1, 3}},
 
-        {"strip_Spec_P", {0, 6}},
+        {"mm2_eSg", {-26, 20}},          // (ElectronBeam + Target_Vec - Spec_Vec - El_Vec - Ph_Vec).M2() Expected mass squared of the missing neutron (should peak at neutron mass squared)
+        // {"mm2_eg_N", {0.88, 0.89}},      // (ElectronBeam + Target_Vec - Nuc_Vec - El_Vec - Ph_Vec).M2() Expected mass squared of the missing spectator nucleon (should peak at proton mass squared)
+        // {"mm2_eNg_S", {-0, 15e-30}},     // (ElectronBeam + Target_Vec - Nuc_Vec - Spec_Vec - El_Vec - Ph_Vec).M2() Expected zero
+        {"mm2_eS_N", {-60e-15, 60e-15}}, // (ElectronBeam + Target_Vec - Spec_Vec - El_Vec - Nuc_Vec).M2() Expected mass squared of the missing photon (should peak at zero)
+        {"strip_Nuc_Theta", {0, 180}},
         {"strip_Spec_Theta", {0, 180}},
-        {"strip_Spec_Phi", {-180, 180}},
 
-        {"t_Nuc", {-50, 1}},
-        {"t_Ph", {-12, 2}},
-        {"delta_t", {-50, 50}},
-        {"Phi_Nuc", {0, 360}},
-        {"Phi_Ph", {0, 360}},
+        {"strip_Xbjd", {0, 2.0}},
+        {"strip_Xbj", {0, 2.0}},
+        {"strip_Q2", {1, 10}},
+        {"strip_W", {0, 5.5}},
+
+        {"delta_t", {-1, 1}},
         {"delta_Phi", {-400, 400}},
-        {"strip_El_chi2pid", {-5.5, 5.5}},
-        {"strip_Ph_chi2pid", {-0.2, 10100}},
-        {"strip_Nuc_chi2pid", {-6, 6}}};
+        {"t_Nuc", {-10, 2}},
+        {"t_Ph", {-10, 2}},
+
+        {"Phi_Nuc", {0, 360}},
+        {"Phi_Ph", {0, 360}}
+        // {"strip_El_chi2pid", {-5.5, 5.5}},
+        // {"strip_Ph_chi2pid", {-0.2, 10100}},
+        // {"strip_Spec_chi2pid", {-100, 100}}
+    };
 
     // printf("Number of branches: %lu\n", branch_names.size());
     // for (const auto& branch_name : branch_names) {
@@ -384,32 +582,33 @@ void analysis_data()
     // }
 
     std::map<TString, TString> latex_labels = {
-        {"Pmiss_mag", "|P_{miss}| (GeV)"},
-        {"Pmiss_perp", "|P_{miss}^{Perp}| (GeV)"},
-        {"Pmiss_Nuc_mag", "|P_{miss} (Nuc)| (GeV)"},
-        // {"_miss_mom_eNg", "|P_{miss} (Nuc Mostafa)| (GeV)"},
-        {"Pmiss_Nuc_perp", "|P_{miss}^{Perp} (Nuc)| (GeV)"},
-        {"mm2_eg", "MM^{2}_{P} e n#rightarrow e'#gamma(n_{miss}) (GeV^{2})"},
-        {"mm2_eNg", "MM^{2}_{P} e D#rightarrow e'n'#gamma(p_{miss}) (GeV^{2})"},
-        {"mm2_eNg_N", "MM^{2}_{X} e n#rightarrow e'n'#gamma (GeV^{2})"},
-        {"mm2_eNX_N", "MM^{2}_{#gamma} e n#rightarrow e'n'(#gamma_{miss}) (GeV^{2})"},
-        {"strip_Q2", "Q^{2}"},
-        {"strip_Xbj", "x_{B}"},
-        {"strip_Xbjd", "x'_{B,d}"},
-
+        {"miss_mom_eSg", "|P_{n', miss}| (GeV)"},
         {"strip_Spec_P", "P_{p_{s}} (GeV)"},
-        {"strip_Spec_Theta", "#theta_{p_{s}}"},
-        {"strip_Spec_Phi", "#phi_{p_{s}}"},
+        // {"p_perp", "|P_{n', miss}^{Perp}| (GeV)"},
+        // {"strip_Nuc_P", "P_{n'} (GeV)"},
+        {"strip_El_P", "P_{e'} (GeV)"},
+        {"strip_Ph_P", "P_{#gamma} (GeV)"},
 
-        {"t_Nuc", "t_{Nuc}"},
-        {"t_Ph", "t_{Ph}"},
-        {"delta_t", "#Delta t"},
-        {"Phi_Nuc", "#Phi_{Nuc}"},
-        {"Phi_Ph", "#Phi_{Ph}"},
-        {"delta_Phi", "#Delta#Phi"},
-        {"strip_El_chi2pid", "#chi^{2}_{pid}^{e}"},
-        {"strip_Ph_chi2pid", "#chi^{2}_{pid}^{#gamma}"},
-        {"strip_Nuc_chi2pid", "#chi^{2}_{pid}^{n}"}};
+        {"mm2_eSg", "MM^{2}_{n} eD#rightarrow e'#gamma p_{s}(n^{'}_{miss}) (GeV^{2})"},      // (ElectronBeam + Target_Vec - Spec_Vec - El_Vec - Ph_Vec).M2() Expected mass squared of the missing neutron (should peak at neutron mass squared)
+        // {"mm2_eg_N", "MM^{2}_{p} eD#rightarrow e'#gamma n' (p_{s,miss}) (GeV^{2})"},         // (ElectronBeam + Target_Vec - Nuc_Vec - El_Vec - Ph_Vec).M2() Expected mass squared of the missing spectator nucleon (should peak at proton mass squared)
+        // {"mm2_eNg_S", "MM^{2}_{X} eD#rightarrow e'#gamma p_{s} n' (X_{miss}) (GeV^{2})"},    // (ElectronBeam + Target_Vec - Nuc_Vec - Spec_Vec - El_Vec - Ph_Vec).M2() Expected zero
+        {"mm2_eS_N", "MM^{2}_{#gamma} eD#rightarrow e' n' p_{s} (#gamma_{miss}) (GeV^{2})"}, // (ElectronBeam + Target_Vec - Spec_Vec - El_Vec - Nuc_Vec).M2() Expected mass squared of the missing photon (should peak at zero)
+        {"strip_Nuc_Theta", "#theta_{n'} (degrees)"},
+        {"strip_Spec_Theta", "#theta_{p_{s}} (degrees)"},
+
+        {"strip_Xbjd", "x'_{B,d}"},
+        {"strip_Xbj", "x_{B}"},
+        {"strip_Q2", "Q^{2}"},
+        {"strip_W", "W (GeV)"},
+
+        {"delta_t", "#Delta t (GeV^{2})"},
+        {"delta_Phi", "#Delta #Phi (degrees)"},
+        {"t_Nuc", "t_{Nuc} (GeV^{2})"},
+        {"t_Ph", "t_{Ph} (GeV^{2})"},
+
+        {"Phi_Nuc", "#Phi_{Nuc} (degrees)"},
+        {"Phi_Ph", "#Phi_{#gamma} (degrees)"}
+    };
 
     std::map<TString, TH1D *> hs_base_data;
 
@@ -420,23 +619,18 @@ void analysis_data()
         TString base_hist_name_data = Form("h%s_base_data", var.Data());
         TH1D *h_base_data = nullptr;
 
-        if (var == "t_Nuc" || var == "t_Ph")
+        if (var == "t_Nuc" || var == "t_Ph" || var == "mm2_eg_N" || var == "mm2_eNg_S" || var == "delta_t")
         {
-            h_base_data = new TH1D(base_hist_name_data, Form("DVCS%s_data", var.Data()), 200, min, max);
+            h_base_data = new TH1D(base_hist_name_data, Form("DVCS%s_data", var.Data()), 1000, min, max);
         }
         else
         {
             h_base_data = new TH1D(base_hist_name_data, Form("DVCS%s_data", var.Data()), 200, min, max);
         }
 
-        if (var == "Pmiss_mag" || var == "Pmiss_Nuc_mag" || var == "Pmiss_perp" || var == "Pmiss_Nuc_perp")
-        {
-            newtree->Project(base_hist_name_data, var, "");
-        }
-        else
-        {
-            tree->Project(base_hist_name_data, var, "");
-        }
+        // tree->Project(base_hist_name_data, var, "best4DChi2Flag == 1"); //  && Exclusive_4DChi2 <= 3.0
+        TCut base_cut_data = kinematic_cut() && TCut("best4DChi2Flag == 1");
+        tree->Project(base_hist_name_data, var, base_cut_data); // base = kinematic cuts + best candidate
 
         h_base_data->SetMaximum(1.5 * h_base_data->GetMaximum());
         h_base_data->SetMinimum(10.0);
@@ -481,20 +675,19 @@ void analysis_data()
             const auto &[var, range] = branch_names[i];
             const auto &[min, max] = range;
 
-            bool is_missing_momentum_var = var.Contains("Pmiss");
+            bool is_last_cut = (label_cut.Contains("mm2_eg_N_spectator_expected") ||
+                                label_cut.Contains("mm2_eS_N_photon_expected") ||
+                                label_cut.Contains("delta_phi"));
 
-            bool is_last_cut = (label_cut.Contains("mm2_eNX_N_photon_expected") ||
-                                label_cut.Contains("mm2_eg_proton_expected"));
-
-            if ((is_missing_momentum_var && !is_last_cut) || var.Contains("chi2pid"))
+            if ((!is_last_cut) || var.Contains("chi2pid"))
                 continue;
 
             if (plot_index % plots_per_canvas == 0)
             {
                 if (canvas_has_been_created)
                 {
-                    canvas->SaveAs(Form("./cuts_data/optimization_%s_data_%d.png", label_cut.Data(), canvas_index));
-                    canvas->SaveAs(Form("./cuts_data/optimization_%s_data_%d.pdf", label_cut.Data(), canvas_index));
+                    canvas->SaveAs(Form("%s/optimization_%s_data_%d.png", plotDir.Data(), label_cut.Data(), canvas_index));
+                    canvas->SaveAs(Form("%s/optimization_%s_data_%d.pdf", plotDir.Data(), label_cut.Data(), canvas_index));
                     delete canvas;
                 }
 
@@ -515,23 +708,16 @@ void analysis_data()
 
             TH1D *h_cut_data = nullptr;
 
-            if (var == "t_Nuc" || var == "t_Ph" || var == "mp_eg" || var == "mp_eNg" || var == "mp_eNg_N" || var == "mp_eNX_N")
+            if (var == "t_Nuc" || var == "t_Ph" || var == "mp_eg" || var == "mp_eNg" || var == "mp_eNg_N" || var == "mp_eNX_N" || var == "delta_t")
             {
-                h_cut_data = new TH1D(cut_hist_name_data, Form("DVCS%s", var.Data()), 200, min, max);
+                h_cut_data = new TH1D(cut_hist_name_data, Form("DVCS%s", var.Data()), 1000, min, max);
             }
             else
             {
                 h_cut_data = new TH1D(cut_hist_name_data, Form("DVCS%s", var.Data()), 200, min, max);
             }
 
-            if (is_missing_momentum_var)
-            {
-                newtree->Project(cut_hist_name_data, var, cut);
-            }
-            else
-            {
-                tree->Project(cut_hist_name_data, var, cut);
-            }
+            tree->Project(cut_hist_name_data, var, kinematic_cut() && cut);
 
             h_cut_data->SetMinimum(10.0);
             h_cut_data->SetLineColor(kRed);
@@ -566,8 +752,8 @@ void analysis_data()
 
         if (canvas)
         {
-            canvas->SaveAs(Form("./cuts_data/optimization_%s_data_%d.png", label_cut.Data(), canvas_index));
-            canvas->SaveAs(Form("./cuts_data/optimization_%s_data_%d.pdf", label_cut.Data(), canvas_index));
+            canvas->SaveAs(Form("%s/optimization_%s_data_%d.png", plotDir.Data(), label_cut.Data(), canvas_index));
+            canvas->SaveAs(Form("%s/optimization_%s_data_%d.pdf", plotDir.Data(), label_cut.Data(), canvas_index));
             delete canvas;
         }
     }
@@ -577,6 +763,7 @@ void analysis_data()
     // ******** //
 
     std::vector<branch_cut_2D> branch_names_2D = {
+        // {name, x_branch, y_branch, x_min, x_max, y_min, y_max, use_newtree}
         {"Electron_P_vs_Phi", "strip_El_Phi", "strip_El_P", -180, 180, 0, 9, false},
         {"Electron_Theta_vs_Phi", "strip_El_Phi", "strip_El_Theta", -180, 180, 0, 50, false},
 
@@ -584,15 +771,19 @@ void analysis_data()
         {"Photon_Theta_vs_Phi", "strip_Ph_Phi", "strip_Ph_Theta", -180, 180, 0, 40, false},
 
         {"Nucleon_P_vs_Phi", "strip_Nuc_Phi", "strip_Nuc_P", -180, 180, 0, 30, false},
-        {"Nucleon_Theta_vs_Phi", "strip_Nuc_Phi", "strip_Nuc_Theta", -180, 180, 0, 100, false},
+        {"Nucleon_Theta_vs_Phi", "strip_Nuc_Phi", "strip_Nuc_Theta", -180, 180, 0, 180, false},
         {"Nucleon_P_vs_Theta", "strip_Nuc_Theta", "strip_Nuc_P", 0, 180, 0, 30, false},
+
+        {"Nucleon_P_vs_Spectator_P", "strip_Spec_P", "strip_Nuc_P", 0, 6.0, 0, 10, false},
+        {"Nucleon_Theta_vs_Spectator_Theta", "strip_Spec_Theta", "strip_Nuc_Theta", 0, 180, 0, 180, false},
+        {"theta_N_q_vs_Nucleon_Theta", "strip_Nuc_Theta", "theta_N_q", 0, 180, 0, 180, false},
 
         {"Spectator_P_vs_Phi", "strip_Spec_Phi", "strip_Spec_P", -180, 180, 0, 6.0, false},
         {"Spectator_Theta_vs_Phi", "strip_Spec_Phi", "strip_Spec_Theta", -180, 180, 0, 180, false},
         {"Spectator_P_vs_Theta", "strip_Spec_Theta", "strip_Spec_P", 0, 180, 0, 6.0, false},
 
         // Example if later you want a Pmiss one from newtree:
-        {"Pmiss_vs_Bj", "strip_Xbjd", "Pmiss_mag", 0, 1.5, 0, 30, true},
+        {"miss_mom_eSg_vs_xBj", "strip_Xbjd", "miss_mom_eSg", 0, 1.5, 0, 10, false},
 
         {"tNuc_vs_xB", "strip_Xbjd", "t_Nuc", 0, 1.5, -8, 1, false},
         {"tPh_vs_xB", "strip_Xbjd", "t_Ph", 0, 1.5, -8, 1, false},
@@ -602,7 +793,16 @@ void analysis_data()
 
     for (const auto &h2def : branch_names_2D)
     {
-        TTree *srcTree = h2def.use_newtree ? newtree : tree;
+        // TTree *srcTree = h2def.use_newtree ? newtree : tree;
+        TTree *srcTree = tree;
+
+        if (!srcTree->GetBranch(h2def.x_branch) || !srcTree->GetBranch(h2def.y_branch))
+        {
+            std::cerr << "WARNING: skipping 2D plot " << h2def.name
+                      << " because branch " << h2def.x_branch
+                      << " or " << h2def.y_branch << " is missing." << std::endl;
+            continue;
+        }
 
         TString hist_name = Form("h2_%s_data", h2def.name.Data());
 
@@ -625,8 +825,15 @@ void analysis_data()
         // srcTree->Draw(draw_expr, cut_expr, "goff");
         // h2->Draw("COLZ");
 
-        TCut final_cut = cuts.back().second;
-        srcTree->Draw(draw_expr, final_cut && TCut(cut_expr), "goff");
+        // TCut final_cut = cuts.back().second;
+        // srcTree->Draw(draw_expr, final_cut && TCut(cut_expr), "goff");
+
+        // Full 2D selection = phase-space cuts + the last cumulative cut from generate_cuts().
+        TCut final_2D_cut = kinematic_cut();
+        if (!cuts.empty())
+            final_2D_cut = final_2D_cut && cuts.back().second;
+
+        srcTree->Draw(draw_expr, final_2D_cut && TCut(cut_expr), "goff");
 
         TH2D *h2 = (TH2D *)gDirectory->Get(hist_name);
         if (!h2)
@@ -652,12 +859,15 @@ void analysis_data()
         TCanvas *c2 = new TCanvas(Form("c2_%s", h2def.name.Data()),
                                   h2def.name, 1300, 600);
         h2->Draw("COLZ");
-        c2->SaveAs(Form("./cuts_data/%s_data.pdf", h2def.name.Data()));
-        c2->SaveAs(Form("./cuts_data/%s_data.png", h2def.name.Data()));
+        c2->SaveAs(Form("%s/%s_data.pdf", plotDir.Data(), h2def.name.Data()));
+        c2->SaveAs(Form("%s/%s_data.png", plotDir.Data(), h2def.name.Data()));
 
         delete c2;
         delete h2;
     }
+
+    tree->SetEntryList(nullptr);
+    delete highest_energy_entries;
 
     file->Close();
     output_file->Close();
